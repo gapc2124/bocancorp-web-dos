@@ -53,7 +53,7 @@ const Planet = ({ position, rotation, color, isActive, onClick }: any) => {
   const materialRef = useRef<any>(null);
   const [hovered, setHover] = useState(false);
 
-  useFrame((state, delta) => {
+  useFrame((_state, delta) => {
     if (!meshRef.current || !materialRef.current) return;
 
     // Rotación sobre su eje

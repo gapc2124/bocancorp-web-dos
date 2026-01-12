@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Environment, Stars, ContactShadows } from '@react-three/drei';
+import { Stars, ContactShadows } from '@react-three/drei';
 import { SolarSystemCarousel } from './components/SolarSystemCarousel';
 
 const DATA = [
