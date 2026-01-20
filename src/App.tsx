@@ -1,38 +1,30 @@
 import { useState, useEffect, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Stars, ContactShadows } from '@react-three/drei';
-import { SolarSystemCarousel } from './components/SolarSystemCarousel';
-import { Footer } from './components/Footer';
-
-const resolvePath = (path: string) => {
-  const base = import.meta.env.BASE_URL;
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-  return `${base}${cleanPath}`;
-};
+import { Environment } from '@react-three/drei';
+import { Nav } from './components/Nav';
+import { Auroras } from './components/Auroras'; 
+import { Carousel3D } from './components/Carousel3D';
+import { ServicesSection } from './components/ServicesSection'; 
+import { motion, AnimatePresence } from 'framer-motion';
+import type { Variants } from 'framer-motion';
+import { Footer } from './components/Footer'; // Importar el nuevo Footer
 
 const DATA = [
-  { title: "Desarrollo Web y Movil", desc: "Creación de experiencias digitales de alto impacto, optimizadas para cualquier dispositivo.", tags: ["React", "Native"], color: "#FAA918", img: resolvePath("assets/web-texture.jpg") },
-  { title: "Desarrollo de Software", desc: "Arquitecturas escalables y resilientes construidas nativamente para el entorno cloud.", tags: ["AWS", "Google Cloud"], color: "#00BFFF", img: resolvePath("assets/cloud-soft.jpg") },
-  { title: "Automatizacion con IA", desc: "Transformamos procesos manuales en flujos inteligentes mediante algoritmos avanzados.", tags: ["AI", "Automation"], color: "#FF4500", img: resolvePath("assets/ai-texture.jpg") },
-  { title: "Soluciones en la Nube", desc: "Migración a la nube, soporte continuo y protocolos de seguridad robustos.", tags: ["Migration", "Security"], color: "#44C591", img: resolvePath("assets/security.jpg") },
-  { title: "Machine Learning", desc: "Modelos predictivos y análisis de datos en la nube para potenciar la toma de decisiones.", tags: ["ML", "Big Data"], color: "#9932CC", img: resolvePath("assets/ml-texture.jpg") }
+  { id: 1, subtitle: "SOMOS INNOVACIÓN", title: "BOCANCORP", desc: "Compañía líder en desarrollo de software. Transformamos visiones complejas en ecosistemas digitales robustos y escalables.", color: "#FAA918" },
+  { id: 2, subtitle: "EFICIENCIA INTELIGENTE", title: "Automatización con IA", desc: "Optimizamos operaciones y reducimos costos integrando inteligencia artificial en tus flujos de trabajo críticos.", color: "#FF4500" },
+  { id: 3, subtitle: "EXPERIENCIAS MULTIPLATAFORMA", title: "Desarrollo Web y Móvil", desc: "Creamos aplicaciones nativas y web progresivas (PWA) que conectan con tus usuarios en cualquier dispositivo.", color: "#00BFFF" },
+  { id: 4, subtitle: "INFRAESTRUCTURA ÉLITE", title: "Cloud Solutions", desc: "Arquitectura, migración y gestión de entornos en la nube (AWS, Azure, GCP) para máxima disponibilidad.", color: "#44C591" },
+  { id: 5, subtitle: "EL VALOR DE TU INFORMACIÓN", title: "Gobernanza de Datos e IA", desc: "Estrategias integrales para asegurar la calidad, cumplimiento y uso ético de tus datos y modelos de IA.", color: "#9932CC" },
+  { id: 6, subtitle: "PROTECCIÓN BLINDADA", title: "Seguridad en la Nube", desc: "Protocolos avanzados de ciberseguridad para proteger tus activos digitales contra las amenazas más modernas.", color: "#F43F5E" }
 ];
-
-const NAV_ITEMS = ["Servicios", "Sobre Nosotros", "Proyectos", "Contáctanos"];
 
 function App() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [screenType, setScreenType] = useState<'mobile' | 'tablet' | 'laptop' | 'desktop'>('desktop');
+  const [isMobile, setIsMobile] = useState(false);
+  const bgColor = '#000c2d';
 
   useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      if (width < 480) setScreenType('mobile');
-      else if (width < 1024) setScreenType('tablet');
-      else if (width < 1440) setScreenType('laptop');
-      else setScreenType('desktop');
-    };
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -40,156 +32,158 @@ function App() {
 
   const handleNext = () => setActiveIndex((prev) => (prev + 1) % DATA.length);
   const handlePrev = () => setActiveIndex((prev) => (prev - 1 + DATA.length) % DATA.length);
-  
-  const isSmallScreen = screenType === 'mobile' || screenType === 'tablet';
 
-  const getCameraPosition = () => {
-    switch (screenType) {
-      case 'mobile': return [0, 0, 18];
-      case 'tablet': return [0, 0, 16];
-      case 'laptop': return [0, 0, 18];
-      case 'desktop': return [0, 0, 18];
-      default: return [0, 0, 18];
-    }
-  };
+  const activeSlide = DATA[activeIndex];
 
-  const getGroupPosition = () => {
-    switch (screenType) {
-      case 'mobile': return [0, 1.2, 0];
-      // CAMBIO: Subimos los planetas (de -2.0 a -1.3) para que no se salgan abajo
-      case 'tablet': return [0, -1.0, 0];
-      case 'laptop': return [0, -1.3, 0]; 
-      case 'desktop': return [0, -1.3, 0];
-      default: return [0, -1.3, 0];
-    }
+  const textVariants: Variants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: "easeOut" } },
+    exit: { opacity: 0, x: 20, transition: { duration: 0.3, ease: "easeIn" } }
   };
 
   return (
-    <div style={{ width: '100%', minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#02040a', overflowX: 'hidden' }}>
+    <div style={{ position: 'relative', width: '100%', background: bgColor, overflowX: 'hidden' }}>
       
-      {/* CAMBIO: Reduje height de 100vh a 95vh para que sea visualmente más corto si se desea */}
-      <header className="hero-header" style={{ position: 'relative', height: '100vh', width: '100%' }}>
-        <nav className="navbar-fixed" style={{ zIndex: 100 }}>
-          <div style={{ fontWeight: 800, fontSize: '1.5rem', display: 'flex', gap: '10px', alignItems: 'center', color: 'white' }}>
-            <img src={resolvePath("assets/bocancorp-logo.png")} alt="Logo" style={{ height: '30px', objectFit: 'contain' }} onError={(e) => e.currentTarget.style.display='none'} />
-            <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>BOCANCORP</span>
-          </div>
-          {!isSmallScreen && (
-            <div className="nav-links-desktop">
-              {NAV_ITEMS.map(item => <a key={item} href="#" className="nav-link">{item}</a>)}
-              <div style={{ width: '1px', height: '20px', background: 'var(--c-1)', margin: '0 10px' }}></div>
-              <span style={{ color: 'var(--c-1)', fontWeight: 800 }}>ES</span>
-            </div>
-          )}
-          {isSmallScreen && (
-            <div className="mobile-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>
-              <i className={`fa-solid ${mobileMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
-            </div>
-          )}
-        </nav>
-        
-        {mobileMenuOpen && (
-          <div style={{ position: 'absolute', top: '70px', left: 0, width: '100%', zIndex: 999, background: 'rgba(5, 10, 25, 0.95)', padding: '20px', borderBottom: '1px solid var(--c-1)', backdropFilter: 'blur(10px)' }}>
-            {NAV_ITEMS.map(item => (<div key={item} style={{ padding: '20px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', color: 'white', fontWeight: 'bold', fontSize: '1.2rem' }}>{item}</div>))}
-          </div>
-        )}
+      {/* CAPA 0: FONDO (AURORAS) */}
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', zIndex: 0 }}>
+        <Canvas camera={{ position: isMobile ? [0, 0, 20] : [0, 0, 15], fov: 45 }}>
+          <ambientLight intensity={0.5} />
+          <pointLight position={[10, 10, 10]} intensity={2} color="#8A2BE2" />
+          <Auroras />
+        </Canvas>
+      </div>
 
-        <div className="hero-layout" style={{ flex: 1, width: '100%', height: '100%', position: 'relative' }}>
+      {/* CAPA 1: CRISTAL GLOBAL (BLUR) */}
+      <div style={{ 
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', zIndex: 1,
+        backdropFilter: 'blur(12px)', background: 'rgba(0, 12, 45, 0.5)', pointerEvents: 'none'
+      }}></div>
+
+      {/* CAPA 2: CONTENIDO SCROLLABLE */}
+      <div style={{ position: 'relative', zIndex: 2 }}>
+        
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 100 }}>
+          <Nav />
+        </div>
+
+        {/* SECCIÓN 1: HERO (CARRUSEL) */}
+        <section style={{ 
+          position: 'relative', 
+          height: isMobile ? 'auto' : '85vh', 
+          minHeight: isMobile ? '600px' : '600px', 
+          width: '100%', 
+          display: 'flex', 
+          flexDirection: isMobile ? 'column' : 'row',
+          paddingTop: isMobile ? '110px' : '80px', 
+          paddingBottom: isMobile ? '300px' : '0' 
+        }}>
           
-          <div className="hero-canvas-section" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10 }}>
-            <Canvas camera={{ position: getCameraPosition() as any, fov: isSmallScreen ? 45 : 35 }}>
-              <Stars radius={100} depth={50} count={3000} factor={4} saturation={0} fade speed={1} />
-              <ambientLight intensity={0.6} /> 
-              <pointLight position={[0, 0, 0]} intensity={3} color="#ffffff" distance={20} decay={2} />
-              <pointLight position={[10, 10, 10]} intensity={1} color="#ffffff" />
+          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 1 }}>
+            <Canvas camera={{ position: isMobile ? [0, 0, 20] : [0, 0, 15], fov: 45 }}>
+              <Environment preset="city" /> 
+              <ambientLight intensity={0.8} />
+              <pointLight position={[10, 10, 10]} intensity={3.5} color={activeSlide.color} />
+              <pointLight position={[-10, -5, 10]} intensity={2} color="#ffffff" />
               <Suspense fallback={null}>
-                <group position={getGroupPosition() as any}>
-                  <SolarSystemCarousel data={DATA} activeIndex={activeIndex} setActiveIndex={setActiveIndex} screenType={screenType} logoPath={resolvePath("assets/bocancorp-logo.png")} />
+                <group 
+                  position={isMobile ? [0, -4.2, 0] : [7.5, 0, 0]}
+                  scale={isMobile ? 1.4 : 1.2}
+                >
+                  <Carousel3D data={DATA as any} activeIndex={activeIndex} isMobile={isMobile} />
                 </group>
               </Suspense>
-              <ContactShadows position={[0, -4, 0]} opacity={0.6} scale={60} blur={4} far={10} color="#000" />
             </Canvas>
           </div>
 
-          <div className="hero-text-section" style={{ 
-            position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', 
-            zIndex: 30, pointerEvents: 'none', 
+          <div style={{ 
+            flex: isMobile ? '0 0 auto' : 1, 
             display: 'flex', flexDirection: 'column', 
-            justifyContent: isSmallScreen ? 'center' : 'flex-start', 
-            alignItems: 'center', 
-            // CAMBIO: Reducimos padding top de 130px a 90px para subir todo el bloque
-            paddingTop: isSmallScreen ? '0' : '90px', 
-            paddingLeft: '20px', paddingRight: '20px' 
+            justifyContent: isMobile ? 'flex-start' : 'center', 
+            padding: isMobile ? '10px 25px' : '0 0 0 100px', 
+            zIndex: 2, pointerEvents: 'auto', height: '100%',
+            alignItems: isMobile ? 'center' : 'flex-start' 
           }}>
-            <div key={activeIndex} className="fade-in" style={{ 
-              pointerEvents: 'auto', width: '100%', maxWidth: isSmallScreen ? '100%' : '1000px', 
-              textAlign: 'center', background: isSmallScreen ? 'transparent' : 'rgba(0, 5, 20, 0.4)', 
-              backdropFilter: isSmallScreen ? 'none' : 'blur(8px)', borderRadius: '20px', 
-              padding: isSmallScreen ? '0' : '30px 50px', 
-              border: isSmallScreen ? 'none' : '1px solid rgba(255,255,255,0.05)' 
+            
+            <div style={{ 
+              width: '100%', 
+              minHeight: isMobile ? 'auto' : '380px', 
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: isMobile ? 'flex-start' : 'center'
             }}>
-              
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '15px', marginBottom: '20px' }}>
-                 <span style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--c-1)' }}>0{activeIndex + 1}</span>
-                 <div style={{ width: '40px', height: '2px', background: 'var(--c-1)' }}></div>
-                 <span style={{ fontSize: '1rem', fontWeight: 800, color: 'rgba(255,255,255,0.5)', letterSpacing: '2px' }}>SYSTEM_NODE</span>
-              </div>
+              <AnimatePresence mode='wait'>
+                <motion.div 
+                  key={activeSlide.id}
+                  variants={textVariants}
+                  initial="hidden" animate="visible" exit="exit"
+                  style={{ width: '100%' }}
+                >
+                  <span style={{ 
+                    color: 'var(--c-accent)', fontFamily: 'var(--font-code)', fontWeight: 700, 
+                    fontSize: isMobile ? '0.75rem' : '0.95rem', 
+                    letterSpacing: '2px', display: 'block', marginBottom: isMobile ? '10px' : '15px',
+                    textAlign: isMobile ? 'center' : 'left'
+                  }}>
+                    // {activeSlide.subtitle}
+                  </span>
 
-              {/* CAMBIO: Reducimos minHeight del título de 160px a 120px */}
-              <div style={{ minHeight: isSmallScreen ? 'auto' : '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '10px' }}>
-                <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 4.5rem)', lineHeight: 1.1, fontWeight: 800, color: 'white', textShadow: '0 10px 40px rgba(0,0,0,0.8)' }}>
-                  {DATA[activeIndex].title}
-                </h1>
-              </div>
+                  <h1 style={{ 
+                    fontSize: isMobile ? '2rem' : '4.5rem', 
+                    fontWeight: 800, lineHeight: 1.1, marginBottom: '20px', color: 'white', textShadow: '0 10px 30px rgba(0,0,0,0.8)',
+                    textAlign: isMobile ? 'center' : 'left'
+                  }}>
+                    {activeSlide.title}
+                  </h1>
 
-              {/* CAMBIO: Reducimos minHeight de descripción de 90px a 60px */}
-              <div style={{ minHeight: isSmallScreen ? 'auto' : '60px', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', marginBottom: '30px' }}>
-                <p style={{ fontSize: '1.1rem', lineHeight: 1.6, color: 'rgba(255,255,255,0.8)', maxWidth: '800px' }}>
-                  {DATA[activeIndex].desc}
-                </p>
-              </div>
-
-              <div style={{ display: 'flex', gap: '25px', alignItems: 'center', justifyContent: 'center', flexDirection: isSmallScreen ? 'column' : 'row' }}>
-                <button style={{ background: 'white', color: '#000', border: 'none', padding: '14px 40px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer', borderRadius: '50px', boxShadow: `0 0 20px ${DATA[activeIndex].color}40`, transition: 'transform 0.2s' }}>EXPLORAR</button>
-                <div style={{ display: 'flex', gap: '15px' }}>
-                  <button onClick={handlePrev} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', width: '50px', height: '50px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', backdropFilter: 'blur(5px)' }}><i className="fa-solid fa-chevron-left"></i></button>
-                  <button onClick={handleNext} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', width: '50px', height: '50px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', backdropFilter: 'blur(5px)' }}><i className="fa-solid fa-chevron-right"></i></button>
-                </div>
-              </div>
-
+                  <p style={{ 
+                    fontSize: isMobile ? '0.9rem' : '1.15rem', 
+                    lineHeight: 1.6, 
+                    color: 'var(--c-text-secondary)', 
+                    maxWidth: '550px', 
+                    marginBottom: '0',
+                    textAlign: isMobile ? 'center' : 'left'
+                  }}>
+                    {activeSlide.desc}
+                  </p>
+                </motion.div>
+              </AnimatePresence>
             </div>
+
+            <div style={{ 
+              // CAMBIO: Ajustado a 20px para un balance perfecto en móvil
+              marginTop: isMobile ? '20px' : '35px',
+              display: 'flex', alignItems: 'center', gap: '25px',
+              justifyContent: isMobile ? 'center' : 'flex-start',
+              width: '100%'
+            }}>
+              <button className="btn-primary" style={{ fontSize: isMobile ? '0.85rem' : '1rem', padding: isMobile ? '12px 25px' : '15px 40px' }}>
+                EXPLORAR SOLUCIÓN
+              </button>
+              <div style={{ display: 'flex', gap: '15px' }}>
+                <button className="btn-circle" onClick={handlePrev}><i className="fa-solid fa-chevron-left"></i></button>
+                <button className="btn-circle" onClick={handleNext}><i className="fa-solid fa-chevron-right"></i></button>
+              </div>
+            </div>
+            
+            <div className="nav-dots" style={{ 
+              marginTop: isMobile ? '20px' : '50px',
+              display: 'flex',
+              justifyContent: isMobile ? 'center' : 'flex-start',
+              width: '100%'
+            }}>
+              {DATA.map((_, idx) => (
+                <div key={idx} className={`dot ${activeIndex === idx ? 'active' : ''}`} onClick={() => setActiveIndex(idx)} />
+              ))}
+            </div>
+
           </div>
-        </div>
-      </header>
+          <div style={{ flex: 1 }}></div>
+        </section>
 
-      {/* MAIN Y FOOTER SIGUEN IGUAL... */}
-      <main style={{ background: 'white', color: '#02040a', padding: '100px 20px', position: 'relative', zIndex: 20 }}>
-        <div style={{ maxWidth: '1200px', margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3.5rem)', fontWeight: 800, marginBottom: '30px', color: '#02040a' }}>Innovación Tecnológica</h2>
-          <p style={{ fontSize: '1.1rem', lineHeight: '1.8', color: '#555', maxWidth: '800px', margin: '0 auto 60px auto' }}>
-            En el núcleo de nuestra estrategia está la adopción de tecnologías avanzadas, adaptadas a las necesidades de cada proyecto. Destacamos en el desarrollo personalizado de software, abarcando desde Data Science hasta soluciones en la nube.
-          </p>
-          <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#FAA918', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '60px' }}>Creando el Futuro a Medida</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr' : 'repeat(3, 1fr)', gap: '40px', textAlign: 'left' }}>
-            <div style={{ padding: '30px', background: '#f9f9f9', borderRadius: '20px', transition: '0.3s' }}>
-              <div style={{ width: '60px', height: '60px', background: '#e0e0e0', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', color: '#02040a', fontSize: '1.5rem' }}><i className="fa-solid fa-layer-group"></i></div>
-              <h4 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '15px' }}>Soluciones Adaptativas</h4>
-              <p style={{ color: '#666', lineHeight: '1.6' }}>Desarrollamos software personalizado que se ajusta a las necesidades específicas de tu proyecto.</p>
-            </div>
-            <div style={{ padding: '30px', background: '#f9f9f9', borderRadius: '20px', transition: '0.3s' }}>
-              <div style={{ width: '60px', height: '60px', background: '#e0e0e0', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', color: '#02040a', fontSize: '1.5rem' }}><i className="fa-solid fa-chart-line"></i></div>
-              <h4 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '15px' }}>Maestría Analítica</h4>
-              <p style={{ color: '#666', lineHeight: '1.6' }}>Nuestra experiencia en Data Science garantiza análisis de datos profundos.</p>
-            </div>
-            <div style={{ padding: '30px', background: '#f9f9f9', borderRadius: '20px', transition: '0.3s' }}>
-              <div style={{ width: '60px', height: '60px', background: '#e0e0e0', borderRadius: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px', color: '#02040a', fontSize: '1.5rem' }}><i className="fa-solid fa-cloud"></i></div>
-              <h4 style={{ fontSize: '1.4rem', fontWeight: 700, marginBottom: '15px' }}>Agilidad en la Nube</h4>
-              <p style={{ color: '#666', lineHeight: '1.6' }}>Soluciones en la nube que permiten una implementación ágil y eficiente.</p>
-            </div>
-          </div>
-        </div>
-      </main>
-      <Footer />
+        <ServicesSection isMobile={isMobile} />
+        {/* SECCIÓN 3: FOOTER */}
+        <Footer />
+      </div>
     </div>
   );
 }
