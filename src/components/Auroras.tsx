@@ -59,7 +59,7 @@ export const Auroras = () => {
       {/* MATERIAL DE DESTELLOS FINOS */}
       <pointsMaterial
         size={0.15}             // Tamaño muy fino
-        color="#8A2BE2"         // Morado intenso (BlueViolet)
+        color="#0055AA"         // Morado intenso (BlueViolet)
         transparent={true}
         opacity={0.8}
         // AdditiveBlending hace que los puntos se "sumen" como luz, viéndose brillantes

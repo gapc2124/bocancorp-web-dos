@@ -1,131 +1,298 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 
 interface ServicesSectionProps {
   isMobile: boolean;
 }
 
+// --- DATOS ---
+const SPECIALTIES_DATA = [
+  {
+    id: 'multicloud',
+    label: 'Multicloud',
+    title: 'Orquestación Multicloud',
+    desc: 'Unificamos GCP, Azure y Oracle en una estrategia coherente. Eliminamos el "Vendor Lock-in" y aprovechamos lo mejor de cada proveedor.',
+    images: [
+      { src: '/assets/icons/aws.png', alt: 'AWS' },
+      { src: '/assets/icons/gcp.png', alt: 'GCP' },
+      { src: '/assets/icons/azure.png', alt: 'Azure' },
+      { src: '/assets/icons/oracle.png', alt: 'Oracle' }
+    ]
+  },
+  {
+    id: 'aws',
+    label: 'AWS Select Partners',
+    title: 'AWS Select Tier Partners',
+    desc: 'Como socios certificados, ofrecemos acceso exclusivo a roadmaps, soporte avanzado y arquitecturas validadas directamente por Amazon Web Services.',
+    images: [
+      { src: '/assets/icons/aws-partner-badge.png', alt: 'AWS Partner' }
+    ]
+  },
+  {
+    id: 'ai',
+    label: 'Inteligencia Artificial',
+    title: 'Soluciones de IA Avanzada',
+    desc: 'Integración de LLMs y modelos predictivos para automatizar decisiones críticas y potenciar la eficiencia operativa de tu negocio.',
+    images: [
+      { src: '/assets/icons/ai-icon.png', alt: 'IA' }
+    ]
+  },
+  {
+    id: 'finops',
+    label: 'Estrategia FinOps',
+    title: 'Control Financiero Cloud',
+    desc: 'Maximiza tu ROI en la nube. Implementamos cultura FinOps para visibilidad total de costos, optimización de recursos y reducción de desperdicios.',
+    images: [
+      { src: '/assets/icons/finops-icon.png', alt: 'FinOps' }
+    ]
+  },
+  {
+    id: 'cloudnative',
+    label: 'Cloud-Native',
+    title: 'Arquitecturas Cloud-Native',
+    desc: 'Desarrollo moderno basado en Microservicios, Kubernetes y Serverless. Aplicaciones resilientes diseñadas para escalar infinitamente.',
+    images: [
+      { src: '/assets/icons/cloud-native.png', alt: 'Cloud Native' }
+    ]
+  }
+];
+
 export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
+  // --- ESTADO AVANZADO PARA LA ANIMACIÓN ---
+  const [activeId, setActiveId] = useState(SPECIALTIES_DATA[0].id);
+  const prevIdRef = useRef<string | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+  const handleTabClick = (newId: string) => {
+    if (newId === activeId || isAnimating) return;
+    prevIdRef.current = activeId;
+    setActiveId(newId);
+    setIsAnimating(true);
+  };
+
+  const handleAnimationEnd = () => {
+    prevIdRef.current = null;
+    setIsAnimating(false);
+  };
+
+  const activeData = SPECIALTIES_DATA.find(s => s.id === activeId)!;
+  const prevData = (isAnimating && prevIdRef.current) 
+    ? SPECIALTIES_DATA.find(s => s.id === prevIdRef.current) 
+    : null;
+
+
   return (
     <section style={{ 
       position: 'relative', 
       width: '100%', 
-      // Mantenemos el padding que te gusta (pegado arriba en móvil)
-      padding: isMobile ? '30px 20px 60px' : '60px 100px 120px',
+      padding: isMobile ? '180px 20px 180px' : '280px 100px 280px',
       zIndex: 10, 
       backgroundColor: '#ffffff', 
-      borderTopLeftRadius: '30px', 
-      borderTopRightRadius: '30px'
+      overflow: 'hidden' 
     }}>
       
-      {/* NUEVO GRID MASTER: Envuelve todo el contenido */}
+      {/* ONDAS SUPERIORES */}
+      <div className="wave-container top-waves">
+        <svg className="wave-svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+           <path fill="#000c2d" fillOpacity="0.1" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z" className="wave-anim-slow"></path>
+           <path fill="#000c2d" fillOpacity="0.4" d="M0,160L48,170.7C96,181,192,203,288,202.7C384,203,480,181,576,165.3C672,149,768,139,864,154.7C960,171,1056,213,1152,218.7C1248,224,1344,192,1392,176L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z" className="wave-anim-medium"></path>
+           <path fill="#000c2d" fillOpacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z" className="wave-anim-fast"></path>
+        </svg>
+      </div>
+
       <div style={{ 
+        position: 'relative',
+        zIndex: 20,
         display: 'grid', 
-        // En móvil 1 columna, en PC 2 columnas iguales
         gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-        gap: isMobile ? '50px' : '80px', // Espacio entre los dos grandes bloques
+        gap: isMobile ? '50px' : '80px', 
         alignItems: 'start'
       }}>
 
-        {/* ==============================================
-            COLUMNA IZQUIERDA (Título Principal + Innovación)
-           ============================================== */}
+        {/* COLUMNA IZQUIERDA */}
         <div>
-          {/* --- Encabezado Principal --- */}
-          <div style={{ marginBottom: '50px' }}>
-            <h2 style={{ fontSize: isMobile ? '2rem' : '3.5rem', fontWeight: 800, color: '#111111', lineHeight: 1.1, marginBottom: '20px' }}>
-              Potenciamos tu Evolución con <span style={{ color: 'var(--c-accent)' }}>Innovación Tecnológica</span>
+          <div style={{ marginBottom: '40px' }}>
+            <h2 style={{ fontSize: isMobile ? '2rem' : '3rem', fontWeight: 800, color: '#111111', lineHeight: 1.1, marginBottom: '20px' }}>
+              Somos <span style={{ color: '#FAA918' }}>AWS Select Partners</span> y Especialistas Multi-Cloud
             </h2>
-            <p style={{ fontSize: '1.2rem', color: '#555555', marginBottom: '30px' }}>
-              Somos expertos transformando tus desafíos en soluciones personalizadas.
+            <p style={{ fontSize: '1.25rem', color: '#333', marginBottom: '30px', fontWeight: 500 }}>
+              Partners XX en GCP, especialistas en Azure y Oracle Cloud.
             </p>
             <button className="btn-primary" style={{ padding: '15px 40px', fontSize: '1rem' }}>
-              AGENDE AHORA!
+              AGENDE UNA CONSULTA
             </button>
           </div>
 
-          {/* --- Bloque Innovación Tecnológica (Texto Reducido) --- */}
           <div>
-            <h3 style={{ fontSize: '1.8rem', color: '#111111', marginBottom: '20px', borderLeft: '4px solid var(--c-accent)', paddingLeft: '20px' }}>
-              Innovación Tecnológica
+            <h3 style={{ fontSize: '1.5rem', color: '#111111', marginBottom: '15px', borderLeft: '4px solid #FAA918', paddingLeft: '20px' }}>
+              Ventaja Competitiva
             </h3>
-            {/* Párrafos condensados en uno solo más corto */}
             <p style={{ fontSize: '1.1rem', lineHeight: 1.8, color: '#444444' }}>
-              Transformamos desafíos en soluciones a medida. Desde Data Science hasta soluciones en la nube, en Bocancorp superamos los límites tecnológicos para adaptarnos a las necesidades específicas de cada proyecto.
+              Transformamos su infraestructura tecnológica en un motor de crecimiento. No solo migramos o mantenemos; evolucionamos su ecosistema digital para liderar el mercado.
             </p>
           </div>
         </div>
 
-
-        {/* ==============================================
-            COLUMNA DERECHA (Creando el Futuro + Tarjetas)
-            Ahora en PC aparece justo al lado del título principal.
-           ============================================== */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
+        {/* COLUMNA DERECHA */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <h3 style={{ fontSize: '1.8rem', color: '#111111', marginBottom: '10px' }}>
-            Creando el Futuro a Medida
+            Nuestras Especialidades
           </h3>
 
-          {/* CARD 1 - Texto Reducido */}
-          <div style={cardStyle}>
-            <div style={iconBoxStyle}><i className="fa-solid fa-code"></i></div>
-            <div>
-              <h4 style={{ color: '#111111', fontSize: '1.3rem', marginBottom: '10px' }}>Soluciones Adaptativas</h4>
-              <p style={{ color: '#666666', fontSize: '0.95rem', lineHeight: 1.6 }}>
-                Software 100% personalizado que garantiza una adaptabilidad única a tu negocio.
-              </p>
-            </div>
+          {/* BOTONES */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
+            {SPECIALTIES_DATA.map((item) => {
+              const isActive = activeId === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => handleTabClick(item.id)}
+                  style={{
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    border: 'none',
+                    fontSize: '0.9rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    backgroundColor: isActive ? '#FAA918' : '#f3f4f6',
+                    color: isActive ? '#000' : '#666',
+                    boxShadow: isActive ? '0 4px 10px rgba(250, 169, 24, 0.3)' : 'none',
+                    transform: isActive ? 'scale(1.05)' : 'scale(1)'
+                  }}
+                >
+                  {item.label}
+                </button>
+              );
+            })}
           </div>
 
-          {/* CARD 2 - Texto Reducido */}
-          <div style={cardStyle}>
-            <div style={iconBoxStyle}><i className="fa-solid fa-chart-line"></i></div>
-            <div>
-              <h4 style={{ color: '#111111', fontSize: '1.3rem', marginBottom: '10px' }}>Maestría Analítica</h4>
-              <p style={{ color: '#666666', fontSize: '0.95rem', lineHeight: 1.6 }}>
-                Data Science profundo para potenciar tus decisiones estratégicas.
-              </p>
-            </div>
-          </div>
+          {/* --- CONTENEDOR DE PILA DE CARTAS --- */}
+          <div style={{ display: 'grid', gridTemplateAreas: '"stack"', position: 'relative', minHeight: '220px' }}>
+            
+            {/* CARTA PREVIA (FONDO) */}
+            {prevData && (
+              <div className="specialty-card card-static-behind" style={{ gridArea: 'stack', zIndex: 1 }}>
+                 <CardContent data={prevData} />
+              </div>
+            )}
 
-          {/* CARD 3 - Texto Reducido */}
-          <div style={cardStyle}>
-            <div style={iconBoxStyle}><i className="fa-solid fa-cloud"></i></div>
-            <div>
-              <h4 style={{ color: '#111111', fontSize: '1.3rem', marginBottom: '10px' }}>Agilidad en la Nube</h4>
-              <p style={{ color: '#666666', fontSize: '0.95rem', lineHeight: 1.6 }}>
-                Implementación ágil y eficiente para un rendimiento óptimo constante.
-              </p>
+            {/* CARTA ACTIVA (FRENTE) */}
+            <div 
+              key={activeId} 
+              className={`specialty-card ${isAnimating ? 'card-animating-in' : ''}`}
+              style={{ gridArea: 'stack', zIndex: 2 }}
+              onAnimationEnd={handleAnimationEnd}
+            >
+               <CardContent data={activeData} />
             </div>
+
           </div>
 
         </div>
       </div>
+
+      {/* ONDAS INFERIORES */}
+      <div className="wave-container bottom-waves">
+        <svg className="wave-svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
+           <path fill="#000c2d" fillOpacity="0.1" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z" className="wave-anim-slow"></path>
+           <path fill="#000c2d" fillOpacity="0.4" d="M0,160L48,170.7C96,181,192,203,288,202.7C384,203,480,181,576,165.3C672,149,768,139,864,154.7C960,171,1056,213,1152,218.7C1248,224,1344,192,1392,176L1440,160L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z" className="wave-anim-medium"></path>
+           <path fill="#000c2d" fillOpacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,112C672,96,768,96,864,112C960,128,1056,160,1152,160C1248,160,1344,128,1392,112L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z" className="wave-anim-fast"></path>
+        </svg>
+      </div>
+
+      <style>{`
+        /* --- ESTILOS BASE DE LA TARJETA --- */
+        .specialty-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            height: 100%; 
+            width: 100%; 
+            position: relative;
+            /* Aseguramos que sea opaca */
+            opacity: 1 !important;
+        }
+        
+        .specialty-card::before {
+            content: ''; position: absolute; z-index: -1;
+            top: 5px; left: 5px; right: -5px; bottom: -5px;
+            background: #f0f0f0; border: 1px solid #ddd; border-radius: 16px;
+        }
+
+        /* --- ESTADOS DE ANIMACIÓN --- */
+        .card-static-behind { }
+
+        /* Carta nueva (entra lateralmente, recorrido largo, sólida) */
+        .card-animating-in {
+            /* Duración 0.8s */
+            animation: dealCardOver 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            /* Sombra fuerte de "vuelo" */
+            box-shadow: -20px 15px 40px rgba(0,0,0,0.2); 
+        }
+
+        @keyframes dealCardOver {
+            0% { 
+                /* CAMBIO CLAVE: Empieza MUCHO más lejos (300px) y más rotada */
+                /* SIN TRANSPARENCIA (opacity siempre es 1) */
+                transform: translateX(300px) rotate(5deg); 
+            }
+            100% { 
+                /* Aterriza */
+                transform: translateX(0) rotate(0deg);
+                box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            }
+        }
+
+        /* ONDAS (Sin cambios) */
+        .wave-container { position: absolute; left: 0; width: 100%; height: 180px; overflow: hidden; line-height: 0; z-index: 1; pointer-events: none; }
+        .top-waves { top: 0; }
+        .bottom-waves { bottom: 0; transform: scaleY(-1); }
+        .wave-svg { position: relative; display: block; width: calc(100% + 1.3px); height: 100%; }
+        .wave-anim-slow { animation: wave-sway 6s ease-in-out infinite alternate; transform-origin: center top; }
+        .wave-anim-medium { animation: wave-sway 5s ease-in-out infinite alternate-reverse; transform-origin: center top; }
+        .wave-anim-fast { animation: wave-sway 4s ease-in-out infinite alternate; transform-origin: center top; }
+        @keyframes wave-sway { 0% { transform: scaleY(1); } 100% { transform: scaleY(1.1); } }
+      `}</style>
     </section>
   );
 };
 
-const cardStyle: React.CSSProperties = {
-  background: '#ffffff', 
-  border: '1px solid #e5e7eb', 
-  padding: '25px',
-  borderRadius: '12px',
-  display: 'flex',
-  gap: '20px',
-  alignItems: 'flex-start',
-  transition: 'transform 0.3s ease, box-shadow 0.3s ease',
-  cursor: 'default',
-  boxShadow: '0 4px 20px rgba(0,0,0,0.05)' 
-};
+// --- COMPONENTE AUXILIAR ---
+const CardContent = ({ data }: { data: any }) => (
+  <>
+    <div style={{ marginBottom: '20px', width: '100%' }}>
+        {data.images.length > 1 ? (
+            <div style={{ 
+                display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px',
+                alignItems: 'center', justifyItems: 'center',
+                background: '#f9fafb', padding: '15px', borderRadius: '12px'
+            }}>
+                {data.images.map((img: any, idx: number) => (
+                    <div key={idx} style={imagePlaceholderStyle}>
+                        <img src={img.src} alt={img.alt} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
+                    </div>
+                ))}
+            </div>
+        ) : (
+            <div style={{ 
+                width: '80px', height: '80px', background: '#f9fafb', borderRadius: '12px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee'
+            }}>
+                 <img src={data.images[0].src} alt={data.images[0].alt} style={{ width: '50px', height: '50px', objectFit: 'contain' }} />
+            </div>
+        )}
+    </div>
+    <h4 style={{ color: '#111111', fontSize: '1.5rem', margin: '0 0 10px 0' }}>{data.title}</h4>
+    <p style={{ color: '#555', fontSize: '1.05rem', lineHeight: 1.6, margin: 0 }}>{data.desc}</p>
+    <div style={{ marginTop: '20px', height: '4px', width: '40px', background: '#FAA918', borderRadius: '2px' }}></div>
+  </>
+);
 
-const iconBoxStyle: React.CSSProperties = {
-  minWidth: '50px',
-  height: '50px',
-  background: 'var(--c-accent)',
-  borderRadius: '8px',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: 'black',
-  fontSize: '1.2rem',
-  fontWeight: 'bold'
+const imagePlaceholderStyle: React.CSSProperties = {
+    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center'
 };
