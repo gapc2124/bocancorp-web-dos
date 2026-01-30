@@ -1,11 +1,10 @@
 import React from 'react';
 
 const PARTNER_LOGOS = [
-    './assets/IMB.png',
-    './assets/nvidia.png',
-    './assets/microsoft.png',
-    './assets/aws.png',
-    './assets/GCP.png',
+    './assets/MyIntelli.png',
+    './assets/RuedaVerde.png',
+    './assets/DateCSA.png',
+    './assets/Miranda.png',
 ];
 
 const DOUBLED_LOGOS = [...PARTNER_LOGOS, ...PARTNER_LOGOS];

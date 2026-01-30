@@ -3,19 +3,8 @@ import { Canvas } from '@react-three/fiber';
 import { Auroras } from './Auroras';
 
 export const Footer = () => {
-  const inputStyle: React.CSSProperties = {
-    width: '100%',
-    padding: '12px 15px',
-    marginBottom: '15px',
-    background: 'rgba(255, 255, 255, 0.05)',
-    border: '1px solid rgba(255, 255, 255, 0.2)',
-    borderRadius: '8px',
-    color: 'white',
-    fontSize: '0.95rem',
-    outline: 'none',
-    transition: 'all 0.3s ease',
-    fontFamily: 'inherit'
-  };
+  // Función simple para detectar móvil (puedes moverla fuera si prefieres)
+  const isMobileLayout = () => typeof window !== 'undefined' && window.innerWidth < 768;
 
   return (
     <footer style={{
@@ -47,7 +36,7 @@ export const Footer = () => {
         justifyContent: 'space-between', gap: '50px'
       }}>
         
-        {/* COLUMNA 1: LOGO */}
+        {/* COLUMNA 1: LOGO Y NAV */}
         <div style={{ flex: '1 1 250px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '25px' }}>
             <img 
@@ -66,28 +55,49 @@ export const Footer = () => {
           </nav>
         </div>
 
-        {/* COLUMNA 2: FORMULARIO */}
+        {/* COLUMNA 2: INFORMACIÓN DE CONTACTO (NUEVO) */}
         <div style={{ flex: '1 1 350px' }}>
           <h3 style={{ fontSize: '1.1rem', marginBottom: '25px', fontWeight: 600, color: '#FAA918' }}>
-            Escríbenos
+            Contacto Global
           </h3>
-          <form onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', flexDirection: 'column' }}>
-            <input type="text" placeholder="Tu Nombre" className="footer-input" style={inputStyle} required />
-            <input type="email" placeholder="Tu Email" className="footer-input" style={inputStyle} required />
-            <textarea 
-              placeholder="¿Cómo podemos ayudarte?" 
-              rows={4} 
-              className="footer-input"
-              style={{...inputStyle, resize: 'vertical', fontFamily: 'inherit'}} 
-              required 
-            />
-            <button type="submit" className="btn-primary" style={{ padding: '12px', fontSize: '1rem', width: '100%', marginTop: '10px' }}>
-              ENVIAR MENSAJE
-            </button>
-          </form>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '0.95rem', color: '#cccccc', lineHeight: '1.5' }}>
+            
+            {/* Email */}
+            <a href="mailto:contact@bocancorporation.com" style={{ color: 'white', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: 500 }}>
+              <i className="fa-solid fa-envelope" style={{ color: '#FAA918' }}></i>
+              contact@bocancorporation.com
+            </a>
+
+            {/* Direcciones */}
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <i className="fa-solid fa-location-dot" style={{ color: '#FAA918', marginTop: '4px' }}></i>
+              <div>
+                <strong>USA:</strong><br/>
+                2201 Cooperative Way Suite 600,<br/> Herndon, VA 20171, United States
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <i className="fa-solid fa-location-dot" style={{ color: '#FAA918', marginTop: '4px' }}></i>
+              <div>
+                <strong>Perú:</strong><br/>
+                15012 Avenida Huarochirí 333<br/> La Molina, Lima, Perú
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <i className="fa-solid fa-location-dot" style={{ color: '#FAA918', marginTop: '4px' }}></i>
+              <div>
+                <strong>Colombia:</strong><br/>
+                Carrera 35 No. 15 B 35.<br/> Edificio Prisma, Oficina 9912.<br/> Medellin, Antioquia, Colombia
+              </div>
+            </div>
+
+          </div>
         </div>
 
-        {/* COLUMNA 3: REDES */}
+        {/* COLUMNA 3: REDES Y COPYRIGHT */}
         <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', textAlign: isMobileLayout() ? 'left' : 'right' }}>
           <div>
             <h3 style={{ fontSize: '1.1rem', marginBottom: '25px', fontWeight: 600 }}>Síguenos</h3>
@@ -98,9 +108,9 @@ export const Footer = () => {
             </div>
           </div>
           
-          <div style={{ fontSize: '0.75rem', color: '#666', lineHeight: 1.6 }}>
-            © 2026 Bocancorp™. <br/> Todos los Derechos Reservados. <br/>
-            <span style={{ color: '#FAA918' }}>Lima, Perú</span>
+          <div style={{ fontSize: '0.8rem', color: '#666', lineHeight: 1.6 }}>
+            © 2026 Bocancorp™.<br/> 
+            Todos los Derechos Reservados.
           </div>
         </div>
 
@@ -113,18 +123,10 @@ export const Footer = () => {
         .footer-link-v2:hover { 
           color: #FAA918; transform: translateX(5px);
         }
-        .footer-input::placeholder { color: rgba(255,255,255,0.4); }
-        .footer-input:focus {
-            border-color: #FAA918 !important;
-            background: rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 0 0 2px rgba(250, 169, 24, 0.2);
-        }
       `}</style>
     </footer>
   );
 };
-
-const isMobileLayout = () => typeof window !== 'undefined' && window.innerWidth < 768;
 
 const SocialIcon = ({ icon }: { icon: string }) => (
   <a href="#" style={{

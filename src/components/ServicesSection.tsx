@@ -12,10 +12,10 @@ const SPECIALTIES_DATA = [
     title: 'Orquestación Multicloud',
     desc: 'Unificamos GCP, Azure y Oracle en una estrategia coherente. Eliminamos el "Vendor Lock-in" y aprovechamos lo mejor de cada proveedor.',
     images: [
-      { src: '/assets/icons/aws.png', alt: 'AWS' },
-      { src: '/assets/icons/gcp.png', alt: 'GCP' },
-      { src: '/assets/icons/azure.png', alt: 'Azure' },
-      { src: '/assets/icons/oracle.png', alt: 'Oracle' }
+      { src: './assets/aws.png', alt: 'AWS' },
+      { src: './assets/GCP.png', alt: 'GCP' },
+      { src: './assets/azure.png', alt: 'Azure' },
+      { src: './assets/oracle.png', alt: 'Oracle' }
     ]
   },
   {
@@ -24,7 +24,7 @@ const SPECIALTIES_DATA = [
     title: 'AWS Select Tier Partners',
     desc: 'Como socios certificados, ofrecemos acceso exclusivo a roadmaps, soporte avanzado y arquitecturas validadas directamente por Amazon Web Services.',
     images: [
-      { src: '/assets/icons/aws-partner-badge.png', alt: 'AWS Partner' }
+      { src: './assets/aws_partners.png', alt: 'AWS Partner' }
     ]
   },
   {
@@ -33,7 +33,7 @@ const SPECIALTIES_DATA = [
     title: 'Soluciones de IA Avanzada',
     desc: 'Integración de LLMs y modelos predictivos para automatizar decisiones críticas y potenciar la eficiencia operativa de tu negocio.',
     images: [
-      { src: '/assets/icons/ai-icon.png', alt: 'IA' }
+      { src: './assets/MachineLearning.png', alt: 'IA' }
     ]
   },
   {
@@ -42,7 +42,7 @@ const SPECIALTIES_DATA = [
     title: 'Control Financiero Cloud',
     desc: 'Maximiza tu ROI en la nube. Implementamos cultura FinOps para visibilidad total de costos, optimización de recursos y reducción de desperdicios.',
     images: [
-      { src: '/assets/icons/finops-icon.png', alt: 'FinOps' }
+      { src: './assets/FinOps.png', alt: 'FinOps' }
     ]
   },
   {
@@ -51,7 +51,7 @@ const SPECIALTIES_DATA = [
     title: 'Arquitecturas Cloud-Native',
     desc: 'Desarrollo moderno basado en Microservicios, Kubernetes y Serverless. Aplicaciones resilientes diseñadas para escalar infinitamente.',
     images: [
-      { src: '/assets/icons/cloud-native.png', alt: 'Cloud Native' }
+      { src: './assets/multi_cloud.png', alt: 'Cloud Native' }
     ]
   }
 ];
@@ -262,37 +262,83 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
   );
 };
 
-// --- COMPONENTE AUXILIAR ---
-const CardContent = ({ data }: { data: any }) => (
-  <>
-    <div style={{ marginBottom: '20px', width: '100%' }}>
-        {data.images.length > 1 ? (
-            <div style={{ 
-                display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '15px',
-                alignItems: 'center', justifyItems: 'center',
-                background: '#f9fafb', padding: '15px', borderRadius: '12px'
-            }}>
-                {data.images.map((img: any, idx: number) => (
-                    <div key={idx} style={imagePlaceholderStyle}>
-                        <img src={img.src} alt={img.alt} style={{ width: '40px', height: '40px', objectFit: 'contain' }} />
-                    </div>
-                ))}
-            </div>
-        ) : (
-            <div style={{ 
-                width: '80px', height: '80px', background: '#f9fafb', borderRadius: '12px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee'
-            }}>
-                 <img src={data.images[0].src} alt={data.images[0].alt} style={{ width: '50px', height: '50px', objectFit: 'contain' }} />
-            </div>
-        )}
-    </div>
-    <h4 style={{ color: '#111111', fontSize: '1.5rem', margin: '0 0 10px 0' }}>{data.title}</h4>
-    <p style={{ color: '#555', fontSize: '1.05rem', lineHeight: 1.6, margin: 0 }}>{data.desc}</p>
-    <div style={{ marginTop: '20px', height: '4px', width: '40px', background: '#FAA918', borderRadius: '2px' }}></div>
-  </>
-);
+// --- COMPONENTE AUXILIAR MODIFICADO (ICONOS MULTICLOUD GIGANTES) ---
+const CardContent = ({ data }: { data: any }) => {
+  const isMultiImage = data.images.length > 1;
 
-const imagePlaceholderStyle: React.CSSProperties = {
-    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center'
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
+      
+      {/* SECCIÓN DE IMAGEN */}
+      <div style={{ 
+        flex: isMultiImage ? '0 0 auto' : '1', 
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: '25px',
+        width: '100%',
+        minHeight: isMultiImage ? 'auto' : '140px' 
+      }}>
+          {isMultiImage ? (
+              // MULTICLOUD: ICONOS GIGANTES EN FILA
+              <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'row', // Fila obligatoria
+                  flexWrap: 'nowrap',   // No permitir que bajen de línea
+                  gap: '5px',           // Espacio mínimo para maximizar tamaño
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  width: '100%',
+              }}>
+                  {data.images.map((img: any, idx: number) => (
+                      <img 
+                        key={idx}
+                        src={img.src} 
+                        alt={img.alt} 
+                        style={{ 
+                          // ¡AUMENTO SIN MIEDO!
+                          width: '140px',  // De 78px a 95px
+                          height: '140px', 
+                          objectFit: 'contain',
+                          filter: 'drop-shadow(0 5px 8px rgba(0,0,0,0.15))', // Sombra un poco más fuerte
+                          transition: 'transform 0.2s ease'
+                        }} 
+                        // Efecto zoom al pasar el mouse
+                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      />
+                  ))}
+              </div>
+          ) : (
+              // DISEÑO SINGLE (Gigante, sin fondo)
+              <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '10px' }}>
+                   <img 
+                     src={data.images[0].src} 
+                     alt={data.images[0].alt} 
+                     style={{ 
+                       width: 'auto', 
+                       height: '120px', 
+                       maxWidth: '100%',
+                       objectFit: 'contain',
+                       filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.15))' 
+                     }} 
+                   />
+              </div>
+          )}
+      </div>
+
+      {/* TÍTULO Y TEXTO */}
+      <div style={{ flex: '0 0 auto' }}>
+        <h4 style={{ color: '#111111', fontSize: '1.6rem', fontWeight: 700, margin: '0 0 12px 0', lineHeight: 1.2 }}>
+          {data.title}
+        </h4>
+        
+        <div style={{ marginBottom: '15px', height: '4px', width: '50px', background: '#FAA918', borderRadius: '2px' }}></div>
+
+        <p style={{ color: '#555', fontSize: '1.1rem', lineHeight: 1.6, margin: 0 }}>
+          {data.desc}
+        </p>
+      </div>
+    </div>
+  );
 };
