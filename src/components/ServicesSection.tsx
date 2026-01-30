@@ -10,7 +10,7 @@ const SPECIALTIES_DATA = [
     id: 'multicloud',
     label: 'Multicloud',
     title: 'Orquestación Multicloud',
-    desc: 'Unificamos GCP, Azure y Oracle en una estrategia coherente. Eliminamos el "Vendor Lock-in" y aprovechamos lo mejor de cada proveedor.',
+    desc: 'Unificamos GCP, Azure y Oracle en una estrategia coherente. Aprovechamos lo mejor de cada proveedor.',
     images: [
       { src: './assets/aws.png', alt: 'AWS' },
       { src: './assets/GCP.png', alt: 'GCP' },
@@ -172,7 +172,8 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
             {/* CARTA PREVIA (FONDO) */}
             {prevData && (
               <div className="specialty-card card-static-behind" style={{ gridArea: 'stack', zIndex: 1 }}>
-                 <CardContent data={prevData} />
+                 {/* Pasamos isMobile al contenido */}
+                 <CardContent data={prevData} isMobile={isMobile} />
               </div>
             )}
 
@@ -183,7 +184,8 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
               style={{ gridArea: 'stack', zIndex: 2 }}
               onAnimationEnd={handleAnimationEnd}
             >
-               <CardContent data={activeData} />
+               {/* Pasamos isMobile al contenido */}
+               <CardContent data={activeData} isMobile={isMobile} />
             </div>
 
           </div>
@@ -214,7 +216,6 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
             height: 100%; 
             width: 100%; 
             position: relative;
-            /* Aseguramos que sea opaca */
             opacity: 1 !important;
         }
         
@@ -229,20 +230,16 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
 
         /* Carta nueva (entra lateralmente, recorrido largo, sólida) */
         .card-animating-in {
-            /* Duración 0.8s */
-            animation: dealCardOver 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-            /* Sombra fuerte de "vuelo" */
+            /* CAMBIO: Duración más rápida (0.4s en lugar de 0.8s) */
+            animation: dealCardOver 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
             box-shadow: -20px 15px 40px rgba(0,0,0,0.2); 
         }
 
         @keyframes dealCardOver {
             0% { 
-                /* CAMBIO CLAVE: Empieza MUCHO más lejos (300px) y más rotada */
-                /* SIN TRANSPARENCIA (opacity siempre es 1) */
                 transform: translateX(300px) rotate(5deg); 
             }
             100% { 
-                /* Aterriza */
                 transform: translateX(0) rotate(0deg);
                 box-shadow: 0 10px 40px rgba(0,0,0,0.08);
             }
@@ -262,8 +259,8 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
   );
 };
 
-// --- COMPONENTE AUXILIAR MODIFICADO (ICONOS MULTICLOUD GIGANTES) ---
-const CardContent = ({ data }: { data: any }) => {
+// --- COMPONENTE AUXILIAR MODIFICADO (ICONOS MAXIMIZADOS EN MÓVIL) ---
+const CardContent = ({ data, isMobile }: { data: any, isMobile: boolean }) => {
   const isMultiImage = data.images.length > 1;
 
   return (
@@ -280,37 +277,44 @@ const CardContent = ({ data }: { data: any }) => {
         minHeight: isMultiImage ? 'auto' : '140px' 
       }}>
           {isMultiImage ? (
-              // MULTICLOUD: ICONOS GIGANTES EN FILA
+              // LÓGICA RESPONSIVE PARA MULTICLOUD
               <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'row', // Fila obligatoria
-                  flexWrap: 'nowrap',   // No permitir que bajen de línea
-                  gap: '5px',           // Espacio mínimo para maximizar tamaño
+                  display: isMobile ? 'grid' : 'flex', 
+                  // MÓVIL: Grid 2x2 | PC: Fila
+                  gridTemplateColumns: isMobile ? '1fr 1fr' : undefined,
+                  flexDirection: isMobile ? undefined : 'row',
+                  
+                  flexWrap: 'nowrap',
+                  
+                  // AJUSTE MÓVIL: Espacio mínimo
+                  gap: isMobile ? '5px' : '5px', 
+                  
                   justifyContent: 'center',
                   alignItems: 'center',
                   width: '100%',
               }}>
                   {data.images.map((img: any, idx: number) => (
-                      <img 
-                        key={idx}
-                        src={img.src} 
-                        alt={img.alt} 
-                        style={{ 
-                          // ¡AUMENTO SIN MIEDO!
-                          width: '140px',  // De 78px a 95px
-                          height: '140px', 
-                          objectFit: 'contain',
-                          filter: 'drop-shadow(0 5px 8px rgba(0,0,0,0.15))', // Sombra un poco más fuerte
-                          transition: 'transform 0.2s ease'
-                        }} 
-                        // Efecto zoom al pasar el mouse
-                        onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                      />
+                      <div key={idx} style={{ display: 'flex', justifyContent: 'center' }}>
+                        <img 
+                          src={img.src} 
+                          alt={img.alt} 
+                          style={{ 
+                            // TAMAÑO MÁXIMO MÓVIL: 110px
+                            width: isMobile ? '110px' : '140px',
+                            height: isMobile ? '110px' : '140px',
+                            
+                            objectFit: 'contain',
+                            filter: 'drop-shadow(0 5px 8px rgba(0,0,0,0.15))',
+                            transition: 'transform 0.2s ease'
+                          }} 
+                          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+                          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                        />
+                      </div>
                   ))}
               </div>
           ) : (
-              // DISEÑO SINGLE (Gigante, sin fondo)
+              // DISEÑO SINGLE
               <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '10px' }}>
                    <img 
                      src={data.images[0].src} 
