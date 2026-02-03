@@ -1,10 +1,9 @@
-import React, { useRef, useState, useMemo, useEffect } from 'react';
+import { useRef, useState, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { 
   Torus, 
   Sphere,
-  OrbitControls,
-  PerspectiveCamera
+  OrbitControls
 } from '@react-three/drei';
 import * as THREE from 'three';
 

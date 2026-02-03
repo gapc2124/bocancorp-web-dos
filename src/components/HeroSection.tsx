@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { InteractiveParticles } from './InteractiveParticles';
-import { PartnersBanner } from './PartnersBanner';
 
 export const HeroSection = () => {
   const [isHovering, setIsHovering] = useState(false);
@@ -11,7 +10,7 @@ export const HeroSection = () => {
       style={{
         position: 'relative',
         width: '100%',
-        minHeight: '90vh', // Mantenemos la altura para separar bien título y logos
+        minHeight: '70vh', // Mantenemos la altura para separar bien título y logos
         paddingTop: '140px', 
         paddingBottom: '0', 
         display: 'flex',
@@ -69,7 +68,6 @@ export const HeroSection = () => {
             marginTop: 'auto', 
             paddingBottom: '20px'
         }}>
-            <PartnersBanner />
         </div>
 
       </div>
