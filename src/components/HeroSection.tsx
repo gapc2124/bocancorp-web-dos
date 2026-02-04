@@ -10,7 +10,7 @@ export const HeroSection = () => {
       style={{
         position: 'relative',
         width: '100%',
-        minHeight: '70vh', // Mantenemos la altura para separar bien título y logos
+        minHeight: '90vh', // Mantenemos la altura para separar bien título y logos
         paddingTop: '140px', 
         paddingBottom: '0', 
         display: 'flex',

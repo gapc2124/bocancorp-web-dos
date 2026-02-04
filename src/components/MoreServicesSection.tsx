@@ -1,9 +1,10 @@
-import { useRef, useState, useMemo, useEffect } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { 
   Torus, 
   Sphere,
-  OrbitControls
+  OrbitControls,
+  PerspectiveCamera
 } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -33,32 +34,38 @@ const SERVICES_CONTENT = {
 type CategoryKey = keyof typeof SERVICES_CONTENT;
 
 // =====================================================================
-// 🪐 PLANETA 1: SATURNO (Rotación Lenta)
+// 🪐 PLANETA 1: SATURNO (Tamaño Reducido)
 // =====================================================================
 function SaturnCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Group>(null);
   
   useFrame((_, delta) => {
-    // CAMBIO: Velocidad reducida a la mitad o menos
-    if (planetRef.current) planetRef.current.rotation.y += delta * 0.05; // Antes 0.2
-    if (ringRef.current) ringRef.current.rotation.z -= delta * 0.02;     // Antes 0.05
+    if (planetRef.current) planetRef.current.rotation.y += delta * 0.05; 
+    if (ringRef.current) ringRef.current.rotation.z -= delta * 0.02;     
   });
 
   return (
     <group rotation={[0.3, 0, 0]}>
-      <Sphere ref={planetRef} args={[1.5, 32, 32]}>
+      {/* 1. ESFERA: Reducida de 1.5 a 1.1 */}
+      <Sphere ref={planetRef} args={[1., 32, 32]}>
         <meshToonMaterial color={BOCANCORP_ORANGE} />
         <group rotation={[Math.PI / 2, 0, 0]}>
-            <Torus args={[1.48, 0.05, 16, 64]} position={[0, 0, 0.3]}><meshBasicMaterial color="#FFC760" /></Torus>
-            <Torus args={[1.49, 0.08, 16, 64]} position={[0, 0, 0]}><meshBasicMaterial color="#C78200" /></Torus>
-            <Torus args={[1.48, 0.05, 16, 64]} position={[0, 0, -0.3]}><meshBasicMaterial color="#FFC760" /></Torus>
+            {/* Bandas ajustadas al nuevo radio de la esfera */}
+            <Torus args={[1.08, 0.05, 16, 64]} position={[0, 0, 0.3]}><meshBasicMaterial color="#FFC760" /></Torus>
+            <Torus args={[1.09, 0.08, 16, 64]} position={[0, 0, 0]}><meshBasicMaterial color="#C78200" /></Torus>
+            <Torus args={[1.08, 0.05, 16, 64]} position={[0, 0, -0.3]}><meshBasicMaterial color="#FFC760" /></Torus>
         </group>
       </Sphere>
+      
       <group ref={ringRef}>
-          <Torus args={[3.0, 0.5, 16, 64]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 0.08]}><meshToonMaterial color="#FFC760" /></Torus>
-          <Torus args={[2.2, 0.1, 16, 64]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 0.08]}><meshBasicMaterial color="#C78200" /></Torus>
+          {/* 2. ANILLOS: Reducidos proporcionalmente */}
+          {/* Anillo exterior: de 3.0 a 2.2 */}
+          <Torus args={[2.2, 0.4, 16, 64]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 0.08]}><meshToonMaterial color="#FFC760" /></Torus>
+          {/* Anillo interior: de 2.2 a 1.6 */}
+          <Torus args={[1.6, 0.1, 16, 64]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 0.08]}><meshBasicMaterial color="#C78200" /></Torus>
       </group>
+      
       <pointLight position={[2, 3, 2]} intensity={1} color="#FFC760" distance={15} />
     </group>
   );

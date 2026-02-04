@@ -1,7 +1,7 @@
 import { HeroSection } from './components/HeroSection'; 
 import { ServicesSection } from './components/ServicesSection';
 import { MoreServicesSection } from './components/MoreServicesSection'; 
-import { ProjectsSection } from './components/ProjectsSection'; 
+import { ProjectsGalaxy } from './components/ProjectsGalaxy'; 
 import { AboutUs } from './components/AboutUs'; 
 
 interface HomePageProps {
@@ -16,7 +16,7 @@ export const HomePage = ({ isMobile }: HomePageProps) => {
       <div id="mas-servicios"><MoreServicesSection isMobile={isMobile} /></div>
       <div id="nosotros"><AboutUs isMobile={isMobile} /></div>
       {/* Aquí llamamos a tu sección de proyectos corregida */}
-      <div id="proyectos"><ProjectsSection isMobile={isMobile} /></div>
+      <div id="proyectos"><ProjectsGalaxy isMobile={isMobile} /></div>
     </>
   );
 };

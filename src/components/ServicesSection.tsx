@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 
 interface ServicesSectionProps {
   isMobile: boolean;
@@ -10,7 +10,7 @@ const SPECIALTIES_DATA = [
     id: 'multicloud',
     label: 'Multicloud',
     title: 'Orquestación Multicloud',
-    desc: 'Unificamos GCP, Azure y Oracle en una estrategia coherente. Aprovechamos lo mejor de cada proveedor.',
+    desc: 'Unificamos GCP, Azure y Oracle en una estrategia coherente.',
     images: [
       { src: './assets/aws.png', alt: 'AWS' },
       { src: './assets/GCP.png', alt: 'GCP' },
@@ -22,16 +22,17 @@ const SPECIALTIES_DATA = [
     id: 'aws',
     label: 'AWS Select Partners',
     title: 'AWS Select Tier Partners',
-    desc: 'Como socios certificados, ofrecemos acceso exclusivo a roadmaps, soporte avanzado y arquitecturas validadas directamente por Amazon Web Services.',
+    desc: 'Arquitecturas validadas directamente por Amazon Web Services.',
     images: [
-      { src: './assets/aws_partners.png', alt: 'AWS Partner' }
+      { src: './assets/aws_partners.png', alt: 'AWS Partner' },
+      { src: './assets/aws.png', alt: 'AWS Logo' }
     ]
   },
   {
     id: 'ai',
     label: 'Inteligencia Artificial',
     title: 'Soluciones de IA Avanzada',
-    desc: 'Integración de LLMs y modelos predictivos para automatizar decisiones críticas y potenciar la eficiencia operativa de tu negocio.',
+    desc: 'Integración de LLMs para automatizar decisiones críticas.',
     images: [
       { src: './assets/MachineLearning.png', alt: 'IA' }
     ]
@@ -40,7 +41,7 @@ const SPECIALTIES_DATA = [
     id: 'finops',
     label: 'Estrategia FinOps',
     title: 'Control Financiero Cloud',
-    desc: 'Maximiza tu ROI en la nube. Implementamos cultura FinOps para visibilidad total de costos, optimización de recursos y reducción de desperdicios.',
+    desc: 'Maximiza su ROI. Visibilidad total de costos y optimización.',
     images: [
       { src: './assets/FinOps.png', alt: 'FinOps' }
     ]
@@ -49,7 +50,7 @@ const SPECIALTIES_DATA = [
     id: 'cloudnative',
     label: 'Cloud-Native',
     title: 'Arquitecturas Cloud-Native',
-    desc: 'Desarrollo moderno basado en Microservicios, Kubernetes y Serverless. Aplicaciones resilientes diseñadas para escalar infinitamente.',
+    desc: 'Desarrollo moderno basado en Microservicios y Kubernetes.',
     images: [
       { src: './assets/multi_cloud.png', alt: 'Cloud Native' }
     ]
@@ -57,7 +58,6 @@ const SPECIALTIES_DATA = [
 ];
 
 export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
-  // --- ESTADO AVANZADO PARA LA ANIMACIÓN ---
   const [activeId, setActiveId] = useState(SPECIALTIES_DATA[0].id);
   const prevIdRef = useRef<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -79,7 +79,6 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
     ? SPECIALTIES_DATA.find(s => s.id === prevIdRef.current) 
     : null;
 
-
   return (
     <section style={{ 
       position: 'relative', 
@@ -100,15 +99,13 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
       </div>
 
       <div style={{ 
-        position: 'relative',
-        zIndex: 20,
+        position: 'relative', zIndex: 20,
         display: 'grid', 
         gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
         gap: isMobile ? '50px' : '80px', 
         alignItems: 'start'
       }}>
-
-        {/* COLUMNA IZQUIERDA */}
+        {/* COLUMNA IZQUIERDA: CONTENIDO ESTÁTICO RECUPERADO */}
         <div>
           <div style={{ marginBottom: '40px' }}>
             <h2 style={{ fontSize: isMobile ? '2rem' : '3rem', fontWeight: 800, color: '#111111', lineHeight: 1.1, marginBottom: '20px' }}>
@@ -132,64 +129,50 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
           </div>
         </div>
 
-        {/* COLUMNA DERECHA */}
+        {/* COLUMNA DERECHA: TARJETAS DINÁMICAS */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <h3 style={{ fontSize: '1.8rem', color: '#111111', marginBottom: '10px' }}>
             Nuestras Especialidades
           </h3>
 
-          {/* BOTONES */}
+          {/* BOTONES TABS */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
-            {SPECIALTIES_DATA.map((item) => {
-              const isActive = activeId === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => handleTabClick(item.id)}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '20px',
-                    border: 'none',
-                    fontSize: '0.9rem',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'all 0.3s ease',
-                    backgroundColor: isActive ? '#FAA918' : '#f3f4f6',
-                    color: isActive ? '#000' : '#666',
-                    boxShadow: isActive ? '0 4px 10px rgba(250, 169, 24, 0.3)' : 'none',
-                    transform: isActive ? 'scale(1.05)' : 'scale(1)'
-                  }}
-                >
-                  {item.label}
-                </button>
-              );
-            })}
+            {SPECIALTIES_DATA.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => handleTabClick(item.id)}
+                style={{
+                  padding: '8px 16px', borderRadius: '20px', border: 'none', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.3s ease',
+                  backgroundColor: activeId === item.id ? '#FAA918' : '#f3f4f6', color: activeId === item.id ? '#000' : '#666',
+                  boxShadow: activeId === item.id ? '0 4px 10px rgba(250, 169, 24, 0.3)' : 'none', transform: activeId === item.id ? 'scale(1.05)' : 'scale(1)'
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
 
-          {/* --- CONTENEDOR DE PILA DE CARTAS --- */}
-          <div style={{ display: 'grid', gridTemplateAreas: '"stack"', position: 'relative', minHeight: '220px' }}>
-            
-            {/* CARTA PREVIA (FONDO) */}
+          {/* PILA DE CARTAS (CON TAMAÑO UNIFICADO) */}
+          <div style={{ 
+              display: 'grid', 
+              gridTemplateAreas: '"stack"', 
+              position: 'relative', 
+              minHeight: isMobile ? '450px' : '350px' 
+          }}>
             {prevData && (
               <div className="specialty-card card-static-behind" style={{ gridArea: 'stack', zIndex: 1 }}>
-                 {/* Pasamos isMobile al contenido */}
                  <CardContent data={prevData} isMobile={isMobile} />
               </div>
             )}
-
-            {/* CARTA ACTIVA (FRENTE) */}
             <div 
               key={activeId} 
               className={`specialty-card ${isAnimating ? 'card-animating-in' : ''}`}
               style={{ gridArea: 'stack', zIndex: 2 }}
               onAnimationEnd={handleAnimationEnd}
             >
-               {/* Pasamos isMobile al contenido */}
                <CardContent data={activeData} isMobile={isMobile} />
             </div>
-
           </div>
-
         </div>
       </div>
 
@@ -203,7 +186,6 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
       </div>
 
       <style>{`
-        /* --- ESTILOS BASE DE LA TARJETA --- */
         .specialty-card {
             background: #ffffff;
             border: 1px solid #e5e7eb;
@@ -211,137 +193,107 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
             border-radius: 16px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.08);
             display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            height: 100%; 
-            width: 100%; 
-            position: relative;
-            opacity: 1 !important;
+            align-items: center;
+            overflow: hidden;
         }
-        
         .specialty-card::before {
             content: ''; position: absolute; z-index: -1;
             top: 5px; left: 5px; right: -5px; bottom: -5px;
             background: #f0f0f0; border: 1px solid #ddd; border-radius: 16px;
         }
-
-        /* --- ESTADOS DE ANIMACIÓN --- */
-        .card-static-behind { }
-
-        /* Carta nueva (entra lateralmente, recorrido largo, sólida) */
-        .card-animating-in {
-            /* CAMBIO: Duración más rápida (0.4s en lugar de 0.8s) */
-            animation: dealCardOver 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-            box-shadow: -20px 15px 40px rgba(0,0,0,0.2); 
+        .card-animating-in { animation: deal 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        @keyframes deal {
+            0% { transform: translateX(300px) rotate(5deg); opacity: 0; }
+            100% { transform: translateX(0) rotate(0deg); opacity: 1; }
         }
-
-        @keyframes dealCardOver {
-            0% { 
-                transform: translateX(300px) rotate(5deg); 
-            }
-            100% { 
-                transform: translateX(0) rotate(0deg);
-                box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-            }
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
         }
-
-        /* ONDAS (Sin cambios) */
         .wave-container { position: absolute; left: 0; width: 100%; height: 180px; overflow: hidden; line-height: 0; z-index: 1; pointer-events: none; }
         .top-waves { top: 0; }
         .bottom-waves { bottom: 0; transform: scaleY(-1); }
-        .wave-svg { position: relative; display: block; width: calc(100% + 1.3px); height: 100%; }
-        .wave-anim-slow { animation: wave-sway 6s ease-in-out infinite alternate; transform-origin: center top; }
-        .wave-anim-medium { animation: wave-sway 5s ease-in-out infinite alternate-reverse; transform-origin: center top; }
-        .wave-anim-fast { animation: wave-sway 4s ease-in-out infinite alternate; transform-origin: center top; }
-        @keyframes wave-sway { 0% { transform: scaleY(1); } 100% { transform: scaleY(1.1); } }
+        .wave-svg { width: 100%; height: 100%; }
+        .wave-anim-slow { animation: sway 6s ease-in-out infinite alternate; }
+        @keyframes sway { 0% { transform: scaleY(1); } 100% { transform: scaleY(1.1); } }
       `}</style>
     </section>
   );
 };
 
-// --- COMPONENTE AUXILIAR MODIFICADO (ICONOS MAXIMIZADOS EN MÓVIL) ---
 const CardContent = ({ data, isMobile }: { data: any, isMobile: boolean }) => {
-  const isMultiImage = data.images.length > 1;
+  const isMulticloud = data.id === 'multicloud';
+  const isAWS = data.id === 'aws';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
-      
-      {/* SECCIÓN DE IMAGEN */}
-      <div style={{ 
-        flex: isMultiImage ? '0 0 auto' : '1', 
-        display: 'flex',
+    <div style={{ 
+        display: 'flex', 
+        flexDirection: isMobile ? 'column-reverse' : 'row', 
+        width: '100%', 
         alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: '25px',
-        width: '100%',
-        minHeight: isMultiImage ? 'auto' : '140px' 
-      }}>
-          {isMultiImage ? (
-              // LÓGICA RESPONSIVE PARA MULTICLOUD
-              <div style={{ 
-                  display: isMobile ? 'grid' : 'flex', 
-                  // MÓVIL: Grid 2x2 | PC: Fila
-                  gridTemplateColumns: isMobile ? '1fr 1fr' : undefined,
-                  flexDirection: isMobile ? undefined : 'row',
-                  
-                  flexWrap: 'nowrap',
-                  
-                  // AJUSTE MÓVIL: Espacio mínimo
-                  gap: isMobile ? '5px' : '5px', 
-                  
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  width: '100%',
-              }}>
-                  {data.images.map((img: any, idx: number) => (
-                      <div key={idx} style={{ display: 'flex', justifyContent: 'center' }}>
-                        <img 
-                          src={img.src} 
-                          alt={img.alt} 
-                          style={{ 
-                            // TAMAÑO MÁXIMO MÓVIL: 110px
-                            width: isMobile ? '110px' : '140px',
-                            height: isMobile ? '110px' : '140px',
-                            
-                            objectFit: 'contain',
-                            filter: 'drop-shadow(0 5px 8px rgba(0,0,0,0.15))',
-                            transition: 'transform 0.2s ease'
-                          }} 
-                          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-                          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        />
-                      </div>
-                  ))}
-              </div>
-          ) : (
-              // DISEÑO SINGLE
-              <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '10px' }}>
-                   <img 
-                     src={data.images[0].src} 
-                     alt={data.images[0].alt} 
-                     style={{ 
-                       width: 'auto', 
-                       height: '120px', 
-                       maxWidth: '100%',
-                       objectFit: 'contain',
-                       filter: 'drop-shadow(0 10px 15px rgba(0,0,0,0.15))' 
-                     }} 
-                   />
-              </div>
-          )}
+        gap: '20px'
+    }}>
+      {/* TEXTO: 35% de ancho en escritorio */}
+      <div style={{ flex: isMobile ? 'none' : '0 0 35%' }}>
+        <h4 style={{ fontSize: '1.7rem', fontWeight: 800, margin: '0 0 10px 0', color: '#111' }}>{data.title}</h4>
+        <div style={{ width: '40px', height: '4px', background: '#FAA918', marginBottom: '15px' }}></div>
+        <p style={{ color: '#555', fontSize: '1.05rem', lineHeight: 1.5 }}>{data.desc}</p>
       </div>
 
-      {/* TÍTULO Y TEXTO */}
-      <div style={{ flex: '0 0 auto' }}>
-        <h4 style={{ color: '#111111', fontSize: '1.6rem', fontWeight: 700, margin: '0 0 12px 0', lineHeight: 1.2 }}>
-          {data.title}
-        </h4>
-        
-        <div style={{ marginBottom: '15px', height: '4px', width: '50px', background: '#FAA918', borderRadius: '2px' }}></div>
-
-        <p style={{ color: '#555', fontSize: '1.1rem', lineHeight: 1.6, margin: 0 }}>
-          {data.desc}
-        </p>
+      {/* IMÁGENES: 65% de ancho en escritorio */}
+      <div style={{ 
+        flex: '1', 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        width: '100%'
+      }}>
+        {isMulticloud ? (
+          /* GRID 2x2 PARA MULTICLOUD */
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: isMobile ? '10px' : '15px', 
+            justifyContent: 'center',
+            alignItems: 'center'
+          }}>
+            {data.images.map((img: any, i: number) => (
+              <img 
+                key={i} src={img.src} alt={img.alt} 
+                style={{ 
+                    width: isMobile ? '100px' : '145px', // Íconos más grandes
+                    height: 'auto', 
+                    filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.1))',
+                    animation: `iconFloat 4s ease-in-out infinite`,
+                    animationDelay: `${i * 0.4}s`
+                }} 
+              />
+            ))}
+          </div>
+        ) : isAWS ? (
+            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                {data.images.map((img: any, i: number) => (
+                    <img 
+                        key={i} src={img.src} alt={img.alt} 
+                        style={{ 
+                            height: isMobile ? '110px' : '190px', 
+                            animation: `iconFloat 5s ease-in-out infinite`,
+                            animationDelay: `${i * 1}s`
+                        }} 
+                    />
+                ))}
+            </div>
+        ) : (
+          <img 
+            src={data.images[0].src} 
+            alt={data.images[0].alt} 
+            style={{ 
+                height: isMobile ? '170px' : '250px',
+                width: 'auto',
+                animation: 'iconFloat 5s ease-in-out infinite' 
+            }} 
+          />
+        )}
       </div>
     </div>
   );
