@@ -46,7 +46,7 @@ const ProjectFlipCard = ({ project, isMobile }: { project: Project, isMobile: bo
     padding: isMobile ? '15px' : '30px', 
     boxShadow: `0 0 50px ${project.color}20`,
     border: `1px solid ${project.color}`,
-    background: 'rgba(255, 255, 255, 0.03)',
+    background: 'rgba(214, 13, 13, 0.03)',
     backdropFilter: 'blur(12px)',
   };
 
