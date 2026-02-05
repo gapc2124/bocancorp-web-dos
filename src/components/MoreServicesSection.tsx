@@ -3,8 +3,7 @@ import { Canvas, useFrame } from '@react-three/fiber';
 import { 
   Torus, 
   Sphere,
-  OrbitControls,
-  PerspectiveCamera
+  OrbitControls
 } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -34,7 +33,7 @@ const SERVICES_CONTENT = {
 type CategoryKey = keyof typeof SERVICES_CONTENT;
 
 // =====================================================================
-// 🪐 PLANETA 1: SATURNO (Tamaño Reducido)
+// 🪐 PLANETA 1: SATURNO (Referencia de Tamaño)
 // =====================================================================
 function SaturnCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
@@ -47,11 +46,10 @@ function SaturnCartoon() {
 
   return (
     <group rotation={[0.3, 0, 0]}>
-      {/* 1. ESFERA: Reducida de 1.5 a 1.1 */}
+      {/* ESFERA BASE: Radio 1.0 */}
       <Sphere ref={planetRef} args={[1., 32, 32]}>
         <meshToonMaterial color={BOCANCORP_ORANGE} />
         <group rotation={[Math.PI / 2, 0, 0]}>
-            {/* Bandas ajustadas al nuevo radio de la esfera */}
             <Torus args={[1.08, 0.05, 16, 64]} position={[0, 0, 0.3]}><meshBasicMaterial color="#FFC760" /></Torus>
             <Torus args={[1.09, 0.08, 16, 64]} position={[0, 0, 0]}><meshBasicMaterial color="#C78200" /></Torus>
             <Torus args={[1.08, 0.05, 16, 64]} position={[0, 0, -0.3]}><meshBasicMaterial color="#FFC760" /></Torus>
@@ -59,10 +57,7 @@ function SaturnCartoon() {
       </Sphere>
       
       <group ref={ringRef}>
-          {/* 2. ANILLOS: Reducidos proporcionalmente */}
-          {/* Anillo exterior: de 3.0 a 2.2 */}
           <Torus args={[2.2, 0.4, 16, 64]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 0.08]}><meshToonMaterial color="#FFC760" /></Torus>
-          {/* Anillo interior: de 2.2 a 1.6 */}
           <Torus args={[1.6, 0.1, 16, 64]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 0.08]}><meshBasicMaterial color="#C78200" /></Torus>
       </group>
       
@@ -72,41 +67,43 @@ function SaturnCartoon() {
 }
 
 // =====================================================================
-// 🪐 PLANETA 2: URANO (Rotación Lenta)
+// 🪐 PLANETA 2: URANO (Redimensionado para igualar a Saturno)
 // =====================================================================
 function UranusCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Group>(null);
   
   useFrame((_, delta) => {
-    // CAMBIO: Velocidad reducida para movimiento majestuoso
-    if (planetRef.current) planetRef.current.rotation.y -= delta * 0.04; // Antes 0.15
+    if (planetRef.current) planetRef.current.rotation.y -= delta * 0.04; 
     if (ringRef.current) {
-        ringRef.current.rotation.x += delta * 0.02; // Antes 0.05
-        ringRef.current.rotation.z += delta * 0.01; // Antes 0.02
+        ringRef.current.rotation.x += delta * 0.02; 
+        ringRef.current.rotation.z += delta * 0.01; 
     }
   });
 
   return (
     <group rotation={[0, 0, Math.PI / 1.8]}> 
-      <Sphere ref={planetRef} args={[1.5, 48, 48]}>
+      {/* 1. ESFERA: Reducida de 1.5 a 1.0 (Igual que Saturno) */}
+      <Sphere ref={planetRef} args={[1.0, 48, 48]}>
         <meshToonMaterial color={ACCENT_BLUE} />
         <group rotation={[Math.PI / 2, 0, 0]}>
-            <Torus args={[1.48, 0.04, 16, 64]} position={[0, 0, 0.4]}><meshBasicMaterial color={BRIGHT_CYAN} /></Torus>
-            <Torus args={[1.48, 0.04, 16, 64]} position={[0, 0, -0.4]}><meshBasicMaterial color={BRIGHT_CYAN} /></Torus>
-            <Torus args={[1.49, 0.06, 16, 64]} position={[0, 0, 0.15]}><meshBasicMaterial color={DEEP_BLUE} /></Torus>
-            <Torus args={[1.49, 0.06, 16, 64]} position={[0, 0, -0.15]}><meshBasicMaterial color={DEEP_BLUE} /></Torus>
+            <Torus args={[1.02, 0.03, 16, 64]} position={[0, 0, 0.3]}><meshBasicMaterial color={BRIGHT_CYAN} /></Torus>
+            <Torus args={[1.02, 0.03, 16, 64]} position={[0, 0, -0.3]}><meshBasicMaterial color={BRIGHT_CYAN} /></Torus>
         </group>
       </Sphere>
 
+      {/* 2. ANILLOS: Escalados proporcionalmente (aprox 66% del tamaño anterior) */}
       <group ref={ringRef}>
-          <Torus args={[2.8, 0.5, 16, 100]} rotation={[Math.PI/2, 0,0]} scale={[1, 1, 0.05]}>
+          {/* Anillo Difuso */}
+          <Torus args={[1.9, 0.35, 16, 100]} rotation={[Math.PI/2, 0,0]} scale={[1, 1, 0.05]}>
               <meshToonMaterial color={ACCENT_BLUE} transparent opacity={0.3} />
           </Torus>
-          <Torus args={[2.3, 0.05, 16, 100]} rotation={[Math.PI/2, 0,0]}>
+          {/* Anillo Fino Interior */}
+          <Torus args={[1.6, 0.04, 16, 100]} rotation={[Math.PI/2, 0,0]}>
               <meshBasicMaterial color={BRIGHT_CYAN} />
           </Torus>
-          <Torus args={[3.3, 0.05, 16, 100]} rotation={[Math.PI/2, 0,0]}>
+          {/* Anillo Fino Exterior */}
+          <Torus args={[2.3, 0.04, 16, 100]} rotation={[Math.PI/2, 0,0]}>
               <meshBasicMaterial color={BRIGHT_CYAN} />
           </Torus>
       </group>
@@ -117,7 +114,7 @@ function UranusCartoon() {
 }
 
 // =====================================================================
-// 🧊 ESTRELLAS (Lentísimas)
+// 🧊 ESTRELLAS
 // =====================================================================
 const BlueSquareStars = ({ count = 4000 }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
@@ -138,7 +135,7 @@ const BlueSquareStars = ({ count = 4000 }) => {
     meshRef.current.instanceMatrix.needsUpdate = true;
   }, [count, dummy]);
 
-  useFrame((_, delta) => { if(meshRef.current) meshRef.current.rotation.y += delta * 0.005; }); // Casi estáticas
+  useFrame((_, delta) => { if(meshRef.current) meshRef.current.rotation.y += delta * 0.005; });
 
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
@@ -146,6 +143,62 @@ const BlueSquareStars = ({ count = 4000 }) => {
       <meshBasicMaterial color={BLUE_SQUARE_COLOR} transparent opacity={0.8} />
     </instancedMesh>
   );
+};
+
+// =====================================================================
+// 🔘 BOTÓN ACTUALIZADO (Color Fuerte + Texto Negro)
+// =====================================================================
+const ServiceButton = ({ item, themeColor }: { item: string, themeColor: string }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
+    return (
+        <button 
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            style={{
+                width: '100%', 
+                padding: '16px 25px', 
+                borderRadius: '8px',
+                
+                // --- CAMBIO 1: Color mucho más fuerte (85% opacidad = 'D9') ---
+                backgroundColor: isHovered ? `${themeColor}D9` : 'rgba(255, 255, 255, 0.08)',
+                
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                
+                // --- CAMBIO 2: Texto Negro al seleccionar ---
+                color: isHovered ? '#000000' : 'rgba(255, 255, 255, 0.9)',
+                
+                fontSize: '1.05rem', 
+                fontWeight: 600, 
+                textAlign: 'left', 
+                cursor: 'pointer', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                
+                transition: 'background-color 0.3s ease, color 0.3s ease, transform 0.2s',
+                
+                transform: isHovered ? 'translateX(5px)' : 'translateX(0)',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+                marginBottom: '10px'
+            }}
+        >
+           <span>{item}</span>
+           
+           {/* ÍCONO MINIMALISTA (Ahora negro en hover para combinar) */}
+           <svg 
+             width="20" height="20" viewBox="0 0 24 24" fill="none" 
+             style={{ 
+                 stroke: isHovered ? '#000000' : themeColor, 
+                 strokeWidth: 2, 
+                 transition: 'stroke 0.2s, transform 0.2s',
+                 transform: isHovered ? 'translateX(3px)' : 'translateX(0)'
+             }}
+           >
+             <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
+           </svg>
+        </button>
+    );
 };
 
 // =====================================================================
@@ -199,45 +252,23 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
               <span style={{ color: activeData.themeColor, transition: 'color 0.5s ease' }}>Servicios</span>
             </h2>
 
-            {/* Switcher */}
-            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', borderRadius: '14px', padding: '5px', marginBottom: '30px', border: `1px solid ${activeData.themeColor}30` }}>
+            {/* Switcher de Categoría */}
+            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '6px', marginBottom: '30px', border: `1px solid ${activeData.themeColor}30` }}>
                 {(Object.keys(SERVICES_CONTENT) as CategoryKey[]).map((key) => (
                     <button key={key} onClick={() => setActiveCategory(key)} style={{
-                        flex: 1, padding: '12px', borderRadius: '10px', border: 'none', cursor: 'pointer',
+                        flex: 1, padding: '12px', borderRadius: '8px', border: 'none', cursor: 'pointer',
                         fontSize: '1rem', fontWeight: 700, transition: '0.3s',
                         background: activeCategory === key ? activeData.themeColor : 'transparent',
-                        color: activeCategory === key ? '#fff' : '#888',
+                        color: activeCategory === key ? (key === 'software' ? '#000' : '#fff') : '#aaa', // Ajuste contraste texto
                         boxShadow: activeCategory === key ? `0 4px 15px ${activeData.themeColor}40` : 'none'
                     }}>{SERVICES_CONTENT[key].label}</button>
                 ))}
             </div>
 
-            {/* Botones */}
-            <div style={{ display: 'grid', gap: '12px' }}>
+            {/* Lista de Botones de Servicios */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 {activeData.items.map((item) => (
-                    <button 
-                      key={item} 
-                      style={{
-                        width: '100%', padding: '18px 25px', borderRadius: '12px',
-                        border: '1px solid rgba(255,255,255,0.05)', borderLeft: `5px solid ${activeData.themeColor}`,
-                        background: `linear-gradient(90deg, ${activeData.themeColor}15 0%, transparent 100%)`,
-                        color: '#ddd', fontSize: '1.1rem', fontWeight: 600, textAlign: 'left', 
-                        cursor: 'pointer', display: 'flex', alignItems: 'center', transition: 'all 0.2s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                          e.currentTarget.style.background = `linear-gradient(90deg, ${activeData.themeColor}50 0%, transparent 100%)`;
-                          e.currentTarget.style.paddingLeft = '35px';
-                          e.currentTarget.style.color = '#fff';
-                      }}
-                      onMouseLeave={(e) => {
-                          e.currentTarget.style.background = `linear-gradient(90deg, ${activeData.themeColor}15 0%, transparent 100%)`;
-                          e.currentTarget.style.paddingLeft = '25px';
-                          e.currentTarget.style.color = '#ddd';
-                      }}
-                    >
-                       <span style={{ marginRight: '15px', color: activeData.themeColor }}>◈</span> 
-                       {item}
-                    </button>
+                    <ServiceButton key={item} item={item} themeColor={activeData.themeColor} />
                 ))}
             </div>
         </div>
@@ -258,8 +289,7 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
                     enablePan={false} 
                     enableZoom={false} 
                     autoRotate={true}
-                    // CAMBIO: Velocidad de órbita muy lenta
-                    autoRotateSpeed={0.8} // Antes 2
+                    autoRotateSpeed={0.8} 
                 />
 
                 <group scale={isMobile ? 0.7 : 0.85}>

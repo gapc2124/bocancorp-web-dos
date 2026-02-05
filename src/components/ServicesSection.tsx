@@ -1,8 +1,4 @@
-import React, { useState, useRef } from 'react';
-
-interface ServicesSectionProps {
-  isMobile: boolean;
-}
+import React, { useState } from 'react';
 
 // --- DATOS ---
 const SPECIALTIES_DATA = [
@@ -10,84 +6,42 @@ const SPECIALTIES_DATA = [
     id: 'multicloud',
     label: 'Multicloud',
     title: 'Orquestación Multicloud',
-    desc: 'Unificamos GCP, Azure y Oracle en una estrategia coherente.',
-    images: [
-      { src: './assets/aws.png', alt: 'AWS' },
-      { src: './assets/GCP.png', alt: 'GCP' },
-      { src: './assets/azure.png', alt: 'Azure' },
-      { src: './assets/oracle.png', alt: 'Oracle' }
-    ]
+    desc: 'Unificamos GCP, Azure y Oracle en una estrategia coherente con arquitecturas modernas.', 
+    images: [ { src: './assets/multi_cloud.png', alt: 'Multicloud Native' } ]
   },
   {
     id: 'aws',
     label: 'AWS Select Partners',
     title: 'AWS Select Tier Partners',
     desc: 'Arquitecturas validadas directamente por Amazon Web Services.',
-    images: [
-      { src: './assets/aws_partners.png', alt: 'AWS Partner' },
-      { src: './assets/aws.png', alt: 'AWS Logo' }
-    ]
+    images: [ { src: './assets/aws_partners.png', alt: 'AWS Partner' }, { src: './assets/aws_WAF.png', alt: 'AWS Logo' } ]
   },
   {
     id: 'ai',
     label: 'Inteligencia Artificial',
     title: 'Soluciones de IA Avanzada',
     desc: 'Integración de LLMs para automatizar decisiones críticas.',
-    images: [
-      { src: './assets/MachineLearning.png', alt: 'IA' }
-    ]
+    images: [ { src: './assets/MachineLearning.png', alt: 'IA' } ]
   },
   {
     id: 'finops',
     label: 'Estrategia FinOps',
     title: 'Control Financiero Cloud',
     desc: 'Maximiza su ROI. Visibilidad total de costos y optimización.',
-    images: [
-      { src: './assets/FinOps.png', alt: 'FinOps' }
-    ]
-  },
-  {
-    id: 'cloudnative',
-    label: 'Cloud-Native',
-    title: 'Arquitecturas Cloud-Native',
-    desc: 'Desarrollo moderno basado en Microservicios y Kubernetes.',
-    images: [
-      { src: './assets/multi_cloud.png', alt: 'Cloud Native' }
-    ]
+    images: [ { src: './assets/FinOps.png', alt: 'FinOps' } ]
   }
 ];
 
-export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
+export const ServicesSection = () => {
   const [activeId, setActiveId] = useState(SPECIALTIES_DATA[0].id);
-  const prevIdRef = useRef<string | null>(null);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   const handleTabClick = (newId: string) => {
-    if (newId === activeId || isAnimating) return;
-    prevIdRef.current = activeId;
+    if (newId === activeId) return;
     setActiveId(newId);
-    setIsAnimating(true);
   };
-
-  const handleAnimationEnd = () => {
-    prevIdRef.current = null;
-    setIsAnimating(false);
-  };
-
-  const activeData = SPECIALTIES_DATA.find(s => s.id === activeId)!;
-  const prevData = (isAnimating && prevIdRef.current) 
-    ? SPECIALTIES_DATA.find(s => s.id === prevIdRef.current) 
-    : null;
 
   return (
-    <section style={{ 
-      position: 'relative', 
-      width: '100%', 
-      padding: isMobile ? '180px 20px 180px' : '280px 100px 280px',
-      zIndex: 10, 
-      backgroundColor: '#ffffff', 
-      overflow: 'hidden' 
-    }}>
+    <section className="services-section">
       
       {/* ONDAS SUPERIORES */}
       <div className="wave-container top-waves">
@@ -98,81 +52,53 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
         </svg>
       </div>
 
-      <div style={{ 
-        position: 'relative', zIndex: 20,
-        display: 'grid', 
-        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-        gap: isMobile ? '50px' : '80px', 
-        alignItems: 'start'
-      }}>
-        {/* COLUMNA IZQUIERDA: CONTENIDO ESTÁTICO RECUPERADO */}
-        <div>
-          <div style={{ marginBottom: '40px' }}>
-            <h2 style={{ fontSize: isMobile ? '2rem' : '3rem', fontWeight: 800, color: '#111111', lineHeight: 1.1, marginBottom: '20px' }}>
-              Somos <span style={{ color: '#FAA918' }}>AWS Select Partners</span> y Especialistas Multi-Cloud
+      <div className="content-grid">
+        {/* COLUMNA IZQUIERDA */}
+        <div className="left-column">
+          <div style={{ marginBottom: 'clamp(20px, 4vw, 40px)' }}>
+            <h2 className="main-heading">
+              Somos <span className="highlight-text">AWS Select Partners</span> y Especialistas Multi-Cloud
+              <span className="sub-heading">
+                en GCP, Azure y Oracle Cloud.
+              </span>
             </h2>
-            <p style={{ fontSize: '1.25rem', color: '#333', marginBottom: '30px', fontWeight: 500 }}>
-              Partners XX en GCP, especialistas en Azure y Oracle Cloud.
-            </p>
-            <button className="btn-primary" style={{ padding: '15px 40px', fontSize: '1rem' }}>
-              AGENDE UNA CONSULTA
-            </button>
+            <button className="btn-primary custom-btn">AGENDE AHORA!</button>
           </div>
-
-          <div>
-            <h3 style={{ fontSize: '1.5rem', color: '#111111', marginBottom: '15px', borderLeft: '4px solid #FAA918', paddingLeft: '20px' }}>
-              Ventaja Competitiva
-            </h3>
-            <p style={{ fontSize: '1.1rem', lineHeight: 1.8, color: '#444444' }}>
+          <div className="advantage-box">
+            <h3 className="advantage-title">Ventaja Competitiva</h3>
+            <p className="advantage-text">
               Transformamos su infraestructura tecnológica en un motor de crecimiento. No solo migramos o mantenemos; evolucionamos su ecosistema digital para liderar el mercado.
             </p>
           </div>
         </div>
 
-        {/* COLUMNA DERECHA: TARJETAS DINÁMICAS */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <h3 style={{ fontSize: '1.8rem', color: '#111111', marginBottom: '10px' }}>
-            Nuestras Especialidades
-          </h3>
+        {/* COLUMNA DERECHA */}
+        <div className="right-column">
+          <h3 className="specialties-title">Nuestras Especialidades</h3>
 
-          {/* BOTONES TABS */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '10px' }}>
+          <div className="tabs-container">
             {SPECIALTIES_DATA.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
-                style={{
-                  padding: '8px 16px', borderRadius: '20px', border: 'none', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.3s ease',
-                  backgroundColor: activeId === item.id ? '#FAA918' : '#f3f4f6', color: activeId === item.id ? '#000' : '#666',
-                  boxShadow: activeId === item.id ? '0 4px 10px rgba(250, 169, 24, 0.3)' : 'none', transform: activeId === item.id ? 'scale(1.05)' : 'scale(1)'
-                }}
+                className={`tab-button ${activeId === item.id ? 'active' : ''}`}
               >
                 {item.label}
               </button>
             ))}
           </div>
 
-          {/* PILA DE CARTAS (CON TAMAÑO UNIFICADO) */}
-          <div style={{ 
-              display: 'grid', 
-              gridTemplateAreas: '"stack"', 
-              position: 'relative', 
-              minHeight: isMobile ? '450px' : '350px' 
-          }}>
-            {prevData && (
-              <div className="specialty-card card-static-behind" style={{ gridArea: 'stack', zIndex: 1 }}>
-                 <CardContent data={prevData} isMobile={isMobile} />
-              </div>
-            )}
-            <div 
-              key={activeId} 
-              className={`specialty-card ${isAnimating ? 'card-animating-in' : ''}`}
-              style={{ gridArea: 'stack', zIndex: 2 }}
-              onAnimationEnd={handleAnimationEnd}
-            >
-               <CardContent data={activeData} isMobile={isMobile} />
-            </div>
+          <div className="cards-stack-wrapper">
+            {SPECIALTIES_DATA.map((item) => (
+               <div 
+                 key={item.id}
+                 className={`specialty-card ${activeId === item.id ? 'active' : ''}`}
+               >
+                 <CardContent data={item} />
+               </div>
+            ))}
           </div>
+
         </div>
       </div>
 
@@ -186,113 +112,244 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
       </div>
 
       <style>{`
-        .specialty-card {
-            background: #ffffff;
-            border: 1px solid #e5e7eb;
-            padding: 35px;
-            border-radius: 16px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
-            display: flex;
-            align-items: center;
+        /* --- LAYOUT GENERAL --- */
+        .services-section {
+            position: relative;
+            width: 100%;
+            /* 1. SEPARACIÓN DE ONDAS: Aumentada a 240px mínimo para que respire bien */
+            padding: clamp(240px, 20vh, 320px) clamp(20px, 5vw, 100px);
+            z-index: 10;
+            background-color: #ffffff;
             overflow: hidden;
         }
+
+        .content-grid {
+            position: relative;
+            z-index: 20;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: clamp(40px, 4vw, 80px);
+            align-items: start;
+            max-width: 1400px; 
+            margin: 0 auto;
+            transition: max-width 0.3s ease;
+        }
+
+        /* --- TIPOGRAFÍA --- */
+        .main-heading {
+            font-size: clamp(1.8rem, 3.5vw, 2.8rem); 
+            font-weight: 800; color: #111; line-height: 1.1; margin-bottom: 25px;
+        }
+        .highlight-text { color: #FAA918; }
+        .sub-heading {
+            display: block; font-size: 0.7em; color: #6b7280; margin-top: 15px; font-weight: 600;
+        }
+        .custom-btn { padding: 15px 40px; font-size: 1rem; text-transform: uppercase; font-weight: 700; }
+        .advantage-title {
+            font-size: clamp(1.2rem, 2vw, 1.5rem); color: #111; margin-bottom: 15px;
+            border-left: 4px solid #FAA918; padding-left: 20px;
+        }
+        .advantage-text { font-size: clamp(1rem, 1.1vw, 1.1rem); lineHeight: 1.8; color: #444; }
+        .specialties-title { font-size: clamp(1.4rem, 3vw, 1.8rem); color: #111; margin-bottom: 20px; }
+
+        /* --- TABS --- */
+        .tabs-container { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+        .tab-button {
+            padding: 8px 16px; border-radius: 20px; border: none; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease; background-color: #f3f4f6; color: #666;
+        }
+        .tab-button.active {
+            background-color: #FAA918; color: #000; box-shadow: 0 4px 10px rgba(250, 169, 24, 0.3); transform: scale(1.05);
+        }
+
+        /* --- STACK --- */
+        .cards-stack-wrapper {
+            display: grid; grid-template-areas: "stack"; 
+            position: relative; width: 100%;
+        }
+
+        .specialty-card {
+            grid-area: stack; background: #ffffff; border: 1px solid #e5e7eb;
+            width: 100%; height: auto; min-height: 100%;
+            padding: clamp(30px, 3vw, 50px);
+            border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            display: flex; justify-content: center; overflow: hidden;
+            
+            /* ESTADO INACTIVO: Invisible y desplazado a la derecha */
+            opacity: 0; visibility: hidden; z-index: 1; pointer-events: none;
+            
+            /* 2. ANIMACIÓN "BARAJA" RESTAURADA */
+            transform: translateX(200px) rotate(5deg) scale(0.95);
+            transition: opacity 0.3s ease-out, visibility 0.3s ease-out, transform 0s 0.3s; 
+        }
+        
+        .specialty-card.active {
+            opacity: 1; visibility: visible; z-index: 10; pointer-events: auto;
+            
+            /* Posición final */
+            transform: translateX(0) rotate(0deg) scale(1);
+            
+            /* Transición fluida */
+            transition: opacity 0.4s ease-out, transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
         .specialty-card::before {
             content: ''; position: absolute; z-index: -1;
             top: 5px; left: 5px; right: -5px; bottom: -5px;
             background: #f0f0f0; border: 1px solid #ddd; border-radius: 16px;
         }
-        .card-animating-in { animation: deal 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
-        @keyframes deal {
-            0% { transform: translateX(300px) rotate(5deg); opacity: 0; }
-            100% { transform: translateX(0) rotate(0deg); opacity: 1; }
+
+        /* --- COLUMNAS BASE --- */
+        .card-text-col { flex: 1 1 300px; min-width: 250px; }
+        .card-img-col {
+            flex: 1 1 300px; display: flex; justify-content: center;
+            align-items: center; height: auto;
         }
-        @keyframes iconFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
+
+        /* --- IMÁGENES BASE (Móvil) --- */
+        .card-img-single, .card-img-secondary, .card-img-aws {
+            height: auto; width: auto; object-fit: contain;
+            animation: iconFloat 5s ease-in-out infinite;
         }
+        .card-img-single { max-height: 250px; max-width: 100%; }
+        .card-img-secondary { max-height: 180px; max-width: 90%; }
+        .card-img-aws { max-height: 130px; max-width: 45%; }
+
+
+        /* ========================================================= */
+        /* ZONA CRÍTICA: 1000px - 1400px (HORIZONTAL OPTIMIZADO) */
+        /* ========================================================= */
+        @media (min-width: 1000px) and (max-width: 1399px) {
+            
+            .specialty-card {
+                flex-direction: row; /* Horizontal */
+                align-items: center; 
+                /* 3. ALTURA REDUCIDA: De 480px a 380px para que no sea tan alta */
+                min-height: 380px; 
+            }
+
+            .card-text-col {
+                flex: 0 0 35%; /* Texto pequeño (35%) */
+                min-width: 0;
+                margin-right: 25px; 
+            }
+
+            .card-img-col {
+                flex: 1; /* Imagen toma el 65% restante */
+                justify-content: center;
+                height: 100%;
+            }
+
+            /* Imágenes ajustadas a la nueva altura de la tarjeta */
+            .card-img-single { max-height: 300px; } 
+            .card-img-secondary { max-height: 220px; } 
+            .card-img-aws { max-height: 170px; } 
+            
+            .card-text-col h4 { font-size: 1.6rem; }
+        }
+
+
+        /* ========================================================= */
+        /* ESCRITORIO GRANDE (1400px+) */
+        /* ========================================================= */
+        @media (min-width: 1400px) {
+            .specialty-card { flex-direction: row; align-items: center; }
+            .card-text-col { flex: 0 0 35%; }
+            .card-img-col { flex: 1; }
+            
+            .card-img-single { max-height: 420px; } 
+            .card-img-secondary { max-height: 280px; } 
+            .card-img-aws { max-height: 230px; }
+        }
+
+        /* ========================================================= */
+        /* ULTRA WIDE (1600px+) */
+        /* ========================================================= */
+        @media (min-width: 1600px) {
+            .content-grid { max-width: 1800px; gap: 80px; }
+            .main-heading { font-size: 3.5rem; }
+            .card-img-single { max-height: 480px; }
+            .card-img-aws { max-height: 280px; }
+        }
+
+        /* ========================================================= */
+        /* MÓVIL (< 1000px) - Todo vertical */
+        /* ========================================================= */
+        @media (max-width: 999px) {
+            .specialty-card { flex-direction: column; text-align: center; }
+            .card-text-col, .card-img-col { flex: 0 0 100% !important; min-width: 100% !important; width: 100%; }
+            .card-img-col { margin-top: 30px; }
+        }
+
+        @media (max-width: 480px) {
+             .services-section { padding: 100px 20px !important; }
+             .content-grid { grid-template-columns: 1fr; gap: 30px; }
+             .card-img-single { max-height: 180px; }
+        }
+
         .wave-container { position: absolute; left: 0; width: 100%; height: 180px; overflow: hidden; line-height: 0; z-index: 1; pointer-events: none; }
         .top-waves { top: 0; }
         .bottom-waves { bottom: 0; transform: scaleY(-1); }
         .wave-svg { width: 100%; height: 100%; }
         .wave-anim-slow { animation: sway 6s ease-in-out infinite alternate; }
         @keyframes sway { 0% { transform: scaleY(1); } 100% { transform: scaleY(1.1); } }
+        @keyframes iconFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        /* ========================================================= */
+        /* FIX MÓVIL (< 480px) - CORRECCIÓN DE ONDAS */
+        /* ========================================================= */
+        @media (max-width: 480px) {
+            .services-section {
+                /* CORRECCIÓN: Aumentado de 100px a 220px */
+                /* Las ondas miden 180px, así que necesitamos >180px para librarlas */
+                padding: 220px 20px 220px !important; 
+            }
+            
+            .content-grid { 
+                grid-template-columns: 1fr; 
+                gap: 40px; 
+            }
+            
+            .main-heading { 
+                font-size: 2rem; /* Tamaño legible en móvil */
+                margin-bottom: 20px; 
+            }
+
+            .specialty-card { 
+                padding: 25px 20px; 
+            }
+            
+            .card-img-single { max-height: 180px; }
+            .card-img-aws { max-height: 100px; max-width: 60%; }
+        }
       `}</style>
     </section>
   );
 };
 
-const CardContent = ({ data, isMobile }: { data: any, isMobile: boolean }) => {
-  const isMulticloud = data.id === 'multicloud';
+const CardContent = ({ data }: { data: any }) => {
   const isAWS = data.id === 'aws';
+  const isSecondaryImage = data.id === 'ai' || data.id === 'finops';
 
   return (
     <div style={{ 
-        display: 'flex', 
-        flexDirection: isMobile ? 'column-reverse' : 'row', 
-        width: '100%', 
-        alignItems: 'center',
-        gap: '20px'
+        display: 'flex', width: '100%', gap: 'clamp(20px, 4vw, 40px)', 
+        flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', height: '100%' 
     }}>
-      {/* TEXTO: 35% de ancho en escritorio */}
-      <div style={{ flex: isMobile ? 'none' : '0 0 35%' }}>
-        <h4 style={{ fontSize: '1.7rem', fontWeight: 800, margin: '0 0 10px 0', color: '#111' }}>{data.title}</h4>
-        <div style={{ width: '40px', height: '4px', background: '#FAA918', marginBottom: '15px' }}></div>
-        <p style={{ color: '#555', fontSize: '1.05rem', lineHeight: 1.5 }}>{data.desc}</p>
+      <div className="card-text-col">
+        <h4 style={{ fontSize: 'clamp(1.4rem, 2vw, 1.7rem)', fontWeight: 800, margin: '0 0 10px 0', color: '#111' }}>{data.title}</h4>
+        <div style={{ width: '40px', height: '4px', background: '#FAA918', marginBottom: '15px', margin: '0 auto 15px auto' }}></div>
+        <p style={{ color: '#555', fontSize: 'clamp(0.95rem, 1.1vw, 1.05rem)', lineHeight: 1.5 }}>{data.desc}</p>
       </div>
 
-      {/* IMÁGENES: 65% de ancho en escritorio */}
-      <div style={{ 
-        flex: '1', 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        width: '100%'
-      }}>
-        {isMulticloud ? (
-          /* GRID 2x2 PARA MULTICLOUD */
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(2, 1fr)', 
-            gap: isMobile ? '10px' : '15px', 
-            justifyContent: 'center',
-            alignItems: 'center'
-          }}>
-            {data.images.map((img: any, i: number) => (
-              <img 
-                key={i} src={img.src} alt={img.alt} 
-                style={{ 
-                    width: isMobile ? '100px' : '145px', // Íconos más grandes
-                    height: 'auto', 
-                    filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.1))',
-                    animation: `iconFloat 4s ease-in-out infinite`,
-                    animationDelay: `${i * 0.4}s`
-                }} 
-              />
-            ))}
-          </div>
-        ) : isAWS ? (
-            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+      <div className="card-img-col">
+        {isAWS ? (
+            <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
                 {data.images.map((img: any, i: number) => (
-                    <img 
-                        key={i} src={img.src} alt={img.alt} 
-                        style={{ 
-                            height: isMobile ? '110px' : '190px', 
-                            animation: `iconFloat 5s ease-in-out infinite`,
-                            animationDelay: `${i * 1}s`
-                        }} 
-                    />
+                    <img key={i} src={img.src} alt={img.alt} className="card-img-aws" style={{ animationDelay: `${i * 1}s` }} />
                 ))}
             </div>
         ) : (
-          <img 
-            src={data.images[0].src} 
-            alt={data.images[0].alt} 
-            style={{ 
-                height: isMobile ? '170px' : '250px',
-                width: 'auto',
-                animation: 'iconFloat 5s ease-in-out infinite' 
-            }} 
-          />
+          <img src={data.images[0].src} alt={data.images[0].alt} className={isSecondaryImage ? "card-img-secondary" : "card-img-single"} />
         )}
       </div>
     </div>
