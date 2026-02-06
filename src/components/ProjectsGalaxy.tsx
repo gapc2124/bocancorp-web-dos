@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 // ==========================================
-// 1. DATA
+// 1. DATA (Actualizada con Iconos y Nuevas Descripciones)
 // ==========================================
 interface Project {
   id: string;
@@ -9,17 +9,74 @@ interface Project {
   color: string;
   desc: string;
   img: string;
+  icon: string; // Nuevo campo para el icono del planeta
   orbitRadius: number; 
   speed: number;       
 }
 
 const PROJECTS_DATA: Project[] = [
-  { id: 'miranda', name: 'Miranda', color: '#00d2ff', desc: 'Optimización de rutas y gestión logística inteligente.', img: './assets/Miranda.png', orbitRadius: 110, speed: 0.8 },
-  { id: 'myintelli', name: 'MyIntelli', color: '#ff4b4b', desc: 'Dashboard BI avanzado para Big Data.', img: './assets/MyIntelli.png', orbitRadius: 160, speed: 0.6 },
-  { id: 'datecsa', name: 'DATECSA', color: '#ffae00', desc: 'Plataforma transaccional B2B de alto rendimiento.', img: './assets/DateCSA.png', orbitRadius: 210, speed: 0.5 },
-  { id: 'ruedaverde', name: 'RuedaVerde', color: '#00ff88', desc: 'Gamificación para movilidad urbana sostenible.', img: './assets/RuedaVerde.png', orbitRadius: 260, speed: 0.4 },
-  { id: 'tuulapp', name: 'TuulApp', color: '#aa00ff', desc: 'Marketplace de servicios on-demand.', img: './assets/tuulapp.png', orbitRadius: 310, speed: 0.3 },
-  { id: 'ingram', name: 'Ingram', color: '#2952ff', desc: 'Integración global de inventarios y logística.', img: './assets/Ingram.png', orbitRadius: 360, speed: 0.2 }
+  { 
+    id: 'miranda', 
+    name: 'Miranda', 
+    color: '#00d2ff', 
+    desc: 'Optimización de rutas y gestión logística inteligente.', 
+    img: './assets/Miranda.png',
+    icon: './assets/logo.png', // Icono por defecto
+    orbitRadius: 110, 
+    speed: 0.8 
+  },
+  { 
+    id: 'myintelli', 
+    name: 'MyIntelli', 
+    color: '#ff4b4b', 
+    // DESCRIPCIÓN ACTUALIZADA: Ciberseguridad
+    desc: 'Consultoría integral de Ciberseguridad: Ethical Hacking (Caja Negra), auditoría de vulnerabilidades y capacitación técnica.', 
+    img: './assets/MyIntelli.png', 
+    icon: './assets/logo.png',
+    orbitRadius: 160, 
+    speed: 0.6 
+  },
+  { 
+    id: 'datecsa', 
+    name: 'DATECSA', 
+    color: '#ffae00', 
+    desc: 'Plataforma transaccional B2B de alto rendimiento.', 
+    img: './assets/DateCSA.png', 
+    icon: './assets/logo.png',
+    orbitRadius: 210, 
+    speed: 0.5 
+  },
+  { 
+    id: 'ruedaverde', 
+    name: 'RuedaVerde', 
+    color: '#00ff88', 
+    // DESCRIPCIÓN ACTUALIZADA: IA Generativa
+    desc: 'Desarrollo de Chatbot inteligente con IA Generativa de texto para automatización y soporte al usuario.', 
+    img: './assets/RuedaVerde.png', 
+    icon: './assets/logo.png',
+    orbitRadius: 260, 
+    speed: 0.4 
+  },
+  { 
+    id: 'tuulapp', 
+    name: 'TuulApp', 
+    color: '#aa00ff', 
+    desc: 'Marketplace de servicios on-demand.', 
+    img: './assets/tuulapp.png', 
+    icon: './assets/logo.png',
+    orbitRadius: 310, 
+    speed: 0.3 
+  },
+  { 
+    id: 'ingram', 
+    name: 'Ingram', 
+    color: '#2952ff', 
+    desc: 'Integración global de inventarios y logística.', 
+    img: './assets/Ingram.png', 
+    icon: './assets/logo.png',
+    orbitRadius: 360, 
+    speed: 0.2 
+  }
 ];
 
 // ==========================================
@@ -90,13 +147,6 @@ const ProjectFlipCard = ({ project, isMobile }: { project: Project, isMobile: bo
                 objectFit: 'contain',
                 filter: `drop-shadow(0 0 15px ${project.color}60)`
               }}
-              onError={(e) => {
-                 (e.target as HTMLImageElement).style.display = 'none';
-                 e.currentTarget.parentElement!.innerText = project.name;
-                 e.currentTarget.parentElement!.style.color = 'white';
-                 e.currentTarget.parentElement!.style.fontSize = '2rem';
-                 e.currentTarget.parentElement!.style.fontWeight = 'bold';
-              }}
             />
           </div>
 
@@ -127,7 +177,8 @@ const ProjectFlipCard = ({ project, isMobile }: { project: Project, isMobile: bo
             textTransform: 'uppercase', 
             marginBottom: '20px',
             fontWeight: 900,
-            textShadow: `0 0 20px ${project.color}`
+            textShadow: `0 0 20px ${project.color}`,
+            textAlign: 'center'
           }}>
             {project.name}
           </h3>
@@ -171,7 +222,7 @@ const ProjectFlipCard = ({ project, isMobile }: { project: Project, isMobile: bo
 };
 
 // ==========================================
-// 3. COMPONENTE: SISTEMA SOLAR (Planetas más grandes)
+// 3. COMPONENTE: SISTEMA SOLAR (Planetas con Iconos)
 // ==========================================
 interface SolarSystemProps {
   projects: Project[];
@@ -225,9 +276,7 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile }: SolarSystemProp
       {projects.map((p) => {
         const isActive = activeId === p.id;
         
-        // --- CAMBIO AQUÍ: AUMENTAMOS EL TAMAÑO ---
-        // Antes Desktop: 35/28 -> Ahora: 45/32
-        // Antes Mobile:  24/18 -> Ahora: 30/22
+        // Tamaños base
         const baseSizeActive = isMobile ? 30 : 45;
         const baseSizeInactive = isMobile ? 22 : 32;
         
@@ -255,13 +304,32 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile }: SolarSystemProp
                 width: `${size}px`, 
                 height: `${size}px`, 
                 borderRadius: '50%', 
-                backgroundColor: p.color,
+                backgroundColor: p.color, // Color de fondo del planeta
                 boxShadow: isActive ? `0 0 25px ${p.color}` : `0 0 8px ${p.color}`,
                 border: '2px solid white', 
                 transition: 'all 0.3s ease', 
-                position: 'relative'
+                position: 'relative',
+                display: 'flex',            // Para centrar el icono
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden'          // Para que el icono no se salga del círculo
               }}>
-                {isActive && <div style={{ position: 'absolute', top: -30, left: '50%', transform: 'translateX(-50%)', fontSize: '20px' }}>🚀</div>}
+                
+                {/* --- ICONO DENTRO DEL PLANETA --- */}
+                <img 
+                  src={p.icon} 
+                  alt="icon" 
+                  style={{
+                    width: '60%', // Ajusta el tamaño del icono dentro del planeta
+                    height: '60%', 
+                    objectFit: 'contain',
+                    pointerEvents: 'none', // Evita que se arrastre la imagen
+                    filter: 'brightness(0) invert(1)' // Opcional: Hace el icono blanco si es negro
+                  }}
+                />
+
+                {/* Indicador de activo (cohete) */}
+                {isActive && <div style={{ position: 'absolute', top: -35, left: '50%', transform: 'translateX(-50%)', fontSize: '20px' }}>🚀</div>}
               </div>
             </div>
           </React.Fragment>

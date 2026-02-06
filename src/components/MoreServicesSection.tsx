@@ -1,9 +1,8 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
-import { Canvas, useFrame, useLoader } from '@react-three/fiber';
+import { Canvas, useFrame } from '@react-three/fiber';
 import { 
   Torus, 
   Sphere,
-  // Ring, // YA NO USAMOS RING ESTÁNDAR
   OrbitControls
 } from '@react-three/drei';
 import * as THREE from 'three';
@@ -34,76 +33,12 @@ const SERVICES_CONTENT = {
 type CategoryKey = keyof typeof SERVICES_CONTENT;
 
 // =====================================================================
-// 🪐 PLANETA 1: SATURNO (Corrección de Mapeo UV)
+// 🪐 PLANETA 1: SATURNO (Referencia de Tamaño)
 // =====================================================================
 function SaturnCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Group>(null);
   
-  // CARGAMOS TEXTURAS
-  const [sphereMap, ringMap] = useLoader(THREE.TextureLoader, [
-    './assets/saturno_sprite.png',
-    './assets/anillos_saturno_sprite.png'
-  ]);
-
-  // CONFIGURACIÓN DE TEXTURA
-  useEffect(() => {
-    // IMPORTANTE: Quitamos la rotación que causaba el problema vertical.
-    // Solo configuramos el wrapping para que el final se una con el principio.
-    ringMap.wrapS = THREE.RepeatWrapping; 
-    ringMap.wrapT = THREE.ClampToEdgeWrapping;
-    ringMap.rotation = 0; // Aseguramos rotación cero
-    ringMap.center.set(0.5, 0.5);
-    ringMap.needsUpdate = true;
-  }, [ringMap]);
-  
-  // --- GEOMETRÍA PERSONALIZADA DEL ANILLO ---
-  const customRingGeometry = useMemo(() => {
-    const innerRadius = 1.4;
-    const outerRadius = 2.8;
-    const thetaSegments = 128; 
-
-    const positions = [];
-    const uvs = [];
-    const indices = [];
-
-    for (let i = 0; i <= thetaSegments; i++) {
-        const angle = (i / thetaSegments) * Math.PI * 2;
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
-
-        // Mapeo corregido:
-        // El "Largo" de tu rectángulo (U) recorre el ángulo (0 a 1).
-        // El "Alto" de tu rectángulo (V) va del radio interno al externo.
-        
-        // Vértice Exterior (V=1)
-        positions.push(outerRadius * cos, 0, outerRadius * sin);
-        uvs.push(i / thetaSegments, 1); 
-
-        // Vértice Interior (V=0)
-        positions.push(innerRadius * cos, 0, innerRadius * sin);
-        uvs.push(i / thetaSegments, 0);
-    }
-
-    for (let i = 0; i < thetaSegments; i++) {
-        const outerCurrent = i * 2;
-        const innerCurrent = i * 2 + 1;
-        const outerNext = (i + 1) * 2;
-        const innerNext = (i + 1) * 2 + 1;
-
-        indices.push(outerCurrent, innerCurrent, innerNext);
-        indices.push(outerCurrent, innerNext, outerNext);
-    }
-
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
-    geometry.setIndex(indices);
-    geometry.computeVertexNormals();
-    
-    return geometry;
-  }, []);
-
   useFrame((_, delta) => {
     if (planetRef.current) planetRef.current.rotation.y += delta * 0.05; 
     if (ringRef.current) ringRef.current.rotation.z -= delta * 0.02;     
@@ -111,30 +46,28 @@ function SaturnCartoon() {
 
   return (
     <group rotation={[0.3, 0, 0]}>
-      {/* Esfera */}
+      {/* ESFERA BASE: Radio 1.0 */}
       <Sphere ref={planetRef} args={[1., 32, 32]}>
-        <meshStandardMaterial map={sphereMap} />
+        <meshToonMaterial color={BOCANCORP_ORANGE} />
+        <group rotation={[Math.PI / 2, 0, 0]}>
+            <Torus args={[1.08, 0.05, 16, 64]} position={[0, 0, 0.3]}><meshBasicMaterial color="#FFC760" /></Torus>
+            <Torus args={[1.09, 0.08, 16, 64]} position={[0, 0, 0]}><meshBasicMaterial color="#C78200" /></Torus>
+            <Torus args={[1.08, 0.05, 16, 64]} position={[0, 0, -0.3]}><meshBasicMaterial color="#FFC760" /></Torus>
+        </group>
       </Sphere>
       
-      {/* Anillo con mapeo corregido */}
       <group ref={ringRef}>
-          <mesh geometry={customRingGeometry} rotation={[0, 0, 0]}>
-            <meshStandardMaterial 
-                map={ringMap} 
-                transparent={true} 
-                side={THREE.DoubleSide} 
-                opacity={1}
-            />
-          </mesh>
+          <Torus args={[2.2, 0.4, 16, 64]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 0.08]}><meshToonMaterial color="#FFC760" /></Torus>
+          <Torus args={[1.6, 0.1, 16, 64]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 0.08]}><meshBasicMaterial color="#C78200" /></Torus>
       </group>
       
-      <pointLight position={[2, 3, 2]} intensity={1.5} color="#FFC760" distance={15} />
+      <pointLight position={[2, 3, 2]} intensity={1} color="#FFC760" distance={15} />
     </group>
   );
 }
 
 // =====================================================================
-// 🪐 PLANETA 2: URANO
+// 🪐 PLANETA 2: URANO (Redimensionado para igualar a Saturno)
 // =====================================================================
 function UranusCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
@@ -150,7 +83,7 @@ function UranusCartoon() {
 
   return (
     <group rotation={[0, 0, Math.PI / 1.8]}> 
-      {/* ESFERA: Radio 1.0 (Igual que Saturno) */}
+      {/* 1. ESFERA: Reducida de 1.5 a 1.0 (Igual que Saturno) */}
       <Sphere ref={planetRef} args={[1.0, 48, 48]}>
         <meshToonMaterial color={ACCENT_BLUE} />
         <group rotation={[Math.PI / 2, 0, 0]}>
@@ -159,14 +92,17 @@ function UranusCartoon() {
         </group>
       </Sphere>
 
-      {/* ANILLOS */}
+      {/* 2. ANILLOS: Escalados proporcionalmente (aprox 66% del tamaño anterior) */}
       <group ref={ringRef}>
+          {/* Anillo Difuso */}
           <Torus args={[1.9, 0.35, 16, 100]} rotation={[Math.PI/2, 0,0]} scale={[1, 1, 0.05]}>
               <meshToonMaterial color={ACCENT_BLUE} transparent opacity={0.3} />
           </Torus>
+          {/* Anillo Fino Interior */}
           <Torus args={[1.6, 0.04, 16, 100]} rotation={[Math.PI/2, 0,0]}>
               <meshBasicMaterial color={BRIGHT_CYAN} />
           </Torus>
+          {/* Anillo Fino Exterior */}
           <Torus args={[2.3, 0.04, 16, 100]} rotation={[Math.PI/2, 0,0]}>
               <meshBasicMaterial color={BRIGHT_CYAN} />
           </Torus>
@@ -210,7 +146,7 @@ const BlueSquareStars = ({ count = 4000 }) => {
 };
 
 // =====================================================================
-// 🔘 BOTÓN DE SERVICIO
+// 🔘 BOTÓN ACTUALIZADO (Color Fuerte + Texto Negro)
 // =====================================================================
 const ServiceButton = ({ item, themeColor }: { item: string, themeColor: string }) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -223,9 +159,15 @@ const ServiceButton = ({ item, themeColor }: { item: string, themeColor: string 
                 width: '100%', 
                 padding: '16px 25px', 
                 borderRadius: '8px',
+                
+                // --- CAMBIO 1: Color mucho más fuerte (85% opacidad = 'D9') ---
                 backgroundColor: isHovered ? `${themeColor}D9` : 'rgba(255, 255, 255, 0.08)',
+                
                 border: '1px solid rgba(255, 255, 255, 0.1)',
+                
+                // --- CAMBIO 2: Texto Negro al seleccionar ---
                 color: isHovered ? '#000000' : 'rgba(255, 255, 255, 0.9)',
+                
                 fontSize: '1.05rem', 
                 fontWeight: 600, 
                 textAlign: 'left', 
@@ -233,13 +175,17 @@ const ServiceButton = ({ item, themeColor }: { item: string, themeColor: string 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'space-between',
+                
                 transition: 'background-color 0.3s ease, color 0.3s ease, transform 0.2s',
+                
                 transform: isHovered ? 'translateX(5px)' : 'translateX(0)',
                 boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
                 marginBottom: '10px'
             }}
         >
            <span>{item}</span>
+           
+           {/* ÍCONO MINIMALISTA (Ahora negro en hover para combinar) */}
            <svg 
              width="20" height="20" viewBox="0 0 24 24" fill="none" 
              style={{ 
@@ -313,13 +259,13 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
                         flex: 1, padding: '12px', borderRadius: '8px', border: 'none', cursor: 'pointer',
                         fontSize: '1rem', fontWeight: 700, transition: '0.3s',
                         background: activeCategory === key ? activeData.themeColor : 'transparent',
-                        color: activeCategory === key ? (key === 'software' ? '#000' : '#fff') : '#aaa', 
+                        color: activeCategory === key ? (key === 'software' ? '#000' : '#fff') : '#aaa', // Ajuste contraste texto
                         boxShadow: activeCategory === key ? `0 4px 15px ${activeData.themeColor}40` : 'none'
                     }}>{SERVICES_CONTENT[key].label}</button>
                 ))}
             </div>
 
-            {/* Lista de Botones */}
+            {/* Lista de Botones de Servicios */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 {activeData.items.map((item) => (
                     <ServiceButton key={item} item={item} themeColor={activeData.themeColor} />
