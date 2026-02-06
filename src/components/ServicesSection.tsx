@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
 
+// --- 1. AGREGAMOS LA INTERFACE PARA TYPESCRIPT ---
+interface ServicesSectionProps {
+  isMobile: boolean;
+}
+
 // --- DATOS ---
 const SPECIALTIES_DATA = [
   {
@@ -32,7 +37,8 @@ const SPECIALTIES_DATA = [
   }
 ];
 
-export const ServicesSection = () => {
+// --- 2. RECIBIMOS LA PROP (AUNQUE NO LA USES, ESTO CORRIGE EL ERROR EN HOMEPAGE) ---
+export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
   const [activeId, setActiveId] = useState(SPECIALTIES_DATA[0].id);
 
   const handleTabClick = (newId: string) => {
