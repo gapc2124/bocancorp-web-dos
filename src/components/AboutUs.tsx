@@ -12,8 +12,8 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
   // --- LÓGICA DE REBOTE ---
   const containerRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLImageElement>(null);
-  const [pos, setPos] = useState({ x: 20, y: 50 });
-  const [vel, setVel] = useState({ x: 2.5, y: 2.5 });
+  const [pos, setPos] = useState({ x: 50, y: 50 }); // Posición inicial
+  const [vel, setVel] = useState({ x: 3, y: 3 });   // Velocidad ajustada para el tamaño nuevo
 
   useEffect(() => {
     // Detección de Sistema Operativo
@@ -34,7 +34,9 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
         let newVelX = vel.x;
         let newVelY = vel.y;
 
+        // Rebote horizontal
         if (newX <= 0 || newX + logo.width >= container.width) newVelX = -vel.x;
+        // Rebote vertical (ajustado por la barra de título ~30px)
         if (newY <= 30 || newY + logo.height >= container.height) newVelY = -vel.y;
 
         if (newVelX !== vel.x || newVelY !== vel.y) setVel({ x: newVelX, y: newVelY });
@@ -46,7 +48,7 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
     return () => clearInterval(interval);
   }, [vel]);
 
-  // --- RENDERIZADO DE LA BARRA SEGÚN SO ---
+  // --- RENDERIZADO DE LA BARRA DE TÍTULO SEGÚN SO ---
   const renderWindowHeader = () => {
     switch (os) {
       case 'mac':
@@ -93,7 +95,6 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
   return (
     <section style={{ 
       position: 'relative', width: '100%', 
-      // Ajuste de padding para las ondas
       padding: isMobile ? '180px 20px 180px' : '280px 100px 280px',
       zIndex: 10, backgroundColor: '#ffffff', overflow: 'hidden' 
     }}>
@@ -108,28 +109,40 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
       </div>
 
       <div style={styles.gridContainer(isMobile)}>
-        {/* COLUMNA IZQUIERDA */}
+        {/* COLUMNA IZQUIERDA: TEXTO */}
         <div>
           <h2 style={styles.title(isMobile)}>
-            Más que proveedores, somos su <span style={{ color: '#FAA918' }}>Aliado de Innovación.</span>
+            Más que proveedores, somos su <span style={{ color: '#FAA918' }}>Aliado de Innovación Tecnológica.</span>
           </h2>
-          <p style={styles.paragraph}>ADN MultiCloud y enfoque FinOps para su empresa.</p>
+          
+          <div style={styles.paragraph}>
+            <p>
+              Bocancorp es una corporación norteamericana con centros de operaciones estratégicos en 
+              <strong> Colombia y Perú</strong>. Nos especializamos en orquestar soluciones tecnológicas complejas 
+              para empresas que buscan escalabilidad y seguridad.
+            </p>
+          </div>
+
           <button className="btn-primary">CONÓCENOS MÁS</button>
         </div>
 
         {/* COLUMNA DERECHA: VENTANA COSMOS */}
-        <div style={{ display: 'flex', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
           <div ref={containerRef} style={styles.windowBox(isMobile)}>
             {renderWindowHeader()}
+            
+            {/* FONDO COSMOS */}
             <div style={styles.cosmosBg} />
+
+            {/* LOGO REBOTANDO */}
             <img 
               ref={logoRef}
               src="./assets/bocancorp-logo.png" 
               alt="Bocancorp Logo" 
               style={{ 
-                width: isMobile ? '80px' : '120px', position: 'absolute',
+                width: isMobile ? '80px' : '140px', position: 'absolute',
                 left: `${pos.x}px`, top: `${pos.y}px`, zIndex: 10,
-                filter: 'drop-shadow(0 0 10px rgba(250, 169, 24, 0.5))'
+                filter: 'drop-shadow(0 0 15px rgba(250, 169, 24, 0.6))'
               }} 
             />
           </div>
@@ -164,17 +177,35 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
 // --- ESTILOS ---
 const styles: any = {
   gridContainer: (isMobile: boolean) => ({
-    display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
-    gap: '50px', alignItems: 'center', maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 20
+    display: 'grid', 
+    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', // Columnas iguales en desktop
+    // GAP AUMENTADO: 120px en desktop para más separación
+    gap: isMobile ? '50px' : '120px', 
+    alignItems: 'center', 
+    maxWidth: '1400px', 
+    margin: '0 auto', 
+    position: 'relative', 
+    zIndex: 20
   }),
   title: (isMobile: boolean) => ({
     fontSize: isMobile ? '2.2rem' : '3.5rem', fontWeight: 800, color: '#111', lineHeight: 1.1, marginBottom: '20px'
   }),
-  paragraph: { fontSize: '1.2rem', color: '#555', marginBottom: '30px' },
+  paragraph: { fontSize: '1.2rem', color: '#555', marginBottom: '30px', lineHeight: 1.8 },
+  
+  // VENTANA CON DIMENSIONES AUMENTADAS Y RESPONSIVE
   windowBox: (isMobile: boolean) => ({
-    width: isMobile ? '100%' : '500px', height: '350px', borderRadius: '12px',
-    position: 'relative', overflow: 'hidden', boxShadow: '0 25px 50px rgba(0,0,0,0.2)', border: '1px solid #333'
+    // Mobile: 100%, Desktop: max 600px pero fluido si la pantalla se achica
+    width: isMobile ? '100%' : '100%', 
+    maxWidth: isMobile ? 'none' : '600px',
+    // Altura aumentada en desktop
+    height: isMobile ? '350px' : '480px', 
+    borderRadius: '12px',
+    position: 'relative', 
+    overflow: 'hidden', 
+    boxShadow: '0 30px 60px rgba(0,0,0,0.25)', // Sombra un poco más fuerte para la ventana grande
+    border: '1px solid #333'
   }),
+  
   cosmosBg: {
     position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
     backgroundImage: 'url("https://www.transparenttextures.com/patterns/stardust.png"), radial-gradient(circle at center, #001540 0%, #000814 100%)',
