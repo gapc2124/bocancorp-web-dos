@@ -9,8 +9,6 @@ import { Footer } from './components/Footer';
 import { HomePage } from './HomePage';
 import { ServicesPage } from './ServicesPage';
 
-// ... (tus imports se mantienen igual)
-
 function App() {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -28,7 +26,7 @@ function App() {
         position: 'relative', 
         width: '100%', 
         background: '#000c2d', 
-        overflowX: 'hidden', 
+        overflowX: 'clip', 
         minHeight: '100vh', 
         color: 'white' 
       }}>
