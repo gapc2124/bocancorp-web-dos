@@ -8,12 +8,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 
 const DATA = [
-  { id: 1, subtitle: "SOMOS INNOVACIÓN", title: "BOCANCORP", desc: "Compañía líder en desarrollo de software. Transformamos visiones complejas en ecosistemas digitales robustos y escalables.", color: "#FAA918" },
-  { id: 2, subtitle: "EFICIENCIA INTELIGENTE", title: "Automatización con IA", desc: "Optimizamos operaciones y reducimos costos integrando inteligencia artificial en tus flujos de trabajo críticos.", color: "#FF4500" },
-  { id: 3, subtitle: "EXPERIENCIAS MULTIPLATAFORMA", title: "Desarrollo Web y Móvil", desc: "Creamos aplicaciones nativas y web progresivas (PWA) que conectan con tus usuarios en cualquier dispositivo.", color: "#00BFFF" },
-  { id: 4, subtitle: "INFRAESTRUCTURA ÉLITE", title: "Cloud Solutions", desc: "Arquitectura, migración y gestión de entornos en la nube (AWS, Azure, GCP) para máxima disponibilidad.", color: "#44C591" },
-  { id: 5, subtitle: "EL VALOR DE TU INFORMACIÓN", title: "Gobernanza de Datos e IA", desc: "Estrategias integrales para asegurar la calidad, cumplimiento y uso ético de tus datos y modelos de IA.", color: "#9932CC" },
-  { id: 6, subtitle: "PROTECCIÓN BLINDADA", title: "Seguridad en la Nube", desc: "Protocolos avanzados de ciberseguridad para proteger tus activos digitales contra las amenazas más modernas.", color: "#F43F5E" }
+  { id: 1, subtitle: "SOLUCIONES MULTIPLATAFORMA", title: "Desarrollo de Software", desc: "Creamos ecosistemas digitales robustos y escalables adaptados a cualquier dispositivo.", color: "#00f2ff" },
+  { id: 2, subtitle: "ECOSISTEMAS CLOUD", title: "Modernización", desc: "Transformamos infraestructuras heredadas en sistemas modernos basados en la nube.", color: "#7000ff" },
+  { id: 3, subtitle: "DISEÑO DE EXPERIENCIA", title: "UX / UI", desc: "Interfaces intuitivas y experiencias de usuario centradas en la conversión y fidelización.", color: "#ff007a" },
+  { id: 4, subtitle: "CONSULTORÍA ÉLITE", title: "Arquitectura TI", desc: "Asesoramiento estratégico para diseñar estructuras tecnológicas eficientes y seguras.", color: "#00ff8c" },
+  { id: 5, subtitle: "CIBERSEGURIDAD", title: "Networking", desc: "Protección avanzada y conectividad de alto rendimiento para tus activos digitales.", color: "#ff8c00" },
+  { id: 6, subtitle: "ARQUITECTURA MODERNA", title: "Multi-Cloud & Serverless", desc: "Despliegue ágil sin gestión de servidores, optimizando la escalabilidad total.", color: "#00a2ff" },
+  { id: 7, subtitle: "FINOPS", title: "Optimización de Recursos", desc: "Gestión financiera de la nube para maximizar el retorno de inversión y reducir desperdicios.", color: "#ffee00" },
+  { id: 8, subtitle: "CULTURA DEVOPS", title: "Terraform & IaC", desc: "Automatización de infraestructura mediante código para despliegues rápidos y sin errores.", color: "#ff4d00" }
 ];
 
 export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {

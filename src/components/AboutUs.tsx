@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-// --- 1. FUNCIÓN DE AYUDA PARA RUTAS (CRÍTICO: NO BORRAR) ---
+// --- 1. FUNCIÓN DE AYUDA PARA RUTAS ---
 const resolvePath = (path: string) => {
-  // En Vite, BASE_URL suele ser '/' en localhost, pero esto asegura que funcione siempre
   const base = import.meta.env.BASE_URL || '/';
-  // Quitamos cualquier barra o punto inicial para limpiar
   const cleanPath = path.replace(/^(\.?\/)/, '');
   return `${base}${cleanPath}`;
 };
@@ -33,40 +31,45 @@ const ABOUT_TEXTS: any = {
   }
 };
 
-// --- COMPONENTE PARA EL FONDO ESTRELLADO (CORREGIDO RESPONSIVE) ---
+// --- COMPONENTE PARA EL FONDO ESTRELLADO (CORREGIDO CON RESIZEOBSERVER) ---
 const CosmosBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null); // Referencia al contenedor padre
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const container = containerRef.current;
+    
+    if (!canvas || !container) return;
     
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Función para dibujar (se llamará al inicio y al redimensionar)
+    // Función de dibujo optimizada
     const draw = () => {
-      const parent = canvas.parentElement;
-      if (parent) {
-        canvas.width = parent.clientWidth;
-        canvas.height = parent.clientHeight;
-      }
+      // 1. Igualar la resolución interna del canvas al tamaño real del contenedor
+      // Esto evita que el CSS estire la imagen.
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
 
-      // 1. Dibujar el fondo degradado profundo
+      const w = canvas.width;
+      const h = canvas.height;
+
+      // 2. Fondo degradado
       const gradient = ctx.createRadialGradient(
-        canvas.width / 2, canvas.height / 2, 0, 
-        canvas.width / 2, canvas.height / 2, canvas.width > canvas.height ? canvas.width : canvas.height
+        w / 2, h / 2, 0, 
+        w / 2, h / 2, Math.max(w, h) 
       );
-      gradient.addColorStop(0, '#001540'); // Azul oscuro centro
-      gradient.addColorStop(1, '#000814'); // Negro bordes
+      gradient.addColorStop(0, '#001540'); 
+      gradient.addColorStop(1, '#000814'); 
       ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(0, 0, w, h);
 
-      // 2. Dibujar estrellas aleatorias
-      const numStars = (canvas.width * canvas.height) / 800; // Densidad relativa al tamaño
+      // 3. Estrellas (Recalculadas para el nuevo tamaño)
+      const numStars = (w * h) / 800; 
       for (let i = 0; i < numStars; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
+        const x = Math.random() * w;
+        const y = Math.random() * h;
         const radius = Math.random() * 1.5 + 0.5;
         const opacity = Math.random() * 0.8 + 0.2;
 
@@ -77,24 +80,30 @@ const CosmosBackground = () => {
       }
     };
 
-    // Dibujo inicial
-    draw();
+    // 4. USAMOS RESIZEOBSERVER: La clave para arreglar el bug en móviles.
+    // Detecta cambios en el tamaño del contenedor DIV, no solo de la ventana.
+    const resizeObserver = new ResizeObserver(() => {
+      // Usamos requestAnimationFrame para que el redibujado esté sincronizado con el refresco de pantalla
+      window.requestAnimationFrame(draw);
+    });
 
-    // Listener para redibujar cuando cambia el tamaño de la pantalla
-    window.addEventListener('resize', draw);
+    resizeObserver.observe(container);
 
-    // Limpieza del listener
+    // Limpieza
     return () => {
-      window.removeEventListener('resize', draw);
+      resizeObserver.disconnect();
     };
 
   }, []); 
 
+  // Envolvemos el canvas en un div absoluto para monitorear su tamaño
   return (
-    <canvas 
-      ref={canvasRef} 
-      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }} 
-    />
+    <div ref={containerRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}>
+      <canvas 
+        ref={canvasRef} 
+        style={{ display: 'block', width: '100%', height: '100%' }} 
+      />
+    </div>
   );
 };
 
@@ -118,11 +127,10 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
   // --- LÓGICA DE REBOTE ---
   const containerRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLImageElement>(null);
-  const [pos, setPos] = useState({ x: 50, y: 50 }); // Posición inicial
-  const [vel, setVel] = useState({ x: 3, y: 3 });   // Velocidad ajustada
+  const [pos, setPos] = useState({ x: 50, y: 50 }); 
+  const [vel, setVel] = useState({ x: 3, y: 3 }); 
 
   useEffect(() => {
-    // Detección de Sistema Operativo
     const ua = window.navigator.userAgent.toLowerCase();
     if (ua.includes('mac')) setOs('mac');
     else if (ua.includes('win')) setOs('windows');
@@ -140,9 +148,7 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
         let newVelX = vel.x;
         let newVelY = vel.y;
 
-        // Rebote horizontal
         if (newX <= 0 || newX + logo.width >= container.width) newVelX = -vel.x;
-        // Rebote vertical (ajustado por la barra de título ~30px)
         if (newY <= 30 || newY + logo.height >= container.height) newVelY = -vel.y;
 
         if (newVelX !== vel.x || newVelY !== vel.y) setVel({ x: newVelX, y: newVelY });
@@ -223,7 +229,6 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
           
           <div style={styles.paragraph}>
             <p>
-              {/* LÓGICA DE TEXTO ACTUALIZADA */}
               {t.paragraph.split(t.highlightPhrase).map((part: string, i: number, arr: string[]) => (
                   <React.Fragment key={i}>
                       {part}
@@ -241,7 +246,7 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
           <div ref={containerRef} style={styles.windowBox(isMobile)}>
             {renderWindowHeader()}
             
-            {/* FONDO COSMOS */}
+            {/* FONDO COSMOS REPARADO */}
             <CosmosBackground />
 
             {/* LOGO REBOTANDO CON RESOLVEPATH */}

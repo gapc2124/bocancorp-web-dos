@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { PresentationControls, Float } from '@react-three/drei';
 import * as THREE from 'three';
@@ -38,35 +38,35 @@ interface CarouselItemProps {
 const CarouselItem = ({ index, activeIndex, totalCount, color, isMobile }: CarouselItemProps) => {
   const groupRef = useRef<THREE.Group>(null);
   const isActive = index === activeIndex;
+  
+  // Variamos la forma de la gema según el índice
+  const gemDetail = useMemo(() => (index % 2 === 0 ? 0 : 1), [index]);
 
   useFrame((_state, delta) => {
     if (!groupRef.current) return;
 
-    // --- CÁLCULO DE POSICIÓN ---
     let offset = (index - activeIndex);
     if (offset > totalCount / 2) offset -= totalCount;
     if (offset < -totalCount / 2) offset += totalCount;
 
     const absOffset = Math.abs(offset);
-    const zDepth = isMobile ? 10.0 : 18.0;
+    const zDepth = isMobile ? 12.0 : 18.0;
     const targetZ = isActive ? 0 : -Math.pow(absOffset, 1.2) * zDepth; 
-    const xSpread = isMobile ? 5.0 : 9.0;
+    const xSpread = isMobile ? 6.5 : 11.0;
     const targetX = offset * xSpread;
 
-    const activeScale = isMobile ? 1.6 : 2.0;
-    const inactiveScale = 0.5;
+    const activeScale = isMobile ? 1.5 : 2.0;
+    const inactiveScale = 0.4;
     const scaleFactor = Math.max(0, 1 - absOffset * 0.4); 
     const targetScale = scaleFactor * activeScale + (1 - scaleFactor) * inactiveScale;
 
     easing.damp3(groupRef.current.position, [targetX, 0, targetZ], 0.3, delta);
     easing.damp3(groupRef.current.scale, [targetScale, targetScale, targetScale], 0.3, delta);
     
-    // Rotación
     if (!isActive) {
-        groupRef.current.rotation.y += delta * 0.5;
+        groupRef.current.rotation.y += delta * 0.4;
     } else {
-        easing.damp(groupRef.current.rotation, 'y', 0, 0.3, delta);
-        easing.damp(groupRef.current.rotation, 'x', 0, 0.3, delta);
+        easing.dampE(groupRef.current.rotation, [0, 0, 0], 0.3, delta);
     }
   });
 
@@ -74,31 +74,32 @@ const CarouselItem = ({ index, activeIndex, totalCount, color, isMobile }: Carou
     <PresentationControls
       enabled={isActive}
       global={false}
-      cursor={isActive}
       snap={true}
-      speed={3} 
+      speed={2} 
       zoom={1}
       polar={[-Math.PI / 4, Math.PI / 4]}
-      azimuth={[-Infinity, Infinity]}
+      azimuth={[-Math.PI / 4, Math.PI / 4]}
     >
       <group ref={groupRef}>
-        <Float speed={isActive ? 2 : 0} rotationIntensity={isActive ? 0.5 : 0} floatIntensity={isActive ? 0.5 : 0}>
-            {/* FIGURA GEOMÉTRICA DE PRUEBA */}
+        <Float speed={isActive ? 3 : 0} rotationIntensity={0.6} floatIntensity={0.5}>
             <mesh>
-              <sphereGeometry args={[1, 32, 32]} />
+              <icosahedronGeometry args={[1, gemDetail]} />
               <meshStandardMaterial 
-                color={isActive ? color : '#333'} 
-                roughness={0.3} 
-                metalness={0.8} 
+                color={isActive ? color : '#111'} 
+                flatShading={true}
+                roughness={0.05} 
+                metalness={1} 
                 emissive={isActive ? color : '#000'}
-                emissiveIntensity={0.2}
+                emissiveIntensity={isActive ? 0.8 : 0}
               />
             </mesh>
-            {/* Aro decorativo */}
-            <mesh rotation={[Math.PI / 2, 0, 0]}>
-                <torusGeometry args={[1.4, 0.05, 16, 100]} />
-                <meshBasicMaterial color={isActive ? color : '#555'} transparent opacity={0.5} />
+
+            <mesh rotation={[Math.PI / 1.5, 0, 0]}>
+                <torusGeometry args={[1.6, 0.02, 16, 100]} />
+                <meshBasicMaterial color={isActive ? color : '#333'} transparent opacity={0.3} />
             </mesh>
+
+            {isActive && <pointLight intensity={8} distance={12} color={color} />}
         </Float>
       </group>
     </PresentationControls>
