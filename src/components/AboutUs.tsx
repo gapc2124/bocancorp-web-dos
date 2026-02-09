@@ -6,6 +6,61 @@ interface AboutUsProps {
 
 type OSType = 'mac' | 'windows' | 'linux' | 'default';
 
+// --- NUEVO COMPONENTE PARA EL FONDO ESTRELLADO (CANVAS) ---
+const CosmosBackground = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Ajustar el tamaño del canvas al de su contenedor
+    const parent = canvas.parentElement;
+    if (parent) {
+      canvas.width = parent.clientWidth;
+      canvas.height = parent.clientHeight;
+    }
+
+    // 1. Dibujar el fondo degradado profundo
+    const gradient = ctx.createRadialGradient(
+      canvas.width / 2, canvas.height / 2, 0, 
+      canvas.width / 2, canvas.height / 2, canvas.width > canvas.height ? canvas.width : canvas.height
+    );
+    gradient.addColorStop(0, '#001540'); // Azul oscuro centro
+    gradient.addColorStop(1, '#000814'); // Negro bordes
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // 2. Dibujar estrellas aleatorias
+    const numStars = (canvas.width * canvas.height) / 800; // Densidad relativa al tamaño
+    for (let i = 0; i < numStars; i++) {
+      const x = Math.random() * canvas.width;
+      const y = Math.random() * canvas.height;
+      // Tamaño variado entre 0.5px y 1.5px
+      const radius = Math.random() * 1.5 + 0.5;
+      // Opacidad variada para efecto de profundidad
+      const opacity = Math.random() * 0.8 + 0.2;
+
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+      ctx.fill();
+    }
+
+  }, []); // Se ejecuta una vez al montar el componente
+
+  return (
+    <canvas 
+      ref={canvasRef} 
+      style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }} 
+    />
+  );
+};
+
+
 export const AboutUs = ({ isMobile }: AboutUsProps) => {
   const [os, setOs] = useState<OSType>('default');
   
@@ -13,7 +68,7 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLImageElement>(null);
   const [pos, setPos] = useState({ x: 50, y: 50 }); // Posición inicial
-  const [vel, setVel] = useState({ x: 3, y: 3 });   // Velocidad ajustada para el tamaño nuevo
+  const [vel, setVel] = useState({ x: 3, y: 3 });   // Velocidad ajustada
 
   useEffect(() => {
     // Detección de Sistema Operativo
@@ -131,10 +186,10 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
           <div ref={containerRef} style={styles.windowBox(isMobile)}>
             {renderWindowHeader()}
             
-            {/* FONDO COSMOS */}
-            <div style={styles.cosmosBg} />
+            {/* FONDO COSMOS (NUEVO COMPONENTE CANVAS) */}
+            <CosmosBackground />
 
-            {/* LOGO REBOTANDO */}
+            {/* LOGO REBOTANDO (SIN BRILLO) */}
             <img 
               ref={logoRef}
               src="./assets/bocancorp-logo.png" 
@@ -142,7 +197,7 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
               style={{ 
                 width: isMobile ? '80px' : '140px', position: 'absolute',
                 left: `${pos.x}px`, top: `${pos.y}px`, zIndex: 10,
-                filter: 'drop-shadow(0 0 15px rgba(250, 169, 24, 0.6))'
+                // SE ELIMINÓ EL FILTER: drop-shadow
               }} 
             />
           </div>
@@ -178,8 +233,7 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
 const styles: any = {
   gridContainer: (isMobile: boolean) => ({
     display: 'grid', 
-    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', // Columnas iguales en desktop
-    // GAP AUMENTADO: 120px en desktop para más separación
+    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
     gap: isMobile ? '50px' : '120px', 
     alignItems: 'center', 
     maxWidth: '1400px', 
@@ -194,23 +248,19 @@ const styles: any = {
   
   // VENTANA CON DIMENSIONES AUMENTADAS Y RESPONSIVE
   windowBox: (isMobile: boolean) => ({
-    // Mobile: 100%, Desktop: max 600px pero fluido si la pantalla se achica
     width: isMobile ? '100%' : '100%', 
     maxWidth: isMobile ? 'none' : '600px',
-    // Altura aumentada en desktop
     height: isMobile ? '350px' : '480px', 
     borderRadius: '12px',
     position: 'relative', 
     overflow: 'hidden', 
-    boxShadow: '0 30px 60px rgba(0,0,0,0.25)', // Sombra un poco más fuerte para la ventana grande
-    border: '1px solid #333'
+    boxShadow: '0 30px 60px rgba(0,0,0,0.25)', 
+    border: '1px solid #333',
+    backgroundColor: '#000' // Fondo negro base por si acaso el canvas tarda en cargar
   }),
   
-  cosmosBg: {
-    position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-    backgroundImage: 'url("https://www.transparenttextures.com/patterns/stardust.png"), radial-gradient(circle at center, #001540 0%, #000814 100%)',
-    zIndex: 1
-  },
+  // SE ELIMINÓ styles.cosmosBg YA QUE SE USA EL COMPONENTE <CosmosBackground />
+
   headerTitle: { fontSize: '11px', color: '#ccc', flex: 1, textAlign: 'center', fontFamily: 'monospace' },
   macHeader: { height: '30px', backgroundColor: '#ebebeb', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 20, position: 'relative' },
   dot: { width: '12px', height: '12px', borderRadius: '50%', marginRight: '8px' },
