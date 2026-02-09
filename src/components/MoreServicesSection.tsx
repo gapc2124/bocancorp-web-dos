@@ -1,9 +1,10 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, extend } from '@react-three/fiber';
 import { 
   Torus, 
   Sphere,
-  OrbitControls
+  OrbitControls,
+  shaderMaterial
 } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -12,28 +13,174 @@ const BG_COLOR = "#000c2d";
 const BOCANCORP_ORANGE = "#FAA918"; 
 const ACCENT_BLUE = "#00C2FF"; 
 const BRIGHT_CYAN = "#66E0FF";
-const DEEP_BLUE = "#0088BB";
-const BLUE_SQUARE_COLOR = "#0055AA";
 
-const SERVICES_CONTENT = {
-  software: {
-    id: 'software',
-    label: "Software Development",
-    themeColor: BOCANCORP_ORANGE,
-    items: ["Web Development", "Mobile Development", "IT Consulting & Advisory", "Custom Software", "DevOps Integration"]
+// --- 1. CONFIGURACIÓN ESTÁTICA (Colores e IDs) ---
+const CATEGORY_CONFIG = {
+  software: { id: 'software', themeColor: BOCANCORP_ORANGE },
+  cloud: { id: 'cloud', themeColor: ACCENT_BLUE }
+};
+
+type CategoryKey = keyof typeof CATEGORY_CONFIG;
+
+// --- 2. DICCIONARIO DE TEXTOS (ES / EN) ---
+const SECTION_TEXTS: any = {
+  ES: {
+    titleStart: "Explora",
+    titleHighlight: "Servicios",
+    categories: {
+      software: {
+        label: "Desarrollo de Software",
+        items: [
+          "Desarrollo de Soluciones Multiplataforma",
+          "Ecosistemas Cloud & Modernización",
+          "Diseño de Experiencia (UX/UI)",
+          "Consultoría de Arquitectura TI",
+          "Automatización de procesos con IA"
+        ]
+      },
+      cloud: {
+        label: "Soluciones en la Nube",
+        items: [
+          "Arquitectura Multi-Cloud & Serverless",
+          "Ciberseguridad & Conectividad (Networking)",
+          "Cultura DevOps & Terraform (IaC)",
+          "FinOps & Optimización de Recursos",
+          "Gobernanza de datos & IA"
+        ]
+      }
+    }
   },
-  cloud: {
-    id: 'cloud',
-    label: "Cloud Solutions",
-    themeColor: ACCENT_BLUE,
-    items: ["Cloud Migration", "Infrastructure Management", "Serverless Architecture", "Cloud Security", "Cost Optimization"]
+  EN: {
+    titleStart: "Explore",
+    titleHighlight: "Services",
+    categories: {
+      software: {
+        label: "Software Development",
+        items: [
+          "Multi-platform Solutions Development",
+          "Cloud Ecosystems & Modernization",
+          "User Experience Design (UX/UI)",
+          "IT Architecture Consulting",
+          "AI Process Automation"
+        ]
+      },
+      cloud: {
+        label: "Cloud Solutions",
+        items: [
+          "Multi-Cloud & Serverless Architecture",
+          "Cybersecurity & Networking",
+          "DevOps Culture & Terraform (IaC)",
+          "FinOps & Resource Optimization",
+          "Data Governance & AI"
+        ]
+      }
+    }
   }
 };
 
-type CategoryKey = keyof typeof SERVICES_CONTENT;
+// =====================================================================
+// 3. SHADERS (INTACTOS)
+// =====================================================================
+const particlesVertexShader = `
+  uniform float uTime;
+  attribute vec3 aPosition;
+  varying vec3 vColor;
+
+  float random(vec2 st) {
+      return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+  }
+
+  void main() {
+    vec3 pos = aPosition;
+    float floatY = sin(pos.x * 0.5 + uTime * 0.2) * 0.2; 
+    float floatX = cos(pos.y * 0.5 + uTime * 0.2) * 0.2;
+    pos.x += floatX;
+    pos.y += floatY;
+    pos.z += sin(uTime * 0.1 + pos.x) * 0.5;
+
+    float rnd = random(aPosition.xy);
+    vec3 baseColor = mix(vec3(0.1, 0.4, 1.0), vec3(0.0, 0.8, 1.0), rnd);
+    vec3 targetColor;
+    if (rnd < 0.25) targetColor = vec3(0.0, 1.0, 1.0); 
+    else if (rnd < 0.5) targetColor = vec3(1.0, 0.0, 1.0); 
+    else if (rnd < 0.75) targetColor = vec3(0.6, 0.0, 1.0); 
+    else targetColor = vec3(1.0, 1.0, 1.0); 
+
+    float colorChance = step(0.7, rnd);
+    vColor = mix(baseColor, targetColor, colorChance);
+
+    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+    gl_PointSize = (60.0 / -mvPosition.z); 
+  }
+`;
+
+const particlesFragmentShader = `
+  varying vec3 vColor;
+  void main() {
+    vec2 coord = gl_PointCoord - vec2(0.5);
+    float dist = length(coord);
+    if (dist > 0.5) discard;
+    float alpha = 1.0 - smoothstep(0.3, 0.5, dist);
+    gl_FragColor = vec4(vColor, alpha * 0.9); 
+  }
+`;
+
+const InteractiveLikeMaterial = shaderMaterial(
+  { uTime: 0 },
+  particlesVertexShader,
+  particlesFragmentShader
+);
+
+extend({ InteractiveLikeMaterial });
 
 // =====================================================================
-// 🪐 PLANETA 1: SATURNO (Referencia de Tamaño)
+// 4. COMPONENTE DE PARTÍCULAS (AJUSTADO: Cantidad y Velocidad)
+// =====================================================================
+const ServiceSectionParticles = () => {
+  const meshRef = useRef<THREE.Points>(null);
+  const materialRef = useRef<any>(null);
+  
+  // CAMBIO: Reducido de 3000 a 1800
+  const count = 1800; 
+
+  const positions = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 100;     
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 60;  
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 40;  
+    }
+    return pos;
+  }, []);
+
+  useFrame((state) => {
+    if (materialRef.current) {
+      materialRef.current.uTime = state.clock.getElapsedTime();
+    }
+    // CAMBIO: Velocidad reducida (0.0002 en lugar de 0.0005)
+    if (meshRef.current) {
+      meshRef.current.rotation.y += 0.0002;
+      meshRef.current.rotation.z += 0.0001;
+    }
+  });
+
+  return (
+    <points ref={meshRef}>
+      <bufferGeometry>
+        {/* @ts-ignore */}
+        <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        {/* @ts-ignore */}
+        <bufferAttribute attach="attributes-aPosition" args={[positions, 3]} />
+      </bufferGeometry>
+      {/* @ts-ignore */}
+      <interactiveLikeMaterial ref={materialRef} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
+    </points>
+  );
+};
+
+// =====================================================================
+// 5. PLANETAS (INTACTOS)
 // =====================================================================
 function SaturnCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
@@ -46,7 +193,6 @@ function SaturnCartoon() {
 
   return (
     <group rotation={[0.3, 0, 0]}>
-      {/* ESFERA BASE: Radio 1.0 */}
       <Sphere ref={planetRef} args={[1., 32, 32]}>
         <meshToonMaterial color={BOCANCORP_ORANGE} />
         <group rotation={[Math.PI / 2, 0, 0]}>
@@ -66,9 +212,6 @@ function SaturnCartoon() {
   );
 }
 
-// =====================================================================
-// 🪐 PLANETA 2: URANO (Redimensionado para igualar a Saturno)
-// =====================================================================
 function UranusCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Group>(null);
@@ -83,7 +226,6 @@ function UranusCartoon() {
 
   return (
     <group rotation={[0, 0, Math.PI / 1.8]}> 
-      {/* 1. ESFERA: Reducida de 1.5 a 1.0 (Igual que Saturno) */}
       <Sphere ref={planetRef} args={[1.0, 48, 48]}>
         <meshToonMaterial color={ACCENT_BLUE} />
         <group rotation={[Math.PI / 2, 0, 0]}>
@@ -92,17 +234,13 @@ function UranusCartoon() {
         </group>
       </Sphere>
 
-      {/* 2. ANILLOS: Escalados proporcionalmente (aprox 66% del tamaño anterior) */}
       <group ref={ringRef}>
-          {/* Anillo Difuso */}
           <Torus args={[1.9, 0.35, 16, 100]} rotation={[Math.PI/2, 0,0]} scale={[1, 1, 0.05]}>
               <meshToonMaterial color={ACCENT_BLUE} transparent opacity={0.3} />
           </Torus>
-          {/* Anillo Fino Interior */}
           <Torus args={[1.6, 0.04, 16, 100]} rotation={[Math.PI/2, 0,0]}>
               <meshBasicMaterial color={BRIGHT_CYAN} />
           </Torus>
-          {/* Anillo Fino Exterior */}
           <Torus args={[2.3, 0.04, 16, 100]} rotation={[Math.PI/2, 0,0]}>
               <meshBasicMaterial color={BRIGHT_CYAN} />
           </Torus>
@@ -114,39 +252,7 @@ function UranusCartoon() {
 }
 
 // =====================================================================
-// 🧊 ESTRELLAS
-// =====================================================================
-const BlueSquareStars = ({ count = 4000 }) => {
-  const meshRef = useRef<THREE.InstancedMesh>(null);
-  const dummy = useMemo(() => new THREE.Object3D(), []);
-  
-  useEffect(() => {
-    if (!meshRef.current) return;
-    for (let i = 0; i < count; i++) {
-      const r = 40 + Math.random() * 60; 
-      const theta = Math.random() * Math.PI * 2;
-      const phi = Math.acos((Math.random() * 2) - 1);
-      dummy.position.set(r * Math.sin(phi) * Math.cos(theta), r * Math.sin(phi) * Math.sin(theta), r * Math.cos(phi));
-      const s = 0.2 + Math.random() * 0.5;
-      dummy.scale.set(s, s, s);
-      dummy.updateMatrix();
-      meshRef.current.setMatrixAt(i, dummy.matrix);
-    }
-    meshRef.current.instanceMatrix.needsUpdate = true;
-  }, [count, dummy]);
-
-  useFrame((_, delta) => { if(meshRef.current) meshRef.current.rotation.y += delta * 0.005; });
-
-  return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
-      <boxGeometry args={[1, 1, 1]} /> 
-      <meshBasicMaterial color={BLUE_SQUARE_COLOR} transparent opacity={0.8} />
-    </instancedMesh>
-  );
-};
-
-// =====================================================================
-// 🔘 BOTÓN ACTUALIZADO (Color Fuerte + Texto Negro)
+// 6. BOTÓN (INTACTO)
 // =====================================================================
 const ServiceButton = ({ item, themeColor }: { item: string, themeColor: string }) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -159,15 +265,9 @@ const ServiceButton = ({ item, themeColor }: { item: string, themeColor: string 
                 width: '100%', 
                 padding: '16px 25px', 
                 borderRadius: '8px',
-                
-                // --- CAMBIO 1: Color mucho más fuerte (85% opacidad = 'D9') ---
                 backgroundColor: isHovered ? `${themeColor}D9` : 'rgba(255, 255, 255, 0.08)',
-                
                 border: '1px solid rgba(255, 255, 255, 0.1)',
-                
-                // --- CAMBIO 2: Texto Negro al seleccionar ---
                 color: isHovered ? '#000000' : 'rgba(255, 255, 255, 0.9)',
-                
                 fontSize: '1.05rem', 
                 fontWeight: 600, 
                 textAlign: 'left', 
@@ -175,17 +275,13 @@ const ServiceButton = ({ item, themeColor }: { item: string, themeColor: string 
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'space-between',
-                
                 transition: 'background-color 0.3s ease, color 0.3s ease, transform 0.2s',
-                
                 transform: isHovered ? 'translateX(5px)' : 'translateX(0)',
                 boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
                 marginBottom: '10px'
             }}
         >
            <span>{item}</span>
-           
-           {/* ÍCONO MINIMALISTA (Ahora negro en hover para combinar) */}
            <svg 
              width="20" height="20" viewBox="0 0 24 24" fill="none" 
              style={{ 
@@ -202,11 +298,29 @@ const ServiceButton = ({ item, themeColor }: { item: string, themeColor: string 
 };
 
 // =====================================================================
-// 🚀 COMPONENTE PRINCIPAL
+// 7. COMPONENTE PRINCIPAL (ACTUALIZADO CON LÓGICA DE IDIOMA)
 // =====================================================================
 export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('software');
-  const activeData = SERVICES_CONTENT[activeCategory];
+  
+  // --- LÓGICA DE IDIOMA ---
+  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
+
+  useEffect(() => {
+    const handleLangChange = () => {
+      setLang(localStorage.getItem('appLanguage') || 'ES');
+    };
+    window.addEventListener('languageChange', handleLangChange);
+    return () => window.removeEventListener('languageChange', handleLangChange);
+  }, []);
+
+  const t = SECTION_TEXTS[lang];
+
+  // Fusionamos la configuración estática (colores) con los textos dinámicos
+  const activeData = {
+    ...CATEGORY_CONFIG[activeCategory],
+    ...t.categories[activeCategory]
+  };
 
   return (
     <section style={{
@@ -218,9 +332,8 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
       
       {/* CAPA 1: FONDO DE ESTRELLAS */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
-        <Canvas camera={{ position: [0, 0, 18], fov: 45 }} dpr={[1, 1.5]}>
-            <BlueSquareStars count={4000} />
-            <ambientLight intensity={0.2} />
+        <Canvas camera={{ position: [0, 0, 15], fov: 60 }} dpr={[1, 1.5]}>
+            <ServiceSectionParticles />
         </Canvas>
       </div>
 
@@ -238,36 +351,35 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
           width: isMobile ? '100%' : '50%',
           flex: isMobile ? 'auto' : '0 0 50%',
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
-          
           backgroundColor: 'rgba(0, 12, 45, 0.5)', 
           backdropFilter: 'blur(16px)',
           borderRight: isMobile ? 'none' : `1px solid ${activeData.themeColor}30`,
-          
           padding: isMobile ? '50px 20px' : '0 60px',
           pointerEvents: 'auto',
           transition: 'all 0.5s ease'
         }}>
             <h2 style={{ fontSize: isMobile ? '2rem' : '3rem', fontWeight: 800, marginBottom: '30px', color: '#fff', lineHeight: 1.1 }}>
-              Explora{isMobile ? ' ' : <br/>}
-              <span style={{ color: activeData.themeColor, transition: 'color 0.5s ease' }}>Servicios</span>
+              {t.titleStart}{isMobile ? ' ' : <br/>}
+              <span style={{ color: activeData.themeColor, transition: 'color 0.5s ease' }}>{t.titleHighlight}</span>
             </h2>
 
-            {/* Switcher de Categoría */}
             <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '6px', marginBottom: '30px', border: `1px solid ${activeData.themeColor}30` }}>
-                {(Object.keys(SERVICES_CONTENT) as CategoryKey[]).map((key) => (
+                {(Object.keys(CATEGORY_CONFIG) as CategoryKey[]).map((key) => (
                     <button key={key} onClick={() => setActiveCategory(key)} style={{
                         flex: 1, padding: '12px', borderRadius: '8px', border: 'none', cursor: 'pointer',
                         fontSize: '1rem', fontWeight: 700, transition: '0.3s',
-                        background: activeCategory === key ? activeData.themeColor : 'transparent',
-                        color: activeCategory === key ? (key === 'software' ? '#000' : '#fff') : '#aaa', // Ajuste contraste texto
-                        boxShadow: activeCategory === key ? `0 4px 15px ${activeData.themeColor}40` : 'none'
-                    }}>{SERVICES_CONTENT[key].label}</button>
+                        background: activeCategory === key ? CATEGORY_CONFIG[key].themeColor : 'transparent',
+                        color: activeCategory === key ? (key === 'software' ? '#000' : '#fff') : '#aaa', 
+                        boxShadow: activeCategory === key ? `0 4px 15px ${CATEGORY_CONFIG[key].themeColor}40` : 'none'
+                    }}>
+                        {/* Usamos el label del idioma actual */}
+                        {t.categories[key].label}
+                    </button>
                 ))}
             </div>
 
-            {/* Lista de Botones de Servicios */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                {activeData.items.map((item) => (
+                {activeData.items.map((item: string) => (
                     <ServiceButton key={item} item={item} themeColor={activeData.themeColor} />
                 ))}
             </div>

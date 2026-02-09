@@ -1,12 +1,39 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+// --- 1. FUNCIÓN DE AYUDA PARA RUTAS (CRÍTICO: NO BORRAR) ---
+const resolvePath = (path: string) => {
+  // En Vite, BASE_URL suele ser '/' en localhost, pero esto asegura que funcione siempre
+  const base = import.meta.env.BASE_URL || '/';
+  // Quitamos cualquier barra o punto inicial para limpiar
+  const cleanPath = path.replace(/^(\.?\/)/, '');
+  return `${base}${cleanPath}`;
+};
+
 interface AboutUsProps {
   isMobile: boolean;
 }
 
 type OSType = 'mac' | 'windows' | 'linux' | 'default';
 
-// --- NUEVO COMPONENTE PARA EL FONDO ESTRELLADO (CANVAS) ---
+// --- DICCIONARIO DE TEXTOS ---
+const ABOUT_TEXTS: any = {
+  ES: {
+    titleStart: "Más que proveedores, somos su ",
+    titleHighlight: "Aliado de Innovación Tecnológica.",
+    paragraph: "Bocancorp es una corporación norteamericana con centros de operaciones estratégicos en Perú, Colombia y Estados Unidos. Nos especializamos en orquestar soluciones tecnológicas complejas para empresas que buscan escalabilidad y seguridad.",
+    highlightPhrase: "Perú, Colombia y Estados Unidos",
+    button: "CONÓCENOS MÁS"
+  },
+  EN: {
+    titleStart: "More than vendors, we are your ",
+    titleHighlight: "Technological Innovation Ally.",
+    paragraph: "Bocancorp is a North American corporation with strategic operation centers in Peru, Colombia, and the United States. We specialize in orchestrating complex technological solutions for companies seeking scalability and security.",
+    highlightPhrase: "Peru, Colombia, and the United States",
+    button: "KNOW MORE"
+  }
+};
+
+// --- COMPONENTE PARA EL FONDO ESTRELLADO (CORREGIDO RESPONSIVE) ---
 const CosmosBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -17,40 +44,51 @@ const CosmosBackground = () => {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Ajustar el tamaño del canvas al de su contenedor
-    const parent = canvas.parentElement;
-    if (parent) {
-      canvas.width = parent.clientWidth;
-      canvas.height = parent.clientHeight;
-    }
+    // Función para dibujar (se llamará al inicio y al redimensionar)
+    const draw = () => {
+      const parent = canvas.parentElement;
+      if (parent) {
+        canvas.width = parent.clientWidth;
+        canvas.height = parent.clientHeight;
+      }
 
-    // 1. Dibujar el fondo degradado profundo
-    const gradient = ctx.createRadialGradient(
-      canvas.width / 2, canvas.height / 2, 0, 
-      canvas.width / 2, canvas.height / 2, canvas.width > canvas.height ? canvas.width : canvas.height
-    );
-    gradient.addColorStop(0, '#001540'); // Azul oscuro centro
-    gradient.addColorStop(1, '#000814'); // Negro bordes
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // 1. Dibujar el fondo degradado profundo
+      const gradient = ctx.createRadialGradient(
+        canvas.width / 2, canvas.height / 2, 0, 
+        canvas.width / 2, canvas.height / 2, canvas.width > canvas.height ? canvas.width : canvas.height
+      );
+      gradient.addColorStop(0, '#001540'); // Azul oscuro centro
+      gradient.addColorStop(1, '#000814'); // Negro bordes
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 2. Dibujar estrellas aleatorias
-    const numStars = (canvas.width * canvas.height) / 800; // Densidad relativa al tamaño
-    for (let i = 0; i < numStars; i++) {
-      const x = Math.random() * canvas.width;
-      const y = Math.random() * canvas.height;
-      // Tamaño variado entre 0.5px y 1.5px
-      const radius = Math.random() * 1.5 + 0.5;
-      // Opacidad variada para efecto de profundidad
-      const opacity = Math.random() * 0.8 + 0.2;
+      // 2. Dibujar estrellas aleatorias
+      const numStars = (canvas.width * canvas.height) / 800; // Densidad relativa al tamaño
+      for (let i = 0; i < numStars; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const radius = Math.random() * 1.5 + 0.5;
+        const opacity = Math.random() * 0.8 + 0.2;
 
-      ctx.beginPath();
-      ctx.arc(x, y, radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-      ctx.fill();
-    }
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+        ctx.fill();
+      }
+    };
 
-  }, []); // Se ejecuta una vez al montar el componente
+    // Dibujo inicial
+    draw();
+
+    // Listener para redibujar cuando cambia el tamaño de la pantalla
+    window.addEventListener('resize', draw);
+
+    // Limpieza del listener
+    return () => {
+      window.removeEventListener('resize', draw);
+    };
+
+  }, []); 
 
   return (
     <canvas 
@@ -63,6 +101,19 @@ const CosmosBackground = () => {
 
 export const AboutUs = ({ isMobile }: AboutUsProps) => {
   const [os, setOs] = useState<OSType>('default');
+  
+  // --- LÓGICA DE IDIOMA ---
+  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
+
+  useEffect(() => {
+    const handleLangChange = () => {
+      setLang(localStorage.getItem('appLanguage') || 'ES');
+    };
+    window.addEventListener('languageChange', handleLangChange);
+    return () => window.removeEventListener('languageChange', handleLangChange);
+  }, []);
+
+  const t = ABOUT_TEXTS[lang];
   
   // --- LÓGICA DE REBOTE ---
   const containerRef = useRef<HTMLDivElement>(null);
@@ -167,18 +218,22 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
         {/* COLUMNA IZQUIERDA: TEXTO */}
         <div>
           <h2 style={styles.title(isMobile)}>
-            Más que proveedores, somos su <span style={{ color: '#FAA918' }}>Aliado de Innovación Tecnológica.</span>
+            {t.titleStart} <span style={{ color: '#FAA918' }}>{t.titleHighlight}</span>
           </h2>
           
           <div style={styles.paragraph}>
             <p>
-              Bocancorp es una corporación norteamericana con centros de operaciones estratégicos en 
-              <strong> Colombia y Perú</strong>. Nos especializamos en orquestar soluciones tecnológicas complejas 
-              para empresas que buscan escalabilidad y seguridad.
+              {/* LÓGICA DE TEXTO ACTUALIZADA */}
+              {t.paragraph.split(t.highlightPhrase).map((part: string, i: number, arr: string[]) => (
+                  <React.Fragment key={i}>
+                      {part}
+                      {i < arr.length - 1 && <strong>{t.highlightPhrase}</strong>}
+                  </React.Fragment>
+              ))}
             </p>
           </div>
 
-          <button className="btn-primary">CONÓCENOS MÁS</button>
+          <button className="btn-primary">{t.button}</button>
         </div>
 
         {/* COLUMNA DERECHA: VENTANA COSMOS */}
@@ -186,18 +241,17 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
           <div ref={containerRef} style={styles.windowBox(isMobile)}>
             {renderWindowHeader()}
             
-            {/* FONDO COSMOS (NUEVO COMPONENTE CANVAS) */}
+            {/* FONDO COSMOS */}
             <CosmosBackground />
 
-            {/* LOGO REBOTANDO (SIN BRILLO) */}
+            {/* LOGO REBOTANDO CON RESOLVEPATH */}
             <img 
               ref={logoRef}
-              src="./assets/bocancorp-logo.png" 
+              src={resolvePath("assets/bocancorp-logo.png")} 
               alt="Bocancorp Logo" 
               style={{ 
                 width: isMobile ? '80px' : '140px', position: 'absolute',
-                left: `${pos.x}px`, top: `${pos.y}px`, zIndex: 10,
-                // SE ELIMINÓ EL FILTER: drop-shadow
+                left: `${pos.x}px`, top: `${pos.y}px`, zIndex: 10
               }} 
             />
           </div>
@@ -246,7 +300,6 @@ const styles: any = {
   }),
   paragraph: { fontSize: '1.2rem', color: '#555', marginBottom: '30px', lineHeight: 1.8 },
   
-  // VENTANA CON DIMENSIONES AUMENTADAS Y RESPONSIVE
   windowBox: (isMobile: boolean) => ({
     width: isMobile ? '100%' : '100%', 
     maxWidth: isMobile ? 'none' : '600px',
@@ -256,11 +309,9 @@ const styles: any = {
     overflow: 'hidden', 
     boxShadow: '0 30px 60px rgba(0,0,0,0.25)', 
     border: '1px solid #333',
-    backgroundColor: '#000' // Fondo negro base por si acaso el canvas tarda en cargar
+    backgroundColor: '#000'
   }),
   
-  // SE ELIMINÓ styles.cosmosBg YA QUE SE USA EL COMPONENTE <CosmosBackground />
-
   headerTitle: { fontSize: '11px', color: '#ccc', flex: 1, textAlign: 'center', fontFamily: 'monospace' },
   macHeader: { height: '30px', backgroundColor: '#ebebeb', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 20, position: 'relative' },
   dot: { width: '12px', height: '12px', borderRadius: '50%', marginRight: '8px' },

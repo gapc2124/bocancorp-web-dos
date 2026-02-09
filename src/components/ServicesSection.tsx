@@ -1,45 +1,99 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-// --- 1. AGREGAMOS LA INTERFACE PARA TYPESCRIPT ---
+// --- 1. FUNCIÓN DE AYUDA PARA RUTAS (CRÍTICO: NO BORRAR) ---
+const resolvePath = (path: string) => {
+  // En Vite, BASE_URL suele ser '/' en localhost, pero esto asegura que funcione siempre
+  const base = import.meta.env.BASE_URL || '/';
+  // Quitamos cualquier barra o punto inicial para limpiar
+  const cleanPath = path.replace(/^(\.?\/)/, '');
+  return `${base}${cleanPath}`;
+};
+
 interface ServicesSectionProps {
   isMobile: boolean;
 }
 
-// --- DATOS ---
-const SPECIALTIES_DATA = [
+// --- 2. CONFIGURACIÓN ESTÁTICA (Solo IDs e Imágenes) ---
+const CARDS_CONFIG = [
   {
     id: 'multicloud',
-    label: 'Multicloud',
-    title: 'Orquestación Multicloud',
-    desc: 'Unificamos GCP, Azure y Oracle en una estrategia coherente con arquitecturas modernas.', 
-    images: [ { src: './assets/multi_cloud.png', alt: 'Multicloud Native' } ]
+    images: [ { src: 'assets/multi_cloud.png', alt: 'Multicloud Native' } ]
   },
   {
     id: 'aws',
-    label: 'AWS Select Partners',
-    title: 'AWS Select Tier Partners',
-    desc: 'Arquitecturas validadas directamente por Amazon Web Services.',
-    images: [ { src: './assets/aws_partners.png', alt: 'AWS Partner' }, { src: './assets/aws_WAF.png', alt: 'AWS Logo' } ]
+    images: [ { src: 'assets/aws_partners.png', alt: 'AWS Partner' }, { src: 'assets/aws_WAF.png', alt: 'AWS Logo' } ]
   },
   {
     id: 'ai',
-    label: 'Inteligencia Artificial',
-    title: 'Soluciones de IA Avanzada',
-    desc: 'Integración de LLMs para automatizar decisiones críticas.',
-    images: [ { src: './assets/MachineLearning.png', alt: 'IA' } ]
+    images: [ { src: 'assets/MachineLearning.png', alt: 'IA' } ]
   },
   {
     id: 'finops',
-    label: 'Estrategia FinOps',
-    title: 'Control Financiero Cloud',
-    desc: 'Maximiza su ROI. Visibilidad total de costos y optimización.',
-    images: [ { src: './assets/FinOps.png', alt: 'FinOps' } ]
+    images: [ { src: 'assets/FinOps.png', alt: 'FinOps' } ]
   }
 ];
 
-// --- 2. RECIBIMOS LA PROP (AUNQUE NO LA USES, ESTO CORRIGE EL ERROR EN HOMEPAGE) ---
+// --- 3. DICCIONARIO DE TEXTOS (Traducciones) ---
+const SECTION_TEXTS: any = {
+  ES: {
+    heroTitlePrefix: "Somos ",
+    heroTitleHighlight: "AWS Select Partners",
+    heroTitleSuffix: " y Especialistas Multi-Cloud",
+    heroSub: "en GCP, Azure y Oracle Cloud.",
+    ctaButton: "AGENDE AHORA!",
+    advantageTitle: "Ventaja Competitiva",
+    advantageDesc: "Transformamos su infraestructura tecnológica en un motor de crecimiento. No solo migramos o mantenemos; evolucionamos su ecosistema digital para liderar el mercado.",
+    specialtiesTitle: "Nuestras Especialidades",
+    
+    // Textos de las tarjetas
+    cards: {
+      multicloud: { label: 'Multicloud', title: 'Orquestación Multicloud', desc: 'Unificamos GCP, Azure y Oracle en una estrategia coherente con arquitecturas modernas.' },
+      aws: { label: 'AWS Select Partners', title: 'AWS Select Tier Partners', desc: 'Arquitecturas validadas directamente por Amazon Web Services.' },
+      ai: { label: 'Inteligencia Artificial', title: 'Soluciones de IA Avanzada', desc: 'Integración de LLMs para automatizar decisiones críticas.' },
+      finops: { label: 'Estrategia FinOps', title: 'Control Financiero Cloud', desc: 'Maximiza su ROI. Visibilidad total de costos y optimización.' }
+    }
+  },
+  EN: {
+    heroTitlePrefix: "We are ",
+    heroTitleHighlight: "AWS Select Partners",
+    heroTitleSuffix: " and Multi-Cloud Specialists",
+    heroSub: "in GCP, Azure, and Oracle Cloud.",
+    ctaButton: "BOOK NOW!",
+    advantageTitle: "Competitive Advantage",
+    advantageDesc: "We transform your technological infrastructure into a growth engine. We don't just migrate or maintain; we evolve your digital ecosystem to lead the market.",
+    specialtiesTitle: "Our Specialties",
+    
+    // Textos de las tarjetas
+    cards: {
+      multicloud: { label: 'Multicloud', title: 'Multicloud Orchestration', desc: 'We unify GCP, Azure, and Oracle into a coherent strategy with modern architectures.' },
+      aws: { label: 'AWS Select Partners', title: 'AWS Select Tier Partners', desc: 'Architectures validated directly by Amazon Web Services.' },
+      ai: { label: 'Artificial Intelligence', title: 'Advanced AI Solutions', desc: 'Integration of LLMs to automate critical decisions.' },
+      finops: { label: 'FinOps Strategy', title: 'Cloud Financial Control', desc: 'Maximize your ROI. Total cost visibility and optimization.' }
+    }
+  }
+};
+
 export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
-  const [activeId, setActiveId] = useState(SPECIALTIES_DATA[0].id);
+  const [activeId, setActiveId] = useState(CARDS_CONFIG[0].id);
+  
+  // --- LÓGICA DE IDIOMA ---
+  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
+
+  useEffect(() => {
+    const handleLangChange = () => {
+      setLang(localStorage.getItem('appLanguage') || 'ES');
+    };
+    window.addEventListener('languageChange', handleLangChange);
+    return () => window.removeEventListener('languageChange', handleLangChange);
+  }, []);
+
+  const t = SECTION_TEXTS[lang];
+
+  // Fusionamos la configuración de imágenes con los textos actuales
+  const currentData = CARDS_CONFIG.map(item => ({
+    ...item,
+    ...t.cards[item.id]
+  }));
 
   const handleTabClick = (newId: string) => {
     if (newId === activeId) return;
@@ -63,27 +117,27 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
         <div className="left-column">
           <div style={{ marginBottom: 'clamp(20px, 4vw, 40px)' }}>
             <h2 className="main-heading">
-              Somos <span className="highlight-text">AWS Select Partners</span> y Especialistas Multi-Cloud
+              {t.heroTitlePrefix}
+              <span className="highlight-text">{t.heroTitleHighlight}</span>
+              {t.heroTitleSuffix}
               <span className="sub-heading">
-                en GCP, Azure y Oracle Cloud.
+                {t.heroSub}
               </span>
             </h2>
-            <button className="btn-primary custom-btn">AGENDE AHORA!</button>
+            <button className="btn-primary custom-btn">{t.ctaButton}</button>
           </div>
           <div className="advantage-box">
-            <h3 className="advantage-title">Ventaja Competitiva</h3>
-            <p className="advantage-text">
-              Transformamos su infraestructura tecnológica en un motor de crecimiento. No solo migramos o mantenemos; evolucionamos su ecosistema digital para liderar el mercado.
-            </p>
+            <h3 className="advantage-title">{t.advantageTitle}</h3>
+            <p className="advantage-text">{t.advantageDesc}</p>
           </div>
         </div>
 
         {/* COLUMNA DERECHA */}
         <div className="right-column">
-          <h3 className="specialties-title">Nuestras Especialidades</h3>
+          <h3 className="specialties-title">{t.specialtiesTitle}</h3>
 
           <div className="tabs-container">
-            {SPECIALTIES_DATA.map((item) => (
+            {currentData.map((item: any) => (
               <button
                 key={item.id}
                 onClick={() => handleTabClick(item.id)}
@@ -95,7 +149,7 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
           </div>
 
           <div className="cards-stack-wrapper">
-            {SPECIALTIES_DATA.map((item) => (
+            {currentData.map((item: any) => (
                <div 
                  key={item.id}
                  className={`specialty-card ${activeId === item.id ? 'active' : ''}`}
@@ -351,11 +405,12 @@ const CardContent = ({ data }: { data: any }) => {
         {isAWS ? (
             <div style={{ display: 'flex', gap: '20px', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
                 {data.images.map((img: any, i: number) => (
-                    <img key={i} src={img.src} alt={img.alt} className="card-img-aws" style={{ animationDelay: `${i * 1}s` }} />
+                    // Se usa resolvePath para asegurar que la ruta sea correcta siempre
+                    <img key={i} src={resolvePath(img.src)} alt={img.alt} className="card-img-aws" style={{ animationDelay: `${i * 1}s` }} />
                 ))}
             </div>
         ) : (
-          <img src={data.images[0].src} alt={data.images[0].alt} className={isSecondaryImage ? "card-img-secondary" : "card-img-single"} />
+          <img src={resolvePath(data.images[0].src)} alt={data.images[0].alt} className={isSecondaryImage ? "card-img-secondary" : "card-img-single"} />
         )}
       </div>
     </div>

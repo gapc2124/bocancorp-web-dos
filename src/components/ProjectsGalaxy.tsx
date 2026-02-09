@@ -3,8 +3,100 @@ import { Canvas, useFrame, extend } from '@react-three/fiber';
 import * as THREE from 'three';
 import { shaderMaterial } from '@react-three/drei';
 
+// --- FUNCIÓN DE AYUDA PARA RUTAS (CRÍTICO: NO BORRAR) ---
+const resolvePath = (path: string) => {
+  const base = import.meta.env.BASE_URL || '/';
+  const cleanPath = path.replace(/^(\.?\/)/, '');
+  return `${base}${cleanPath}`;
+};
+
 // ==========================================
-// 1. SHADER (SOLO MOVIMIENTO AMBIENTAL - SIN MOUSE)
+// 1. DICCIONARIO DE TEXTOS Y CONFIGURACIÓN
+// ==========================================
+
+// Configuración visual estática (No cambia con el idioma, RUTAS LIMPIAS)
+const PROJECTS_CONFIG = [
+  { 
+    id: 'miranda', name: 'Miranda', color: '#FFFFFF', 
+    img: 'assets/Miranda.png', icon: 'assets/project1.png', 
+    orbitRadius: 130, speed: 0.4, initialAngle: 0 
+  },
+  { 
+    id: 'myintelli', name: 'MyIntelli', color: '#33BEFF', 
+    img: 'assets/MyIntelli.png', icon: 'assets/project2.png', 
+    orbitRadius: 200, speed: 0.4, initialAngle: 120 
+  },
+  { 
+    id: 'datecsa', name: 'DATECSA', color: '#FF3333', 
+    img: 'assets/DateCSA.png', icon: 'assets/project3.png', 
+    orbitRadius: 270, speed: 0.4, initialAngle: 240 
+  },
+  { 
+    id: 'ruedaverde', name: 'RuedaVerde', color: '#00ff88', 
+    img: 'assets/RuedaVerde.png', icon: 'assets/project4.png', 
+    orbitRadius: 340, speed: 0.4, initialAngle: 60 
+  },
+  { 
+    id: 'tuulapp', name: 'TuulApp', color: '#aa00ff', 
+    img: 'assets/tuulapp.png', icon: 'assets/project5.png', 
+    orbitRadius: 410, speed: 0.4, initialAngle: 180 
+  },
+  { 
+    id: 'ingram', name: 'Ingram', color: '#2952ff', 
+    img: 'assets/Ingram.png', icon: 'assets/project6.png', 
+    orbitRadius: 480, speed: 0.4, initialAngle: 300 
+  }
+];
+
+// Textos traducibles
+const GALAXY_TEXTS: any = {
+  ES: {
+    titleStart: "Conoce algunos de nuestros ",
+    titleHighlight: "proyectos exitosos",
+    hintText: "Pulsa en los mundos",
+    cardHint: "CLICK PARA DETALLES ↻",
+    cardButton: "Ver Más ➜",
+    descriptions: {
+      miranda: "Optimización de rutas y gestión logística inteligente.",
+      myintelli: "Consultoría integral de Ciberseguridad.",
+      datecsa: "Plataforma transaccional B2B de alto rendimiento.",
+      ruedaverde: "Desarrollo de Chatbot inteligente con IA Generativa.",
+      tuulapp: "Marketplace de servicios on-demand.",
+      ingram: "Integración global de inventarios y logística."
+    }
+  },
+  EN: {
+    titleStart: "Discover some of our ",
+    titleHighlight: "successful projects",
+    hintText: "Click on the worlds",
+    cardHint: "CLICK FOR DETAILS ↻",
+    cardButton: "See More ➜",
+    descriptions: {
+      miranda: "Route optimization and intelligent logistics management.",
+      myintelli: "Comprehensive Cybersecurity consulting.",
+      datecsa: "High-performance B2B transactional platform.",
+      ruedaverde: "Intelligent Chatbot development with Generative AI.",
+      tuulapp: "On-demand services marketplace.",
+      ingram: "Global inventory and logistics integration."
+    }
+  }
+};
+
+// Interface unificada
+interface Project {
+  id: string;
+  name: string;
+  color: string;
+  desc: string; 
+  img: string;
+  icon: string;
+  orbitRadius: number; 
+  speed: number;
+  initialAngle: number;
+}
+
+// ==========================================
+// 2. SHADER (SOLO MOVIMIENTO AMBIENTAL)
 // ==========================================
 const vertexShader = `
   uniform float uTime;
@@ -17,39 +109,25 @@ const vertexShader = `
 
   void main() {
     vec3 pos = aPosition;
-    
-    // 1. MOVIMIENTO FLOTANTE SUAVE (Ambiente)
-    // Usamos seno y coseno para crear un movimiento orgánico "bajo el agua" o espacial
-    float floatY = sin(pos.x * 0.5 + uTime * 0.2) * 0.2; // Aumenté un poco la amplitud
+    float floatY = sin(pos.x * 0.5 + uTime * 0.2) * 0.2;
     float floatX = cos(pos.y * 0.5 + uTime * 0.2) * 0.2;
-    
     pos.x += floatX;
     pos.y += floatY;
-    
-    // Un poco de movimiento en Z para profundidad
     pos.z += sin(uTime * 0.1 + pos.x) * 0.5;
 
-    // --- 2. COLOR (Mantenemos tu paleta favorita) ---
     float rnd = random(aPosition.xy);
-    
-    // Color base (Azul / Celeste)
     vec3 baseColor = mix(vec3(0.1, 0.4, 1.0), vec3(0.0, 0.8, 1.0), rnd);
-
-    // Paleta objetivo
     vec3 targetColor;
-    if (rnd < 0.25) targetColor = vec3(0.0, 1.0, 1.0); // Cyan
-    else if (rnd < 0.5) targetColor = vec3(1.0, 0.0, 1.0); // Magenta
-    else if (rnd < 0.75) targetColor = vec3(0.6, 0.0, 1.0); // Morado
-    else targetColor = vec3(1.0, 1.0, 1.0); // Blanco
+    if (rnd < 0.25) targetColor = vec3(0.0, 1.0, 1.0);
+    else if (rnd < 0.5) targetColor = vec3(1.0, 0.0, 1.0);
+    else if (rnd < 0.75) targetColor = vec3(0.6, 0.0, 1.0);
+    else targetColor = vec3(1.0, 1.0, 1.0);
 
-    // Mezcla aleatoria de colores
-    float colorMix = step(0.6, rnd); // 40% de las estrellas tendrán color secundario
+    float colorMix = step(0.6, rnd);
     vColor = mix(baseColor, targetColor, colorMix);
 
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
-    
-    // Tamaño basado en profundidad (Perspectiva)
     gl_PointSize = (50.0 / -mvPosition.z); 
   }
 `;
@@ -60,10 +138,7 @@ const fragmentShader = `
     vec2 coord = gl_PointCoord - vec2(0.5);
     float dist = length(coord);
     if (dist > 0.5) discard;
-    
-    // Borde difuminado suave
     float alpha = 1.0 - smoothstep(0.3, 0.5, dist);
-    
     gl_FragColor = vec4(vColor, alpha * 0.8); 
   }
 `;
@@ -77,19 +152,16 @@ const AmbientParticlesMaterial = shaderMaterial(
 extend({ AmbientParticlesMaterial });
 
 // ==========================================
-// 2. COMPONENTE PARTICLES (LIMPIO Y MENOS DENSO)
+// 3. COMPONENTE PARTICLES
 // ==========================================
 const AmbientParticles = () => {
   const meshRef = useRef<THREE.Points>(null);
   const materialRef = useRef<any>(null);
-
-  // CAMBIO: Reducido de 5000 a 1500 (Menos partículas)
   const count = 1500; 
 
   const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      // Esparcidas ampliamente
       pos[i * 3] = (Math.random() - 0.5) * 60;     
       pos[i * 3 + 1] = (Math.random() - 0.5) * 45; 
       pos[i * 3 + 2] = (Math.random() - 0.5) * 10.0; 
@@ -99,11 +171,7 @@ const AmbientParticles = () => {
 
   useFrame((state) => {
     if (!meshRef.current || !materialRef.current) return;
-
-    // Rotación lenta de toda la galaxia
     meshRef.current.rotation.z += 0.0002;
-    
-    // Actualizar tiempo para el shader
     materialRef.current.uTime = state.clock.getElapsedTime();
   });
 
@@ -115,78 +183,16 @@ const AmbientParticles = () => {
         {/* @ts-ignore */}
         <bufferAttribute attach="attributes-aPosition" args={[positions, 3]} />
       </bufferGeometry>
-      
       {/* @ts-ignore */}
-      <ambientParticlesMaterial 
-        ref={materialRef} 
-        transparent 
-        depthWrite={false} 
-        blending={THREE.AdditiveBlending} 
-      />
+      <ambientParticlesMaterial ref={materialRef} transparent depthWrite={false} blending={THREE.AdditiveBlending} />
     </points>
   );
 };
 
 // ==========================================
-// 3. DATA
-// ==========================================
-interface Project {
-  id: string;
-  name: string;
-  color: string;
-  desc: string;
-  img: string;
-  icon: string;
-  orbitRadius: number; 
-  speed: number;
-  initialAngle: number;
-}
-
-const UNIFIED_SPEED = 0.4;
-
-const PROJECTS_DATA: Project[] = [
-  { 
-    id: 'miranda', name: 'Miranda', color: '#FFFFFF', 
-    desc: 'Optimización de rutas y gestión logística inteligente.', 
-    img: './assets/Miranda.png', icon: './assets/project1.png', 
-    orbitRadius: 130, speed: UNIFIED_SPEED, initialAngle: 0 
-  },
-  { 
-    id: 'myintelli', name: 'MyIntelli', color: '#33BEFF', 
-    desc: 'Consultoría integral de Ciberseguridad.', 
-    img: './assets/MyIntelli.png', icon: './assets/project2.png', 
-    orbitRadius: 200, speed: UNIFIED_SPEED, initialAngle: 120 
-  },
-  { 
-    id: 'datecsa', name: 'DATECSA', color: '#FF3333', 
-    desc: 'Plataforma transaccional B2B de alto rendimiento.', 
-    img: './assets/DateCSA.png', icon: './assets/project3.png', 
-    orbitRadius: 270, speed: UNIFIED_SPEED, initialAngle: 240 
-  },
-  { 
-    id: 'ruedaverde', name: 'RuedaVerde', color: '#00ff88', 
-    desc: 'Desarrollo de Chatbot inteligente con IA Generativa.', 
-    img: './assets/RuedaVerde.png', icon: './assets/project4.png', 
-    orbitRadius: 340, speed: UNIFIED_SPEED, initialAngle: 60 
-  },
-  { 
-    id: 'tuulapp', name: 'TuulApp', color: '#aa00ff', 
-    desc: 'Marketplace de servicios on-demand.', 
-    img: './assets/tuulapp.png', icon: './assets/project5.png', 
-    orbitRadius: 410, speed: UNIFIED_SPEED, initialAngle: 180 
-  },
-  { 
-    id: 'ingram', name: 'Ingram', color: '#2952ff', 
-    desc: 'Integración global de inventarios y logística.', 
-    img: './assets/Ingram.png', icon: './assets/project6.png', 
-    orbitRadius: 480, speed: UNIFIED_SPEED, initialAngle: 300 
-  }
-];
-
-// ==========================================
 // 4. COMPONENTES SOLAR SYSTEM
 // ==========================================
-const ProjectFlipCard = ({ project, isMobile }: { project: Project, isMobile: boolean }) => {
+const ProjectFlipCard = ({ project, isMobile, cardHint, buttonText }: { project: Project, isMobile: boolean, cardHint: string, buttonText: string }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   useEffect(() => { setIsFlipped(false); }, [project.id]);
 
@@ -205,14 +211,14 @@ const ProjectFlipCard = ({ project, isMobile }: { project: Project, isMobile: bo
       <div style={{ position: 'relative', width: '100%', height: '100%', transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)', transformStyle: 'preserve-3d', transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
         <div style={{ ...faceStyle }}>
           <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px' }}>
-            <img src={project.img} alt={project.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+            <img src={resolvePath(project.img)} alt={project.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
           </div>
-          <p style={{ marginTop: '10px', marginBottom: '10px', color: project.color, fontWeight: '900', fontSize: isMobile ? '1.2rem' : '1.5rem', letterSpacing: '1px', textAlign: 'center', animation: 'pulse 2s infinite', textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>CLICK PARA DETALLES ↻</p>
+          <p style={{ marginTop: '10px', marginBottom: '10px', color: project.color, fontWeight: '900', fontSize: isMobile ? '1.2rem' : '1.5rem', letterSpacing: '1px', textAlign: 'center', animation: 'pulse 2s infinite', textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>{cardHint}</p>
         </div>
         <div style={{ ...faceStyle, transform: 'rotateY(180deg)', background: '#1a1a2e' }}>
           <h3 style={{ color: project.color, fontSize: isMobile ? '1.8rem' : '2.2rem', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 900, textAlign: 'center', textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>{project.name}</h3>
           <p style={{ fontSize: isMobile ? '1rem' : '1.1rem', lineHeight: 1.6, color: '#ddd', textAlign: 'center' }}>{project.desc}</p>
-          <button style={{ marginTop: 'auto', marginBottom: '20px', padding: '12px 35px', background: project.color, border: 'none', borderRadius: '50px', color: 'black', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' }}>Ver Más ➜</button>
+          <button style={{ marginTop: 'auto', marginBottom: '20px', padding: '12px 35px', background: project.color, border: 'none', borderRadius: '50px', color: 'black', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' }}>{buttonText}</button>
         </div>
       </div>
       <style>{`@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }`}</style>
@@ -220,7 +226,7 @@ const ProjectFlipCard = ({ project, isMobile }: { project: Project, isMobile: bo
   );
 };
 
-const SolarSystem = ({ projects, activeId, onSelect, isMobile }: { projects: Project[], activeId: string, onSelect: (id: string) => void, isMobile: boolean }) => {
+const SolarSystem = ({ projects, activeId, onSelect, isMobile, hintText }: { projects: Project[], activeId: string, onSelect: (id: string) => void, isMobile: boolean, hintText: string }) => {
   const requestRef = useRef<number>(0);
   const angles = useRef(projects.map((p) => p.initialAngle * (Math.PI / 180)));
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
@@ -233,7 +239,8 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile }: { projects: Pro
 
   const isSmallScreen = windowWidth < 590;
   
-  const scaleFactor = isMobile ? 0.42 : (windowWidth < 1400 ? 0.65 : 0.8);
+  const FIXED_TILT = 35; 
+  const scaleFactor = isMobile ? 0.38 : (windowWidth < 1400 ? 0.55 : 0.75);
 
   const animate = () => {
     projects.forEach((p, index) => {
@@ -246,7 +253,7 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile }: { projects: Pro
       
       const el = document.getElementById(`planet-${p.id}`);
       if (el) {
-        el.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+        el.style.transform = `translate3d(${x}px, ${y}px, 0) rotateX(${-FIXED_TILT}deg)`;
       }
     });
     requestRef.current = requestAnimationFrame(animate);
@@ -260,14 +267,16 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile }: { projects: Pro
   return (
     <div style={{ 
       position: 'relative', width: '100%', 
-      height: isMobile ? '450px' : '850px', 
+      height: isMobile ? '500px' : '900px', 
       display: 'flex', justifyContent: 'center', alignItems: 'center', 
+      perspective: '1200px', 
       overflow: 'visible', 
-      marginTop: isMobile ? '30px' : '80px' 
+      marginTop: isMobile ? '-50px' : '-100px' 
     }}>
       <div style={{ 
         position: 'relative', width: '0px', height: '0px',
-        transform: `scale(${scaleFactor})`, 
+        transformStyle: 'preserve-3d',
+        transform: `scale(${scaleFactor}) rotateX(${FIXED_TILT}deg)`, 
         transition: 'transform 0.5s ease-out' 
       }}>
         
@@ -276,6 +285,7 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile }: { projects: Pro
           position: 'absolute', top: '-40px', left: '-40px',
           width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#FFD700',
           boxShadow: '0 0 60px #FFD700, 0 0 30px #FF8C00',
+          transform: `rotateX(${-FIXED_TILT}deg)`,
           zIndex: 10
         }} />
 
@@ -291,7 +301,7 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile }: { projects: Pro
                 position: 'absolute', 
                 top: `-${currentRadius}px`, left: `-${currentRadius}px`,
                 width: `${currentRadius * 2}px`, height: `${currentRadius * 2}px`,
-                border: '2px dashed rgba(255, 255, 255, 0.4)',
+                border: '3px dashed rgba(255, 255, 255, 0.4)',
                 borderRadius: '50%', pointerEvents: 'none', zIndex: 1,
                 transition: 'all 0.3s ease'
               }} />
@@ -314,8 +324,7 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile }: { projects: Pro
                   transition: 'all 0.3s', 
                   position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden'
                 }}>
-                  {/* CAMBIO: Eliminado filter brightness/invert. Se muestran los iconos originales. */}
-                  <img src={p.icon} alt="icon" style={{ width: '65%', height: '65%', objectFit: 'contain', pointerEvents: 'none' }} />
+                  <img src={resolvePath(p.icon)} alt="icon" style={{ width: '65%', height: '65%', objectFit: 'contain', pointerEvents: 'none' }} />
                   {isActive && <div style={{ position: 'absolute', top: isMobile ? -35 : -45, left: '50%', transform: 'translateX(-50%)', fontSize: isMobile ? '24px' : '30px' }}>🚀</div>}
                 </div>
               </div>
@@ -323,7 +332,7 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile }: { projects: Pro
           );
         })}
       </div>
-      <div style={{ position: 'absolute', bottom: '-20px', color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', fontWeight: 300, pointerEvents: 'none', letterSpacing: '1px' }}>Pulsa en los mundos</div>
+      <div style={{ position: 'absolute', bottom: '20px', color: 'rgba(255,255,255,0.3)', fontSize: '0.8rem', fontWeight: 300, pointerEvents: 'none', letterSpacing: '1px' }}>{hintText}</div>
     </div>
   );
 };
@@ -332,8 +341,29 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile }: { projects: Pro
 // 5. COMPONENTE PRINCIPAL
 // ==========================================
 export const ProjectsGalaxy = ({ isMobile }: { isMobile: boolean }) => {
-  const [activeId, setActiveId] = useState<string>(PROJECTS_DATA[0].id);
-  const activeProject = useMemo(() => PROJECTS_DATA.find(p => p.id === activeId) || PROJECTS_DATA[0], [activeId]);
+  const [activeId, setActiveId] = useState<string>(PROJECTS_CONFIG[0].id);
+  
+  // --- LÓGICA DE IDIOMA ---
+  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
+
+  useEffect(() => {
+    const handleLangChange = () => {
+      setLang(localStorage.getItem('appLanguage') || 'ES');
+    };
+    window.addEventListener('languageChange', handleLangChange);
+    return () => window.removeEventListener('languageChange', handleLangChange);
+  }, []);
+
+  const t = GALAXY_TEXTS[lang];
+
+  const projects = useMemo(() => {
+    return PROJECTS_CONFIG.map(p => ({
+      ...p,
+      desc: t.descriptions[p.id] 
+    }));
+  }, [lang, t]); 
+
+  const activeProject = useMemo(() => projects.find(p => p.id === activeId) || projects[0], [activeId, projects]);
   
   const [isSuperSmall, setIsSuperSmall] = useState(false);
   useEffect(() => {
@@ -344,15 +374,15 @@ export const ProjectsGalaxy = ({ isMobile }: { isMobile: boolean }) => {
   }, []);
 
   const handleNext = () => {
-    const currentIndex = PROJECTS_DATA.findIndex(p => p.id === activeId);
-    const nextIndex = (currentIndex + 1) % PROJECTS_DATA.length;
-    setActiveId(PROJECTS_DATA[nextIndex].id);
+    const currentIndex = projects.findIndex(p => p.id === activeId);
+    const nextIndex = (currentIndex + 1) % projects.length;
+    setActiveId(projects[nextIndex].id);
   };
 
   const handlePrev = () => {
-    const currentIndex = PROJECTS_DATA.findIndex(p => p.id === activeId);
-    const prevIndex = (currentIndex - 1 + PROJECTS_DATA.length) % PROJECTS_DATA.length;
-    setActiveId(PROJECTS_DATA[prevIndex].id);
+    const currentIndex = projects.findIndex(p => p.id === activeId);
+    const prevIndex = (currentIndex - 1 + projects.length) % projects.length;
+    setActiveId(projects[prevIndex].id);
   };
 
   const currentGap = isSuperSmall ? '110px' : (isMobile ? '230px' : '50px');
@@ -371,14 +401,13 @@ export const ProjectsGalaxy = ({ isMobile }: { isMobile: boolean }) => {
       {/* FONDO DE ESTRELLAS 3D (CANVAS) */}
       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none' }}>
         <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
-          {/* Componente de partículas pasivo (sin interacción) */}
           <AmbientParticles />
         </Canvas>
       </div>
 
       <div style={{ position: 'relative', zIndex: 10, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <h2 style={{ textAlign: 'center', color: 'white', fontSize: isMobile ? '1.8rem' : '3.5rem', marginBottom: '20px', fontWeight: 900, textTransform: 'uppercase' }}>
-          Conoce algunos de nuestros <span style={{ color: '#FAA918' }}>proyectos exitosos</span>
+          {t.titleStart} <span style={{ color: '#FAA918' }}>{t.titleHighlight}</span>
         </h2>
 
         <div style={{ 
@@ -391,16 +420,42 @@ export const ProjectsGalaxy = ({ isMobile }: { isMobile: boolean }) => {
           gap: currentGap, 
           transition: 'gap 0.3s ease'
         }}>
-          <div style={{ flex: '1 1 600px', minWidth: '300px', width: '100%', display: 'flex', justifyContent: 'center' }}>
-            <SolarSystem projects={PROJECTS_DATA} activeId={activeId} onSelect={setActiveId} isMobile={isMobile} />
+          
+          {/* COLUMNA SISTEMA SOLAR (ORDER 2 en móvil, 1 en desktop) */}
+          <div style={{ 
+            flex: '1 1 600px', 
+            minWidth: '300px', 
+            width: '100%', 
+            display: 'flex', 
+            justifyContent: 'center',
+            order: isMobile ? 2 : 1, // EL SISTEMA SOLAR ABAJO
+            marginTop: isMobile ? '-120px' : '0' // SUBE EL SISTEMA PARA PEGARSE A LA TARJETA
+          }}>
+            <SolarSystem 
+                projects={projects} 
+                activeId={activeId} 
+                onSelect={setActiveId} 
+                isMobile={isMobile}
+                hintText={t.hintText} 
+            />
           </div>
           
+          {/* COLUMNA TARJETA DE DETALLE (ORDER 1 en móvil, 2 en desktop) */}
           <div style={{ 
-            flex: '0 1 450px', minWidth: '280px', width: '100%', 
+            flex: '0 1 450px', 
+            minWidth: '280px', 
+            width: '100%', 
             display: 'flex', flexDirection: 'column', alignItems: 'center',
-            zIndex: 30 
+            zIndex: 30,
+            order: isMobile ? 1 : 2, // LA TARJETA ARRIBA
+            marginTop: isMobile ? '60px' : '0' // BAJA LA TARJETA PARA SEPARARSE DEL TÍTULO
           }}>
-            <ProjectFlipCard project={activeProject} isMobile={isMobile} />
+            <ProjectFlipCard 
+                project={activeProject} 
+                isMobile={isMobile}
+                cardHint={t.cardHint}
+                buttonText={t.cardButton} 
+            />
             
             <div style={{ display: 'flex', gap: '30px', marginTop: '30px' }}>
               <button onClick={handlePrev} style={arrowBtnStyle}>←</button>

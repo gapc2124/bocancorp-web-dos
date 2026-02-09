@@ -1,16 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { InteractiveParticles } from './InteractiveParticles';
 
+// --- DICCIONARIO DE TEXTOS ---
+const HERO_TEXTS: any = {
+  ES: {
+    title: "Ingeniería Multi-Cloud y Desarrollo de Software con visión estratégica."
+  },
+  EN: {
+    title: "Multi-Cloud Engineering and Strategic Software Development."
+  }
+};
+
 export const HeroSection = () => {
   const [isHovering, setIsHovering] = useState(false);
+  
+  // 1. Estado del idioma (inicia leyendo localStorage)
+  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
+
+  // 2. Efecto para escuchar el cambio de idioma desde el Nav
+  useEffect(() => {
+    const handleLangChange = () => {
+      setLang(localStorage.getItem('appLanguage') || 'ES');
+    };
+
+    // Escuchar el evento personalizado
+    window.addEventListener('languageChange', handleLangChange);
+    
+    // Limpieza al desmontar
+    return () => window.removeEventListener('languageChange', handleLangChange);
+  }, []);
 
   return (
     <section 
       style={{
         position: 'relative',
         width: '100%',
-        minHeight: '90vh', // Mantenemos la altura para separar bien título y logos
+        minHeight: '90vh', 
         paddingTop: '140px', 
         paddingBottom: '0', 
         display: 'flex',
@@ -28,6 +54,7 @@ export const HeroSection = () => {
         position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0
       }}>
         <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
+          {/* Asegúrate de que este componente acepte la prop isHovering */}
           <InteractiveParticles isHovering={isHovering} />
         </Canvas>
       </div>
@@ -47,7 +74,7 @@ export const HeroSection = () => {
         pointerEvents: 'none'
       }}>
         
-        {/* 1. TÍTULO */}
+        {/* 1. TÍTULO DINÁMICO */}
         <div style={{ 
             flex: 1, 
             display: 'flex', 
@@ -56,7 +83,7 @@ export const HeroSection = () => {
             paddingBottom: '50px' 
         }}>
             <h1 className="hero-title" style={{ pointerEvents: 'auto' }}>
-            Ingeniería Multi-Cloud y Desarrollo de Software con visión estratégica.
+              {HERO_TEXTS[lang].title}
             </h1>
         </div>
 
@@ -68,6 +95,7 @@ export const HeroSection = () => {
             marginTop: 'auto', 
             paddingBottom: '20px'
         }}>
+           {/* Aquí iría tu componente de carrusel de logos si lo tienes */}
         </div>
 
       </div>
@@ -81,7 +109,7 @@ export const HeroSection = () => {
             font-size: clamp(2.5rem, 5vw, 5.5rem); 
             
             line-height: 1.1;
-            letter-spacing: -2px; /* Un poco más apretado para este tamaño */
+            letter-spacing: -2px;
             margin-bottom: 0;
             
             background: linear-gradient(to right, #ffffff 30%, #FAA918 100%);
@@ -92,6 +120,9 @@ export const HeroSection = () => {
             max-width: 1100px;
             
             filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
+            
+            /* Animación suave al cambiar el texto */
+            transition: opacity 0.3s ease;
         }
       `}</style>
     </section>

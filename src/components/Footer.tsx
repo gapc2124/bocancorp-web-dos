@@ -1,10 +1,69 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Auroras } from './Auroras';
 
+// --- DICCIONARIO DE TEXTOS ---
+const FOOTER_TEXTS: any = {
+  ES: {
+    nav: {
+      home: "Inicio",
+      services: "Servicios",
+      projects: "Proyectos",
+      about: "Sobre Nosotros"
+    },
+    contactHeader: "Contacto Global",
+    countries: {
+      usa: "USA:",
+      peru: "Perú:",
+      colombia: "Colombia:"
+    },
+    addresses: {
+      usa: "2201 Cooperative Way Suite 600, Herndon, VA 20171, United States",
+      peru: "15012 Avenida Huarochirí 333, La Molina, Lima, Perú",
+      colombia: "Carrera 35 No. 15 B 35. Edificio Prisma, Oficina 9912. Medellin, Antioquia, Colombia"
+    },
+    followUs: "Síguenos",
+    rights: "Todos los Derechos Reservados."
+  },
+  EN: {
+    nav: {
+      home: "Home",
+      services: "Services",
+      projects: "Projects",
+      about: "About Us"
+    },
+    contactHeader: "Global Contact",
+    countries: {
+      usa: "USA:",
+      peru: "Peru:",
+      colombia: "Colombia:"
+    },
+    addresses: {
+      usa: "2201 Cooperative Way Suite 600, Herndon, VA 20171, United States",
+      peru: "15012 Avenida Huarochirí 333, La Molina, Lima, Peru",
+      colombia: "Carrera 35 No. 15 B 35. Edificio Prisma, Oficina 9912. Medellin, Antioquia, Colombia"
+    },
+    followUs: "Follow Us",
+    rights: "All Rights Reserved."
+  }
+};
+
 export const Footer = () => {
-  // Función simple para detectar móvil (puedes moverla fuera si prefieres)
+  // Función simple para detectar móvil
   const isMobileLayout = () => typeof window !== 'undefined' && window.innerWidth < 768;
+
+  // --- LÓGICA DE IDIOMA ---
+  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
+
+  useEffect(() => {
+    const handleLangChange = () => {
+      setLang(localStorage.getItem('appLanguage') || 'ES');
+    };
+    window.addEventListener('languageChange', handleLangChange);
+    return () => window.removeEventListener('languageChange', handleLangChange);
+  }, []);
+
+  const t = FOOTER_TEXTS[lang];
 
   return (
     <footer style={{
@@ -48,17 +107,17 @@ export const Footer = () => {
           </div>
           
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <a href="#home" className="footer-link-v2">Inicio</a>
-            <a href="#servicios" className="footer-link-v2">Servicios</a>
-            <a href="#proyectos" className="footer-link-v2">Proyectos</a>
-            <a href="#nosotros" className="footer-link-v2">Sobre Nosotros</a>
+            <a href="#home" className="footer-link-v2">{t.nav.home}</a>
+            <a href="#servicios" className="footer-link-v2">{t.nav.services}</a>
+            <a href="#proyectos" className="footer-link-v2">{t.nav.projects}</a>
+            <a href="#nosotros" className="footer-link-v2">{t.nav.about}</a>
           </nav>
         </div>
 
-        {/* COLUMNA 2: INFORMACIÓN DE CONTACTO (NUEVO) */}
+        {/* COLUMNA 2: INFORMACIÓN DE CONTACTO */}
         <div style={{ flex: '1 1 350px' }}>
           <h3 style={{ fontSize: '1.1rem', marginBottom: '25px', fontWeight: 600, color: '#FAA918' }}>
-            Contacto Global
+            {t.contactHeader}
           </h3>
           
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', fontSize: '0.95rem', color: '#cccccc', lineHeight: '1.5' }}>
@@ -73,24 +132,24 @@ export const Footer = () => {
             <div style={{ display: 'flex', gap: '10px' }}>
               <i className="fa-solid fa-location-dot" style={{ color: '#FAA918', marginTop: '4px' }}></i>
               <div>
-                <strong>USA:</strong><br/>
-                2201 Cooperative Way Suite 600,<br/> Herndon, VA 20171, United States
+                <strong>{t.countries.usa}</strong><br/>
+                {t.addresses.usa}
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '10px' }}>
               <i className="fa-solid fa-location-dot" style={{ color: '#FAA918', marginTop: '4px' }}></i>
               <div>
-                <strong>Perú:</strong><br/>
-                15012 Avenida Huarochirí 333<br/> La Molina, Lima, Perú
+                <strong>{t.countries.peru}</strong><br/>
+                {t.addresses.peru}
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: '10px' }}>
               <i className="fa-solid fa-location-dot" style={{ color: '#FAA918', marginTop: '4px' }}></i>
               <div>
-                <strong>Colombia:</strong><br/>
-                Carrera 35 No. 15 B 35.<br/> Edificio Prisma, Oficina 9912.<br/> Medellin, Antioquia, Colombia
+                <strong>{t.countries.colombia}</strong><br/>
+                {t.addresses.colombia}
               </div>
             </div>
 
@@ -100,7 +159,7 @@ export const Footer = () => {
         {/* COLUMNA 3: REDES Y COPYRIGHT */}
         <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', textAlign: isMobileLayout() ? 'left' : 'right' }}>
           <div>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '25px', fontWeight: 600 }}>Síguenos</h3>
+            <h3 style={{ fontSize: '1.1rem', marginBottom: '25px', fontWeight: 600 }}>{t.followUs}</h3>
             <div style={{ display: 'flex', gap: '15px', justifyContent: isMobileLayout() ? 'flex-start' : 'flex-end', marginBottom: '30px' }}>
               <SocialIcon icon="fa-facebook-f" />
               <SocialIcon icon="fa-linkedin-in" />
@@ -110,7 +169,7 @@ export const Footer = () => {
           
           <div style={{ fontSize: '0.8rem', color: '#666', lineHeight: 1.6 }}>
             © 2026 Bocancorp™.<br/> 
-            Todos los Derechos Reservados.
+            {t.rights}
           </div>
         </div>
 
