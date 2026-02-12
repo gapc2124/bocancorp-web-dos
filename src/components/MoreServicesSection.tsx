@@ -7,6 +7,7 @@ import {
   shaderMaterial
 } from '@react-three/drei';
 import * as THREE from 'three';
+import { Link } from 'react-router-dom'; // 1. Importamos Link para la conexión
 
 // --- COLORES ---
 const BG_COLOR = "#000c2d"; 
@@ -14,7 +15,7 @@ const BOCANCORP_ORANGE = "#FAA918";
 const ACCENT_BLUE = "#00C2FF"; 
 const BRIGHT_CYAN = "#66E0FF";
 
-// --- 1. CONFIGURACIÓN ESTÁTICA (Colores e IDs) ---
+// --- CONFIGURACIÓN ESTÁTICA ---
 const CATEGORY_CONFIG = {
   software: { id: 'software', themeColor: BOCANCORP_ORANGE },
   cloud: { id: 'cloud', themeColor: ACCENT_BLUE }
@@ -22,7 +23,7 @@ const CATEGORY_CONFIG = {
 
 type CategoryKey = keyof typeof CATEGORY_CONFIG;
 
-// --- 2. DICCIONARIO DE TEXTOS (ES / EN) ---
+// --- 2. DICCIONARIO DE TEXTOS CON IDs CONECTADOS ---
 const SECTION_TEXTS: any = {
   ES: {
     titleStart: "Explora",
@@ -31,21 +32,19 @@ const SECTION_TEXTS: any = {
       software: {
         label: "Desarrollo de Software",
         items: [
-          "Desarrollo de Soluciones Multiplataforma",
-          "Ecosistemas Cloud & Modernización",
-          "Diseño de Experiencia (UX/UI)",
-          "Consultoría de Arquitectura TI",
-          "Automatización de procesos con IA"
+          { label: "Desarrollo de Soluciones Multiplataforma", id: 1 },
+          { label: "Ecosistemas Cloud & Modernización", id: 2 },
+          { label: "Diseño de Experiencia (UX/UI)", id: 3 },
+          { label: "Consultoría de Arquitectura TI", id: 4 }
         ]
       },
       cloud: {
         label: "Soluciones en la Nube",
         items: [
-          "Arquitectura Multi-Cloud & Serverless",
-          "Ciberseguridad & Conectividad (Networking)",
-          "Cultura DevOps & Terraform (IaC)",
-          "FinOps & Optimización de Recursos",
-          "Gobernanza de datos & IA"
+          { label: "Arquitectura Multi-Cloud & Serverless", id: 5 },
+          { label: "Ciberseguridad & Conectividad", id: 6 },
+          { label: "Cultura DevOps & Terraform", id: 7 },
+          { label: "FinOps & Optimización de Recursos", id: 8 }
         ]
       }
     }
@@ -57,21 +56,19 @@ const SECTION_TEXTS: any = {
       software: {
         label: "Software Development",
         items: [
-          "Multi-platform Solutions Development",
-          "Cloud Ecosystems & Modernization",
-          "User Experience Design (UX/UI)",
-          "IT Architecture Consulting",
-          "AI Process Automation"
+          { label: "Multi-platform Solutions Development", id: 1 },
+          { label: "Cloud Ecosystems & Modernization", id: 2 },
+          { label: "User Experience Design (UX/UI)", id: 3 },
+          { label: "IT Architecture Consulting", id: 4 }
         ]
       },
       cloud: {
         label: "Cloud Solutions",
         items: [
-          "Multi-Cloud & Serverless Architecture",
-          "Cybersecurity & Networking",
-          "DevOps Culture & Terraform (IaC)",
-          "FinOps & Resource Optimization",
-          "Data Governance & AI"
+          { label: "Multi-Cloud & Serverless Architecture", id: 5 },
+          { label: "Cybersecurity & Networking", id: 6 },
+          { label: "DevOps Culture & Terraform", id: 7 },
+          { label: "FinOps & Resource Optimization", id: 8 }
         ]
       }
     }
@@ -79,25 +76,19 @@ const SECTION_TEXTS: any = {
 };
 
 // =====================================================================
-// 3. SHADERS (INTACTOS)
+// 3. SHADERS Y PARTÍCULAS (INTACTOS)
 // =====================================================================
 const particlesVertexShader = `
   uniform float uTime;
   attribute vec3 aPosition;
   varying vec3 vColor;
-
-  float random(vec2 st) {
-      return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
-  }
-
+  float random(vec2 st) { return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123); }
   void main() {
     vec3 pos = aPosition;
     float floatY = sin(pos.x * 0.5 + uTime * 0.2) * 0.2; 
     float floatX = cos(pos.y * 0.5 + uTime * 0.2) * 0.2;
-    pos.x += floatX;
-    pos.y += floatY;
+    pos.x += floatX; pos.y += floatY;
     pos.z += sin(uTime * 0.1 + pos.x) * 0.5;
-
     float rnd = random(aPosition.xy);
     vec3 baseColor = mix(vec3(0.1, 0.4, 1.0), vec3(0.0, 0.8, 1.0), rnd);
     vec3 targetColor;
@@ -105,10 +96,8 @@ const particlesVertexShader = `
     else if (rnd < 0.5) targetColor = vec3(1.0, 0.0, 1.0); 
     else if (rnd < 0.75) targetColor = vec3(0.6, 0.0, 1.0); 
     else targetColor = vec3(1.0, 1.0, 1.0); 
-
     float colorChance = step(0.7, rnd);
     vColor = mix(baseColor, targetColor, colorChance);
-
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
     gl_PointSize = (60.0 / -mvPosition.z); 
@@ -126,24 +115,13 @@ const particlesFragmentShader = `
   }
 `;
 
-const InteractiveLikeMaterial = shaderMaterial(
-  { uTime: 0 },
-  particlesVertexShader,
-  particlesFragmentShader
-);
-
+const InteractiveLikeMaterial = shaderMaterial({ uTime: 0 }, particlesVertexShader, particlesFragmentShader);
 extend({ InteractiveLikeMaterial });
 
-// =====================================================================
-// 4. COMPONENTE DE PARTÍCULAS (AJUSTADO: Cantidad y Velocidad)
-// =====================================================================
 const ServiceSectionParticles = () => {
   const meshRef = useRef<THREE.Points>(null);
   const materialRef = useRef<any>(null);
-  
-  // CAMBIO: Reducido de 3000 a 1800
   const count = 1800; 
-
   const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
@@ -153,18 +131,10 @@ const ServiceSectionParticles = () => {
     }
     return pos;
   }, []);
-
   useFrame((state) => {
-    if (materialRef.current) {
-      materialRef.current.uTime = state.clock.getElapsedTime();
-    }
-    // CAMBIO: Velocidad reducida (0.0002 en lugar de 0.0005)
-    if (meshRef.current) {
-      meshRef.current.rotation.y += 0.0002;
-      meshRef.current.rotation.z += 0.0001;
-    }
+    if (materialRef.current) materialRef.current.uTime = state.clock.getElapsedTime();
+    if (meshRef.current) { meshRef.current.rotation.y += 0.0002; meshRef.current.rotation.z += 0.0001; }
   });
-
   return (
     <points ref={meshRef}>
       <bufferGeometry>
@@ -180,17 +150,15 @@ const ServiceSectionParticles = () => {
 };
 
 // =====================================================================
-// 5. PLANETAS (INTACTOS)
+// 4. PLANETAS (INTACTOS)
 // =====================================================================
 function SaturnCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Group>(null);
-  
   useFrame((_, delta) => {
     if (planetRef.current) planetRef.current.rotation.y += delta * 0.05; 
     if (ringRef.current) ringRef.current.rotation.z -= delta * 0.02;     
   });
-
   return (
     <group rotation={[0.3, 0, 0]}>
       <Sphere ref={planetRef} args={[1., 32, 32]}>
@@ -201,12 +169,10 @@ function SaturnCartoon() {
             <Torus args={[1.08, 0.05, 16, 64]} position={[0, 0, -0.3]}><meshBasicMaterial color="#FFC760" /></Torus>
         </group>
       </Sphere>
-      
       <group ref={ringRef}>
           <Torus args={[2.2, 0.4, 16, 64]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 0.08]}><meshToonMaterial color="#FFC760" /></Torus>
           <Torus args={[1.6, 0.1, 16, 64]} rotation={[Math.PI / 2, 0, 0]} scale={[1, 1, 0.08]}><meshBasicMaterial color="#C78200" /></Torus>
       </group>
-      
       <pointLight position={[2, 3, 2]} intensity={1} color="#FFC760" distance={15} />
     </group>
   );
@@ -215,15 +181,10 @@ function SaturnCartoon() {
 function UranusCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Group>(null);
-  
   useFrame((_, delta) => {
     if (planetRef.current) planetRef.current.rotation.y -= delta * 0.04; 
-    if (ringRef.current) {
-        ringRef.current.rotation.x += delta * 0.02; 
-        ringRef.current.rotation.z += delta * 0.01; 
-    }
+    if (ringRef.current) { ringRef.current.rotation.x += delta * 0.02; ringRef.current.rotation.z += delta * 0.01; }
   });
-
   return (
     <group rotation={[0, 0, Math.PI / 1.8]}> 
       <Sphere ref={planetRef} args={[1.0, 48, 48]}>
@@ -233,7 +194,6 @@ function UranusCartoon() {
             <Torus args={[1.02, 0.03, 16, 64]} position={[0, 0, -0.3]}><meshBasicMaterial color={BRIGHT_CYAN} /></Torus>
         </group>
       </Sphere>
-
       <group ref={ringRef}>
           <Torus args={[1.9, 0.35, 16, 100]} rotation={[Math.PI/2, 0,0]} scale={[1, 1, 0.05]}>
               <meshToonMaterial color={ACCENT_BLUE} transparent opacity={0.3} />
@@ -245,65 +205,68 @@ function UranusCartoon() {
               <meshBasicMaterial color={BRIGHT_CYAN} />
           </Torus>
       </group>
-
       <pointLight position={[-2, 3, 2]} intensity={1.5} color={BRIGHT_CYAN} distance={15} />
     </group>
   );
 }
 
 // =====================================================================
-// 6. BOTÓN (INTACTO)
+// 5. BOTÓN ACTUALIZADO CON LINK A TARJETAS
 // =====================================================================
-const ServiceButton = ({ item, themeColor }: { item: string, themeColor: string }) => {
+const ServiceButton = ({ item, id, themeColor }: { item: string, id: number, themeColor: string }) => {
     const [isHovered, setIsHovered] = useState(false);
 
     return (
-        <button 
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-            style={{
-                width: '100%', 
-                padding: '16px 25px', 
-                borderRadius: '8px',
-                backgroundColor: isHovered ? `${themeColor}D9` : 'rgba(255, 255, 255, 0.08)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: isHovered ? '#000000' : 'rgba(255, 255, 255, 0.9)',
-                fontSize: '1.05rem', 
-                fontWeight: 600, 
-                textAlign: 'left', 
-                cursor: 'pointer', 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                transition: 'background-color 0.3s ease, color 0.3s ease, transform 0.2s',
-                transform: isHovered ? 'translateX(5px)' : 'translateX(0)',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                marginBottom: '10px'
-            }}
+        <Link 
+            to={`/servicios#service-${id}`} // Conexión con el hash de la tarjeta
+            style={{ textDecoration: 'none', width: '100%' }}
         >
-           <span>{item}</span>
-           <svg 
-             width="20" height="20" viewBox="0 0 24 24" fill="none" 
-             style={{ 
-                 stroke: isHovered ? '#000000' : themeColor, 
-                 strokeWidth: 2, 
-                 transition: 'stroke 0.2s, transform 0.2s',
-                 transform: isHovered ? 'translateX(3px)' : 'translateX(0)'
-             }}
-           >
-             <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
-           </svg>
-        </button>
+            <div
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                style={{
+                    width: '100%', 
+                    padding: '16px 25px', 
+                    borderRadius: '8px',
+                    backgroundColor: isHovered ? `${themeColor}D9` : 'rgba(255, 255, 255, 0.08)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    color: isHovered ? '#000000' : 'rgba(255, 255, 255, 0.9)',
+                    fontSize: '1.05rem', 
+                    fontWeight: 600, 
+                    textAlign: 'left', 
+                    cursor: 'pointer', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'space-between',
+                    transition: 'all 0.3s ease',
+                    transform: isHovered ? 'translateX(5px)' : 'translateX(0)',
+                    boxShadow: isHovered ? `0 4px 15px ${themeColor}40` : 'none',
+                    marginBottom: '10px',
+                    boxSizing: 'border-box'
+                }}
+            >
+               <span>{item}</span>
+               <svg 
+                 width="20" height="20" viewBox="0 0 24 24" fill="none" 
+                 style={{ 
+                     stroke: isHovered ? '#000000' : themeColor, 
+                     strokeWidth: 2, 
+                     transition: 'stroke 0.2s, transform 0.2s',
+                     transform: isHovered ? 'translateX(3px)' : 'translateX(0)'
+                 }}
+               >
+                 <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
+               </svg>
+            </div>
+        </Link>
     );
 };
 
 // =====================================================================
-// 7. COMPONENTE PRINCIPAL (ACTUALIZADO CON LÓGICA DE IDIOMA)
+// 6. COMPONENTE PRINCIPAL (ACTUALIZADO)
 // =====================================================================
 export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('software');
-  
-  // --- LÓGICA DE IDIOMA ---
   const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
 
   useEffect(() => {
@@ -315,12 +278,7 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
   }, []);
 
   const t = SECTION_TEXTS[lang];
-
-  // Fusionamos la configuración estática (colores) con los textos dinámicos
-  const activeData = {
-    ...CATEGORY_CONFIG[activeCategory],
-    ...t.categories[activeCategory]
-  };
+  const activeData = t.categories[activeCategory];
 
   return (
     <section style={{
@@ -353,17 +311,18 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
           backgroundColor: 'rgba(0, 12, 45, 0.5)', 
           backdropFilter: 'blur(16px)',
-          borderRight: isMobile ? 'none' : `1px solid ${activeData.themeColor}30`,
+          borderRight: isMobile ? 'none' : `1px solid ${CATEGORY_CONFIG[activeCategory].themeColor}30`,
           padding: isMobile ? '50px 20px' : '0 60px',
           pointerEvents: 'auto',
           transition: 'all 0.5s ease'
         }}>
             <h2 style={{ fontSize: isMobile ? '2rem' : '3rem', fontWeight: 800, marginBottom: '30px', color: '#fff', lineHeight: 1.1 }}>
               {t.titleStart}{isMobile ? ' ' : <br/>}
-              <span style={{ color: activeData.themeColor, transition: 'color 0.5s ease' }}>{t.titleHighlight}</span>
+              <span style={{ color: CATEGORY_CONFIG[activeCategory].themeColor, transition: 'color 0.5s ease' }}>{t.titleHighlight}</span>
             </h2>
 
-            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '6px', marginBottom: '30px', border: `1px solid ${activeData.themeColor}30` }}>
+            {/* Selector de Categorías */}
+            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '6px', marginBottom: '30px', border: `1px solid ${CATEGORY_CONFIG[activeCategory].themeColor}30` }}>
                 {(Object.keys(CATEGORY_CONFIG) as CategoryKey[]).map((key) => (
                     <button key={key} onClick={() => setActiveCategory(key)} style={{
                         flex: 1, padding: '12px', borderRadius: '8px', border: 'none', cursor: 'pointer',
@@ -372,15 +331,20 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
                         color: activeCategory === key ? (key === 'software' ? '#000' : '#fff') : '#aaa', 
                         boxShadow: activeCategory === key ? `0 4px 15px ${CATEGORY_CONFIG[key].themeColor}40` : 'none'
                     }}>
-                        {/* Usamos el label del idioma actual */}
                         {t.categories[key].label}
                     </button>
                 ))}
             </div>
 
+            {/* Lista de Servicios */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                {activeData.items.map((item: string) => (
-                    <ServiceButton key={item} item={item} themeColor={activeData.themeColor} />
+                {activeData.items.map((item: any) => (
+                    <ServiceButton 
+                        key={item.id} 
+                        item={item.label} 
+                        id={item.id} 
+                        themeColor={CATEGORY_CONFIG[activeCategory].themeColor} 
+                    />
                 ))}
             </div>
         </div>
@@ -393,17 +357,10 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
             position: 'relative'
         }}>
             <Canvas camera={{ position: [0, 0, 7], fov: 45 }} dpr={[1, 2]}>
-                <ambientLight intensity={0.5} color={activeData.themeColor} />
+                <ambientLight intensity={0.5} color={CATEGORY_CONFIG[activeCategory].themeColor} />
                 <directionalLight position={[5, 5, 5]} intensity={2.5} color="white" />
-                <spotLight position={[-5, 2, -5]} angle={0.5} intensity={3} color={activeData.themeColor} />
-
-                <OrbitControls 
-                    enablePan={false} 
-                    enableZoom={false} 
-                    autoRotate={true}
-                    autoRotateSpeed={0.8} 
-                />
-
+                <spotLight position={[-5, 2, -5]} angle={0.5} intensity={3} color={CATEGORY_CONFIG[activeCategory].themeColor} />
+                <OrbitControls enablePan={false} enableZoom={false} autoRotate={true} autoRotateSpeed={0.8} />
                 <group scale={isMobile ? 0.7 : 0.85}>
                     {activeCategory === 'software' ? <SaturnCartoon /> : <UranusCartoon />}
                 </group>

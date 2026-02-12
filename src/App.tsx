@@ -8,6 +8,7 @@ import { Footer } from './components/Footer';
 // --- PÁGINAS ---
 import { HomePage } from './HomePage';
 import { ServicesPage } from './ServicesPage';
+import { AboutUsPage } from './AboutUsPage'; // 1. Importamos la nueva página
 
 function App() {
   const [isMobile, setIsMobile] = useState(false);
@@ -20,8 +21,7 @@ function App() {
   }, []);
 
   return (
-    /* AGREGAMOS EL BASENAME AQUÍ */
-    <BrowserRouter basename="/bocancorp-web-dos">
+    <BrowserRouter basename="/bocancorp-web-dos/">
       <div style={{ 
         position: 'relative', 
         width: '100%', 
@@ -38,6 +38,8 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage isMobile={isMobile} />} />
           <Route path="/servicios" element={<ServicesPage isMobile={isMobile} />} />
+          {/* 2. Agregamos la ruta /nosotros */}
+          <Route path="/nosotros" element={<AboutUsPage isMobile={isMobile} />} />
           <Route path="*" element={<HomePage isMobile={isMobile} />} />
         </Routes>
 

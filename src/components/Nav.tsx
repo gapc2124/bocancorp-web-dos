@@ -9,7 +9,6 @@ const resolvePath = (path: string) => {
 };
 
 // --- COMPONENTE SCROLL TO TOP ---
-// Este pequeño efecto asegura que al cambiar de ruta, la página suba al inicio
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -18,57 +17,43 @@ const ScrollToTop = () => {
   return null;
 };
 
-// --- TRADUCCIONES ---
+// --- TRADUCCIONES ACTUALIZADAS CON IDs ---
 const TRANSLATIONS = {
   ES: {
-    nav: {
-      services: "Servicios",
-      about: "Sobre Nosotros",
-      projects: "Proyectos",
-      contact: "Contáctanos"
-    },
+    nav: { services: "Servicios", about: "Sobre Nosotros", projects: "Proyectos", contact: "Contáctanos" },
     submenu: {
       col1Title: "Desarrollo de Software",
       col1Items: [
-        "Desarrollo de Soluciones Multiplataforma",
-        "Ecosistemas Cloud & Modernización",
-        "Diseño de Experiencia (UX/UI)",
-        "Consultoría de Arquitectura TI",
-        "Automatización de procesos con IA"
+        { label: "Desarrollo de Soluciones Multiplataforma", id: 1 },
+        { label: "Ecosistemas Cloud & Modernización", id: 2 },
+        { label: "Diseño de Experiencia (UX/UI)", id: 3 },
+        { label: "Consultoría de Arquitectura TI", id: 4 }
       ],
       col2Title: "Soluciones en la Nube",
       col2Items: [
-        "Arquitectura Multi-Cloud & Serverless",
-        "Ciberseguridad & Conectividad (Networking)",
-        "Cultura DevOps & Terraform (IaC)",
-        "FinOps & Optimización de Recursos",
-        "Gobernanza de datos & IA"
+        { label: "Arquitectura Multi-Cloud & Serverless", id: 5 },
+        { label: "Ciberseguridad & Conectividad", id: 6 },
+        { label: "Cultura DevOps & Terraform", id: 7 },
+        { label: "FinOps & Optimización de Recursos", id: 8 }
       ]
     }
   },
   EN: {
-    nav: {
-      services: "Services",
-      about: "About Us",
-      projects: "Projects",
-      contact: "Contact Us"
-    },
+    nav: { services: "Services", about: "About Us", projects: "Projects", contact: "Contact Us" },
     submenu: {
       col1Title: "Software Development",
       col1Items: [
-        "Multi-platform Solutions Development",
-        "Cloud Ecosystems & Modernization",
-        "UX/UI Design",
-        "IT Architecture Consulting",
-        "AI Process Automation"
+        { label: "Multi-platform Solutions Development", id: 1 },
+        { label: "Cloud Ecosystems & Modernization", id: 2 },
+        { label: "UX/UI Design", id: 3 },
+        { label: "IT Architecture Consulting", id: 4 }
       ],
       col2Title: "Cloud Solutions",
       col2Items: [
-        "Multi-Cloud & Serverless Architecture",
-        "Cybersecurity & Networking",
-        "DevOps Culture & Terraform (IaC)",
-        "FinOps & Resource Optimization",
-        "Data Governance & AI"
+        { label: "Multi-Cloud & Serverless Architecture", id: 5 },
+        { label: "Cybersecurity & Networking", id: 6 },
+        { label: "DevOps Culture & Terraform", id: 7 },
+        { label: "FinOps & Resource Optimization", id: 8 }
       ]
     }
   }
@@ -107,17 +92,17 @@ export const Nav = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // --- DEFINICIÓN DE RUTAS (Aquí configuras a dónde va cada click) ---
+  // --- DEFINICIÓN DE RUTAS ---
   const navItems = [
-    { label: t.nav.services, path: "/servicios", hasDropdown: true }, // Lleva a ServicesPage
-    { label: t.nav.about, path: "/nosotros" }, // Lleva a AboutPage (ejemplo)
-    { label: t.nav.projects, path: "/proyectos" }, // Lleva a ProjectsPage (ejemplo)
-    { label: t.nav.contact, path: "/contacto" } // Lleva a ContactPage (ejemplo)
+    { label: t.nav.services, path: "/servicios", hasDropdown: true },
+    { label: t.nav.about, path: "/nosotros" },
+    { label: t.nav.projects, path: "/proyectos" },
+    { label: t.nav.contact, path: "/contacto" }
   ];
 
   return (
     <>
-      <ScrollToTop /> {/* Activa el scroll automático al navegar */}
+      <ScrollToTop /> 
 
       <nav 
         className="nav-container"
@@ -125,7 +110,6 @@ export const Nav = () => {
           position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 100, 
           padding: isMobile ? '20px 20px' : '30px 60px', 
           display: 'flex', 
-          // CORRECCIÓN MÓVIL: justifyContent: 'space-between' separa logo y hamburguesa
           justifyContent: 'space-between', 
           alignItems: 'center',
           backgroundColor: '#000c2d', 
@@ -133,7 +117,7 @@ export const Nav = () => {
           boxSizing: 'border-box'
         }}
       >
-        {/* LOGO (Lleva al Home /) */}
+        {/* LOGO */}
         <Link to="/" style={{ textDecoration: 'none', zIndex: 102 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <img 
@@ -181,26 +165,41 @@ export const Nav = () => {
                         transition: 'all 0.3s ease', zIndex: 1000, cursor: 'default'
                       }}
                     >
-                        <div>
-                            <h4 style={{ color: '#333', fontSize: '1.1rem', fontWeight: 800, marginBottom: '20px', textAlign: 'center' }}>
-                              {t.submenu.col1Title}
-                            </h4>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                {t.submenu.col1Items.map((subItem) => (
-                                    <Link key={subItem} to="/servicios" className="dropdown-item item-yellow">{subItem}</Link>
-                                ))}
-                            </div>
+                    {/* Columna 1: Software */}
+                    <div>
+                        <h4 style={{ color: '#333', fontSize: '1.1rem', fontWeight: 800, marginBottom: '20px', textAlign: 'center' }}>
+                          {t.submenu.col1Title}
+                        </h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {t.submenu.col1Items.map((subItem) => (
+                                <Link 
+                                  key={subItem.id} 
+                                  to={`/servicios#service-${subItem.id}`} // Cambiado para incluir el ID
+                                  className="dropdown-item item-yellow"
+                                >
+                                  {subItem.label}
+                                </Link>
+                            ))}
                         </div>
-                        <div>
-                            <h4 style={{ color: '#333', fontSize: '1.1rem', fontWeight: 800, marginBottom: '20px', textAlign: 'center' }}>
-                              {t.submenu.col2Title}
-                            </h4>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                {t.submenu.col2Items.map((subItem) => (
-                                    <Link key={subItem} to="/servicios" className="dropdown-item item-blue">{subItem}</Link>
-                                ))}
-                            </div>
+                    </div>
+
+                    {/* Columna 2: Cloud */}
+                    <div>
+                        <h4 style={{ color: '#333', fontSize: '1.1rem', fontWeight: 800, marginBottom: '20px', textAlign: 'center' }}>
+                          {t.submenu.col2Title}
+                        </h4>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            {t.submenu.col2Items.map((subItem) => (
+                                <Link 
+                                  key={subItem.id} 
+                                  to={`/servicios#service-${subItem.id}`} // Cambiado para incluir el ID
+                                  className="dropdown-item item-blue"
+                                >
+                                  {subItem.label}
+                                </Link>
+                            ))}
                         </div>
+                    </div>
                     </div>
                   </div>
                 );
@@ -269,7 +268,6 @@ export const Nav = () => {
               fontSize: '1.5rem', 
               cursor: 'pointer', 
               zIndex: 102,
-              // Asegura que esté clickeable y visible
               padding: '10px' 
             }}
           >
