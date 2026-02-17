@@ -1,9 +1,25 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useSearchParams } from 'react-router-dom'; // 1. Hook para leer parámetros URL
 
 export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
+  const [searchParams] = useSearchParams();
+  
+  // 2. Leemos el parámetro "service" de la URL al cargar (si existe)
+  const initialService = searchParams.get('service') || '';
+  
+  // 3. Estado que controla qué servicio está seleccionado
+  const [selectedService, setSelectedService] = useState(initialService);
 
-  // Estilos reutilizables para los inputs (Adaptados al fondo oscuro/cristal)
+  // Actualizamos el estado si la URL cambia estando en la misma página
+  useEffect(() => {
+    const currentService = searchParams.get('service');
+    if (currentService) {
+      setSelectedService(currentService);
+    }
+  }, [searchParams]);
+
+  // Estilos reutilizables para los inputs
   const inputStyle = { 
     padding: '14px', 
     borderRadius: '8px', 
@@ -30,7 +46,6 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
         width: '100%', 
         minHeight: '100vh', 
         fontFamily: 'system-ui, -apple-system, sans-serif',
-        // Fondo interesante: Imagen tech con superposición oscura y degradado
         backgroundImage: `linear-gradient(135deg, rgba(0, 12, 45, 0.9) 0%, rgba(0, 194, 255, 0.1) 100%), url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1920&q=80')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -167,7 +182,12 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
                   {/* Fila 4: Servicio de Interés */}
                   <div>
                       <label style={labelStyle}>Servicio de Interés</label>
-                      <select style={{ ...inputStyle, cursor: 'pointer' }}>
+                      {/* 4. Conectamos el select al estado */}
+                      <select 
+                        value={selectedService} 
+                        onChange={(e) => setSelectedService(e.target.value)}
+                        style={{ ...inputStyle, cursor: 'pointer' }}
+                      >
                           <option value="" style={{ color: '#000' }}>Selecciona un área de interés...</option>
                           <option value="multiplataforma" style={{ color: '#000' }}>Desarrollo de Soluciones Multiplataforma</option>
                           <option value="cloud-modernizacion" style={{ color: '#000' }}>Ecosistemas Cloud & Modernización</option>

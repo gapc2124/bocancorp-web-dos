@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom'; // 1. Importamos el hook de navegación
 
-// --- 1. FUNCIÓN DE AYUDA PARA RUTAS ---
+// --- FUNCIÓN DE AYUDA PARA RUTAS ---
 const resolvePath = (path: string) => {
   const base = import.meta.env.BASE_URL || '/';
   const cleanPath = path.replace(/^(\.?\/)/, '');
@@ -31,48 +32,36 @@ const ABOUT_TEXTS: any = {
   }
 };
 
-// --- COMPONENTE PARA EL FONDO ESTRELLADO (CORREGIDO CON RESIZEOBSERVER) ---
+// --- COMPONENTE PARA EL FONDO ESTRELLADO ---
 const CosmosBackground = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null); // Referencia al contenedor padre
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
-    
     if (!canvas || !container) return;
-    
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Función de dibujo optimizada
     const draw = () => {
-      // 1. Igualar la resolución interna del canvas al tamaño real del contenedor
-      // Esto evita que el CSS estire la imagen.
       canvas.width = container.clientWidth;
       canvas.height = container.clientHeight;
-
       const w = canvas.width;
       const h = canvas.height;
 
-      // 2. Fondo degradado
-      const gradient = ctx.createRadialGradient(
-        w / 2, h / 2, 0, 
-        w / 2, h / 2, Math.max(w, h) 
-      );
+      const gradient = ctx.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.max(w, h));
       gradient.addColorStop(0, '#001540'); 
       gradient.addColorStop(1, '#000814'); 
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, w, h);
 
-      // 3. Estrellas (Recalculadas para el nuevo tamaño)
       const numStars = (w * h) / 800; 
       for (let i = 0; i < numStars; i++) {
         const x = Math.random() * w;
         const y = Math.random() * h;
         const radius = Math.random() * 1.5 + 0.5;
         const opacity = Math.random() * 0.8 + 0.2;
-
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
@@ -80,38 +69,24 @@ const CosmosBackground = () => {
       }
     };
 
-    // 4. USAMOS RESIZEOBSERVER: La clave para arreglar el bug en móviles.
-    // Detecta cambios en el tamaño del contenedor DIV, no solo de la ventana.
     const resizeObserver = new ResizeObserver(() => {
-      // Usamos requestAnimationFrame para que el redibujado esté sincronizado con el refresco de pantalla
       window.requestAnimationFrame(draw);
     });
-
     resizeObserver.observe(container);
-
-    // Limpieza
-    return () => {
-      resizeObserver.disconnect();
-    };
-
+    return () => resizeObserver.disconnect();
   }, []); 
 
-  // Envolvemos el canvas en un div absoluto para monitorear su tamaño
   return (
     <div ref={containerRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}>
-      <canvas 
-        ref={canvasRef} 
-        style={{ display: 'block', width: '100%', height: '100%' }} 
-      />
+      <canvas ref={canvasRef} style={{ display: 'block', width: '100%', height: '100%' }} />
     </div>
   );
 };
 
-
 export const AboutUs = ({ isMobile }: AboutUsProps) => {
   const [os, setOs] = useState<OSType>('default');
+  const navigate = useNavigate(); // 2. Inicializamos el hook
   
-  // --- LÓGICA DE IDIOMA ---
   const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
 
   useEffect(() => {
@@ -124,7 +99,6 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
 
   const t = ABOUT_TEXTS[lang];
   
-  // --- LÓGICA DE REBOTE ---
   const containerRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLImageElement>(null);
   const [pos, setPos] = useState({ x: 50, y: 50 }); 
@@ -160,7 +134,6 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
     return () => clearInterval(interval);
   }, [vel]);
 
-  // --- RENDERIZADO DE LA BARRA DE TÍTULO SEGÚN SO ---
   const renderWindowHeader = () => {
     switch (os) {
       case 'mac':
@@ -221,12 +194,10 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
       </div>
 
       <div style={styles.gridContainer(isMobile)}>
-        {/* COLUMNA IZQUIERDA: TEXTO */}
         <div>
           <h2 style={styles.title(isMobile)}>
             {t.titleStart} <span style={{ color: '#FAA918' }}>{t.titleHighlight}</span>
           </h2>
-          
           <div style={styles.paragraph}>
             <p>
               {t.paragraph.split(t.highlightPhrase).map((part: string, i: number, arr: string[]) => (
@@ -237,19 +208,16 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
               ))}
             </p>
           </div>
-
-          <button className="btn-primary">{t.button}</button>
+          {/* BOTÓN CON NAVEGACIÓN */}
+          <button onClick={() => navigate('/nosotros')} className="btn-primary">
+            {t.button}
+          </button>
         </div>
 
-        {/* COLUMNA DERECHA: VENTANA COSMOS */}
         <div style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
           <div ref={containerRef} style={styles.windowBox(isMobile)}>
             {renderWindowHeader()}
-            
-            {/* FONDO COSMOS REPARADO */}
             <CosmosBackground />
-
-            {/* LOGO REBOTANDO CON RESOLVEPATH */}
             <img 
               ref={logoRef}
               src={resolvePath("assets/bocancorp-logo.png")} 
@@ -288,35 +256,17 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
   );
 };
 
-// --- ESTILOS ---
 const styles: any = {
   gridContainer: (isMobile: boolean) => ({
-    display: 'grid', 
-    gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', 
-    gap: isMobile ? '50px' : '120px', 
-    alignItems: 'center', 
-    maxWidth: '1400px', 
-    margin: '0 auto', 
-    position: 'relative', 
-    zIndex: 20
+    display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: isMobile ? '50px' : '120px', alignItems: 'center', maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 20
   }),
   title: (isMobile: boolean) => ({
     fontSize: isMobile ? '2.2rem' : '3.5rem', fontWeight: 800, color: '#111', lineHeight: 1.1, marginBottom: '20px'
   }),
   paragraph: { fontSize: '1.2rem', color: '#555', marginBottom: '30px', lineHeight: 1.8 },
-  
   windowBox: (isMobile: boolean) => ({
-    width: isMobile ? '100%' : '100%', 
-    maxWidth: isMobile ? 'none' : '600px',
-    height: isMobile ? '350px' : '480px', 
-    borderRadius: '12px',
-    position: 'relative', 
-    overflow: 'hidden', 
-    boxShadow: '0 30px 60px rgba(0,0,0,0.25)', 
-    border: '1px solid #333',
-    backgroundColor: '#000'
+    width: '100%', maxWidth: isMobile ? 'none' : '600px', height: isMobile ? '350px' : '480px', borderRadius: '12px', position: 'relative', overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,0.25)', border: '1px solid #333', backgroundColor: '#000'
   }),
-  
   headerTitle: { fontSize: '11px', color: '#ccc', flex: 1, textAlign: 'center', fontFamily: 'monospace' },
   macHeader: { height: '30px', backgroundColor: '#ebebeb', display: 'flex', alignItems: 'center', padding: '0 12px', zIndex: 20, position: 'relative' },
   dot: { width: '12px', height: '12px', borderRadius: '50%', marginRight: '8px' },

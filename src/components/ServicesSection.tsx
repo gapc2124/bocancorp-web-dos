@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // 1. IMPORTAMOS useNavigate
 
 // --- 1. FUNCIÓN DE AYUDA PARA RUTAS (CRÍTICO: NO BORRAR) ---
 const resolvePath = (path: string) => {
@@ -75,6 +76,7 @@ const SECTION_TEXTS: any = {
 
 export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
   const [activeId, setActiveId] = useState(CARDS_CONFIG[0].id);
+  const navigate = useNavigate(); // 2. INICIALIZAMOS EL HOOK DE NAVEGACIÓN
   
   // --- LÓGICA DE IDIOMA ---
   const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
@@ -124,7 +126,13 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
                 {t.heroSub}
               </span>
             </h2>
-            <button className="btn-primary custom-btn">{t.ctaButton}</button>
+            {/* 3. AGREGAMOS EL EVENTO onClick PARA NAVEGAR A /contacto */}
+            <button 
+              onClick={() => navigate('/contacto')} 
+              className="btn-primary custom-btn"
+            >
+              {t.ctaButton}
+            </button>
           </div>
           <div className="advantage-box">
             <h3 className="advantage-title">{t.advantageTitle}</h3>

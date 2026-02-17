@@ -168,7 +168,8 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
       {/* SECCIÓN 1: HERO */}
       <section style={{ position: 'relative', height: '100vh', width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', zIndex: 1, background: '#00020a' }}>
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}>
-          <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
+          {/* AQUÍ ESTÁ LA CORRECCIÓN: style={{ touchAction: 'pan-y' }} */}
+          <Canvas style={{ touchAction: 'pan-y' }} camera={{ position: [0, 0, 8], fov: 45 }}>
             <Environment preset="night" /> 
             <ambientLight intensity={0.1} />
             <pointLight position={[10, 10, 10]} intensity={2} color="#00C2FF" />

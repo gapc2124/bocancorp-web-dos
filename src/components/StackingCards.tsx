@@ -42,7 +42,8 @@ export const StackingCards = ({ data, isMobile }: StackingCardsProps) => {
       {/* Contenedor Sticky: Mantiene las cartas fijas mientras se scrollea el padre */}
       <div style={{ 
         position: 'sticky', 
-        top: 0, 
+        // 1. AJUSTE: top aumentado para bajar las tarjetas en desktop
+        top: isMobile ? '80px' : '120px', 
         height: '100vh', 
         width: '100%', 
         display: 'flex', 
@@ -99,15 +100,16 @@ const Card = ({ item, index, range, progress, total, isMobile }: CardProps) => {
         width: '100%',
         height: '100%',
         display: 'flex', 
-        alignItems: 'center', 
+        alignItems: 'flex-start', // Cambiado de 'center' a 'flex-start' para respetar el top
         justifyContent: 'center',
       }}
     >
       {/* Estructura Visual de la Carta */}
       <div style={{
-        width: isMobile ? '90%' : '85%',
-        height: isMobile ? '80vh' : '75vh', 
-        minHeight: isMobile ? 'auto' : '700px', 
+        // 2. AJUSTE: width y height reducidos para que sea un poco más pequeña
+        width: isMobile ? '90%' : '80%', // Reducido de 85% a 80%
+        height: isMobile ? '80vh' : '65vh', // Reducido de 75vh a 65vh
+        minHeight: isMobile ? 'auto' : '550px', // Reducido el minHeight también
         backgroundColor: 'rgba(10, 16, 36, 0.5)', 
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
@@ -117,13 +119,14 @@ const Card = ({ item, index, range, progress, total, isMobile }: CardProps) => {
         display: 'flex',
         flexDirection: isMobile ? 'column-reverse' : 'row',
         boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8)',
-        position: 'relative'
+        position: 'relative',
+        marginTop: isMobile ? '0' : '20px' // Margen superior extra para alejarla del nav
       }}>
         
         {/* COLUMNA IZQUIERDA: CONTENIDO TEXTUAL */}
         <div style={{
           flex: isMobile ? 'auto' : 1.8, 
-          padding: isMobile ? '25px' : '60px',
+          padding: isMobile ? '25px' : '50px', // Reducido el padding para compensar el menor tamaño
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center',
@@ -135,35 +138,35 @@ const Card = ({ item, index, range, progress, total, isMobile }: CardProps) => {
           scrollbarColor: `${item.color}30 transparent`
         }}>
            {/* Cabecera de Servicio */}
-           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '30px' }}>
+           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}> {/* Margen reducido */}
              <div style={{
-               width: '50px', height: '50px', borderRadius: '50%',
+               width: '45px', height: '45px', borderRadius: '50%', // Reducido ligeramente
                background: item.color, color: '#000', fontWeight: '900',
                display: 'flex', alignItems: 'center', justifyContent: 'center',
-               fontSize: '1.5rem', boxShadow: `0 0 15px ${item.color}80`
+               fontSize: '1.3rem', boxShadow: `0 0 15px ${item.color}80` // Fuente reducida
              }}>
                {item.id}
              </div>
              <div>
-                <span style={{ color: item.color, fontWeight: 700, letterSpacing: '2px', fontSize: '0.8rem', textTransform: 'uppercase', display: 'block', marginBottom: '5px' }}>
+                <span style={{ color: item.color, fontWeight: 700, letterSpacing: '2px', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block', marginBottom: '3px' }}>
                     // {item.subtitle}
                 </span>
-                <h3 style={{ color: 'white', fontSize: isMobile ? '1.8rem' : '2.5rem', fontWeight: 800, lineHeight: 1.1, margin: 0 }}>
+                <h3 style={{ color: 'white', fontSize: isMobile ? '1.8rem' : '2.2rem', fontWeight: 800, lineHeight: 1.1, margin: 0 }}> {/* Fuente reducida */}
                   {item.title}
                 </h3>
              </div>
            </div>
            
            {/* Renderizado de Bloques de Contenido */}
-           <div style={{ color: '#dbe4ff', fontSize: isMobile ? '0.95rem' : '1.1rem', lineHeight: 1.7 }}>
+           <div style={{ color: '#dbe4ff', fontSize: isMobile ? '0.95rem' : '1rem', lineHeight: 1.6 }}> {/* Fuente e interlineado reducidos */}
              {item.content.map((block, i) => {
                if (block.type === 'highlight') {
                  return (
-                   <div key={i} style={{ margin: '30px 0', paddingLeft: '20px', borderLeft: `3px solid ${item.color}` }}>
+                   <div key={i} style={{ margin: '20px 0', paddingLeft: '15px', borderLeft: `3px solid ${item.color}` }}> {/* Márgenes reducidos */}
                      <h4 style={{ 
-                       color: 'white', fontSize: '1.3rem', fontWeight: 700, marginBottom: '10px',
+                       color: 'white', fontSize: '1.1rem', fontWeight: 700, marginBottom: '8px', // Fuente reducida
                        textTransform: 'uppercase', display: 'inline-block',
-                       borderBottom: `2px solid ${item.color}`, paddingBottom: '5px'
+                       borderBottom: `2px solid ${item.color}`, paddingBottom: '3px'
                      }}>
                        {block.title}
                      </h4>
@@ -171,23 +174,23 @@ const Card = ({ item, index, range, progress, total, isMobile }: CardProps) => {
                    </div>
                  );
                } else {
-                 return <p key={i} style={{ marginBottom: '20px' }}>{block.text}</p>;
+                 return <p key={i} style={{ marginBottom: '15px' }}>{block.text}</p>; // Margen reducido
                }
              })}
            </div>
 
            {/* BOTÓN DE CONTRATACIÓN */}
-           <div style={{ marginTop: '30px' }}>
+           <div style={{ marginTop: '20px' }}> {/* Margen reducido */}
              <motion.button
                whileHover={{ scale: 1.05, boxShadow: `0 0 20px ${item.color}60` }}
                whileTap={{ scale: 0.95 }}
                style={{
-                 padding: isMobile ? '12px 24px' : '15px 35px',
+                 padding: isMobile ? '12px 24px' : '12px 28px', // Padding reducido
                  backgroundColor: 'transparent',
                  color: 'white',
                  border: `2px solid ${item.color}`,
                  borderRadius: '50px',
-                 fontSize: isMobile ? '0.9rem' : '1rem',
+                 fontSize: isMobile ? '0.9rem' : '0.95rem', // Fuente reducida
                  fontWeight: '700',
                  textTransform: 'uppercase',
                  letterSpacing: '1px',
