@@ -8,7 +8,8 @@ import { Footer } from './components/Footer';
 // --- PÁGINAS ---
 import { HomePage } from './HomePage';
 import { ServicesPage } from './ServicesPage';
-import { AboutUsPage } from './AboutUsPage'; // 1. Importamos la nueva página
+import { AboutUsPage } from './AboutUsPage';
+import { ContactUsPage } from './ContactUsPage'; // 1. Importamos la nueva página de contacto
 
 function App() {
   const [isMobile, setIsMobile] = useState(false);
@@ -38,8 +39,9 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage isMobile={isMobile} />} />
           <Route path="/servicios" element={<ServicesPage isMobile={isMobile} />} />
-          {/* 2. Agregamos la ruta /nosotros */}
           <Route path="/nosotros" element={<AboutUsPage isMobile={isMobile} />} />
+          {/* 2. Agregamos la ruta /contacto */}
+          <Route path="/contacto" element={<ContactUsPage isMobile={isMobile} />} />
           <Route path="*" element={<HomePage isMobile={isMobile} />} />
         </Routes>
 
