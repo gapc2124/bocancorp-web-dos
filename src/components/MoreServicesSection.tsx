@@ -1,5 +1,6 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
+import { Link, useLocation } from 'react-router-dom'; // <-- USAMOS LINK Y USELOCATION
 import { 
   Torus, 
   Sphere,
@@ -7,7 +8,6 @@ import {
   shaderMaterial
 } from '@react-three/drei';
 import * as THREE from 'three';
-import { Link } from 'react-router-dom'; // 1. Importamos Link para la conexión
 
 // --- COLORES ---
 const BG_COLOR = "#000c2d"; 
@@ -23,7 +23,7 @@ const CATEGORY_CONFIG = {
 
 type CategoryKey = keyof typeof CATEGORY_CONFIG;
 
-// --- 2. DICCIONARIO DE TEXTOS CON IDs CONECTADOS ---
+// --- DICCIONARIO DE TEXTOS CON IDs CONECTADOS ---
 const SECTION_TEXTS: any = {
   ES: {
     titleStart: "Explora",
@@ -76,7 +76,7 @@ const SECTION_TEXTS: any = {
 };
 
 // =====================================================================
-// 3. SHADERS Y PARTÍCULAS (INTACTOS)
+// SHADERS Y PARTÍCULAS
 // =====================================================================
 const particlesVertexShader = `
   uniform float uTime;
@@ -150,7 +150,7 @@ const ServiceSectionParticles = () => {
 };
 
 // =====================================================================
-// 4. PLANETAS (INTACTOS)
+// PLANETAS
 // =====================================================================
 function SaturnCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
@@ -211,14 +211,36 @@ function UranusCartoon() {
 }
 
 // =====================================================================
-// 5. BOTÓN ACTUALIZADO CON LINK A TARJETAS
+// BOTÓN ACTUALIZADO CON BÚSQUEDA DIRECTA AL ANCLA INVISIBLE
 // =====================================================================
 const ServiceButton = ({ item, id, themeColor }: { item: string, id: number, themeColor: string }) => {
     const [isHovered, setIsHovered] = useState(false);
+    const location = useLocation();
+
+    const handleClick = (e: React.MouseEvent) => {
+        // SI ESTAMOS EN LA PÁGINA DE SERVICIOS
+        if (location.pathname.includes('/servicios')) {
+            e.preventDefault(); 
+            const element = document.getElementById(`service-${id}`);
+            if (element) {
+                // Al ser un ancla matemática, alinearla arriba (start) es perfecto
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                window.history.pushState(null, '', `/servicios#service-${id}`);
+            }
+        } else {
+            // SI ESTAMOS EN HOME, el <Link> navegará. Le damos un delay a que cargue la página
+            // para que busque el ancla invisible y scrollee.
+            setTimeout(() => {
+                const element = document.getElementById(`service-${id}`);
+                if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
+    };
 
     return (
         <Link 
-            to={`/servicios#service-${id}`} // Conexión con el hash de la tarjeta
+            to={`/servicios#service-${id}`} 
+            onClick={handleClick} 
             style={{ textDecoration: 'none', width: '100%' }}
         >
             <div
@@ -263,7 +285,7 @@ const ServiceButton = ({ item, id, themeColor }: { item: string, id: number, the
 };
 
 // =====================================================================
-// 6. COMPONENTE PRINCIPAL (ACTUALIZADO)
+// COMPONENTE PRINCIPAL
 // =====================================================================
 export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('software');

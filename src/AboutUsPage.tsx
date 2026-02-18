@@ -1,8 +1,12 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
-// Íconos actualizados y nuevos
-import { Server, Terminal, Shield, TrendingUp, ChevronDown, CheckCircle2, ArrowRight, Search, PenTool, Rocket, ShieldCheck } from 'lucide-react';
+import { Server, Terminal, Shield, TrendingUp, ChevronDown, ArrowRight, Search, PenTool, Rocket, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Canvas } from '@react-three/fiber';
+
+// IMPORTAMOS LA CONSTELACIÓN Y LAS AURORAS
+import { TimelineConstellation } from './components/TimelineConstellation'; 
+import { Auroras } from './components/Auroras'; 
 
 const resolvePath = (path: string) => {
   const base = import.meta.env.BASE_URL || '/';
@@ -10,15 +14,14 @@ const resolvePath = (path: string) => {
   return `${base}${cleanPath}`;
 };
 
-// --- COLORES CONSTANTES ---
 const BG_DARK = '#000c2d';
+const BG_DEEP = '#00020a';
 const BG_WHITE = '#ffffff';
 const TEXT_ON_WHITE_MAIN = '#0f172a';
 const TEXT_ON_WHITE_SUB = '#475569';
 const ACCENT_CYAN = '#00C2FF';
 const ACCENT_GOLD = '#FAA918';
 
-// Componente reutilizable para las ondas de transición
 const WaveDivider = ({ fillColor }: { fillColor: string }) => (
   <div className="wave-container top-waves" style={{ color: fillColor }}>
     <svg className="wave-svg" viewBox="0 0 1440 320" preserveAspectRatio="none">
@@ -31,66 +34,96 @@ const WaveDivider = ({ fillColor }: { fillColor: string }) => (
 
 export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
   const navigate = useNavigate();
-  const textSectionRef = useRef<HTMLDivElement>(null);
 
-  const scrollToText = () => {
-    const yOffset = -80; 
-    const element = textSectionRef.current;
-    if (element) {
-        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
-        window.scrollTo({ top: y, behavior: 'smooth' });
+  const scrollToTimeline = () => {
+    const constellationSection = document.getElementById('timeline-section');
+    const yOffset = -50;
+    if (constellationSection) {
+      const y = constellationSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
     }
   };
 
   return (
-    <div style={{ width: '100%', minHeight: '100vh', backgroundColor: BG_DARK, fontFamily: 'system-ui, -apple-system, sans-serif' }}>
+    <div style={{ width: '100%', minHeight: '100vh', backgroundColor: BG_DEEP, color: 'white' }}>
       
       {/* ==========================================
-          HERO VIDEO
+          🟦 1️⃣ BLOQUE: IDENTIDAD SOBRE AURORAS (HERO)
           ========================================== */}
-      <section style={{ position: 'relative', width: '100%', backgroundColor: '#000', overflow: 'hidden' }}>
-        <video autoPlay loop muted playsInline style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.7 }}>
-          <source src={resolvePath('assets/video.mp4')} type="video/mp4" />
-        </video>
-        <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '50%', background: `linear-gradient(to bottom, transparent 0%, ${BG_DARK} 100%)`, zIndex: 1, pointerEvents: 'none' }} />
+      <section style={{ position: 'relative', height: '100vh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: BG_DEEP }}>
+        
+        {/* CAPA 1: FONDO DE AURORAS 3D */}
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
+          <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
+            <Auroras />
+          </Canvas>
+        </div>
 
-        <div onClick={scrollToText} style={{ position: 'absolute', bottom: '30px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', zIndex: 10, padding: '10px' }}>
-            <span style={{ color: '#ffffff', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '3px', marginBottom: '10px', fontWeight: 600 }}>Ver más</span>
-            <motion.div animate={{ y: [0, 15, 0] }} transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}>
-                <ChevronDown color={ACCENT_CYAN} size={36} />
+        {/* CAPA 2: FOG (NIEBLA) PARA DIFUMINAR LAS AURORAS Y RESALTAR EL TEXTO */}
+        <div style={{ 
+            position: 'absolute', 
+            top: 0, 
+            left: 0, 
+            width: '100%', 
+            height: '100%', 
+            // Degradado radial: Más oscuro en el centro para que las letras contrasten perfecto
+            background: 'radial-gradient(circle at center, rgba(0, 2, 10, 0.65) 0%, rgba(0, 2, 10, 0.2) 100%)',
+            // Efecto de difuminado sobre las auroras
+            backdropFilter: 'blur(6px)', 
+            WebkitBackdropFilter: 'blur(6px)',
+            zIndex: 1 
+        }} />
+
+        {/* CAPA 3: Gradiente base para suavizar el corte antes de la constelación */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '20%', background: `linear-gradient(to bottom, transparent, ${BG_DEEP})`, zIndex: 2 }} />
+
+        {/* CAPA 4: CONTENIDO DE TEXTO */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }} 
+          animate={{ opacity: 1, y: 0 }} 
+          transition={{ duration: 1 }}
+          style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 3, padding: '0 20px' }}
+        >
+            <h2 style={{ fontSize: isMobile ? '2.8rem' : '5rem', fontWeight: 950, lineHeight: 1.1, margin: 0, color: '#ffffff', textShadow: '0 0 30px rgba(0,194,255,0.4)' }}>
+                Arquitectura Cloud con <br />
+                <span style={{ color: ACCENT_CYAN, textShadow: `0 0 40px ${ACCENT_CYAN}80` }}>criterio empresarial.</span>
+            </h2>
+            
+            <div style={{ marginTop: '50px', maxWidth: '850px', margin: '50px auto 0' }}>
+                <p style={{ fontSize: isMobile ? '1.25rem' : '1.8rem', color: '#e2e8f0', marginBottom: '40px', lineHeight: 1.6, textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>
+                    En Bocancorp diseñamos arquitecturas Cloud modernas que integran infraestructura, seguridad, automatización y gobierno financiero.
+                </p>
+                <div style={{ display: 'inline-block', padding: isMobile ? '20px' : '30px 50px', backgroundColor: 'rgba(0, 194, 255, 0.05)', border: `1px solid ${ACCENT_CYAN}40`, borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
+                    <p style={{ fontSize: isMobile ? '1.2rem' : '1.6rem', color: '#ffffff', margin: 0, fontWeight: 700 }}>
+                        No somos implementadores aislados: construimos ecosistemas tecnológicos preparados para crecer.
+                    </p>
+                </div>
+            </div>
+        </motion.div>
+
+        {/* Indicador de scroll */}
+        <div 
+            onClick={scrollToTimeline}
+            style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', zIndex: 10 }}
+        >
+            <motion.div animate={{ y: [0, 10, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
+                <ChevronDown color={ACCENT_CYAN} size={40} />
             </motion.div>
         </div>
       </section>
 
       {/* ==========================================
-          1️⃣ BLOQUE: DECLARACIÓN DE IDENTIDAD (AZUL OSCURO)
+          SECCIÓN CONSTELACIÓN (Línea de tiempo)
           ========================================== */}
-      <section ref={textSectionRef} style={{ padding: isMobile ? '80px 20px 120px' : '120px 60px 180px', backgroundColor: BG_DARK, position: 'relative', zIndex: 2 }}>
-        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-100px" }} transition={{ duration: 0.8 }} style={{ maxWidth: '1000px', margin: '0 auto', textAlign: 'center' }}>
-            <h4 style={{ color: ACCENT_GOLD, textTransform: 'uppercase', letterSpacing: '3px', fontWeight: 700, marginBottom: '20px' }}>Arquitectura Cloud con criterio empresarial</h4>
-            <h2 style={{ fontSize: isMobile ? '2.2rem' : '3.8rem', fontWeight: 900, lineHeight: 1.2, marginBottom: '40px', letterSpacing: '-1px', color: '#ffffff' }}>
-                Más que proveedores, somos su <br />
-                <span style={{ color: ACCENT_CYAN, textShadow: '0 0 30px rgba(0, 194, 255, 0.4)' }}>Aliado de Innovación Tecnológica.</span>
-            </h2>
-            <p style={{ fontSize: isMobile ? '1.1rem' : '1.3rem', lineHeight: 1.8, color: '#94a3b8', marginBottom: '25px' }}>
-                Bocancorp es una corporación norteamericana con centros de operaciones estratégicos en Colombia y Perú. Nos especializamos en orquestar soluciones tecnológicas complejas para empresas que buscan escalabilidad y seguridad.
-            </p>
-            <p style={{ fontSize: isMobile ? '1.1rem' : '1.3rem', lineHeight: 1.8, color: '#94a3b8', marginBottom: '35px' }}>
-                A diferencia de las fábricas de software tradicionales, nuestro ADN es Multi-Cloud. Combinamos la ingeniería de Desarrollo Web y Móvil con la potencia de AWS, Google Cloud, Azure y Oracle.
-            </p>
-            <div style={{ display: 'inline-block', padding: '20px 30px', backgroundColor: 'rgba(0, 194, 255, 0.05)', border: `1px solid ${ACCENT_CYAN}40`, borderRadius: '16px' }}>
-                <p style={{ fontSize: isMobile ? '1.15rem' : '1.3rem', lineHeight: 1.6, color: '#ffffff', margin: 0, fontWeight: 700 }}>
-                    No somos implementadores aislados: construimos ecosistemas tecnológicos preparados para crecer.
-                </p>
-            </div>
-        </motion.div>
+      <section id="timeline-section" style={{ backgroundColor: BG_DEEP, position: 'relative', zIndex: 2 }}>
+        <TimelineConstellation isMobile={isMobile} />
       </section>
 
       {/* ==========================================
-          2️⃣ BLOQUE: QUÉ NOS DIFERENCIA (BLANCO CON TARJETAS AZULES)
+          🟦 2️⃣ BLOQUE: QUÉ NOS DIFERENCIA (FONDO BLANCO)
           ========================================== */}
       <section style={{ padding: isMobile ? '120px 20px' : '180px 60px', backgroundColor: BG_WHITE, position: 'relative' }}>
-        <WaveDivider fillColor={BG_DARK} />
+        <WaveDivider fillColor={BG_DEEP} />
 
         <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
@@ -99,31 +132,20 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
                 </h2>
             </motion.div>
 
-            {/* 4 COLUMNAS EN UNA FILA (En desktop) */}
             <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(4, 1fr)', gap: '25px' }}>
                 {[
-                    { title: "Especialización real", desc: "Trabajamos con infraestructura crítica, seguridad Cloud y optimización financiera.", icon: <Server size={32} color={ACCENT_CYAN} /> },
+                    { title: "Especialización real en entornos productivos", desc: "Trabajamos con infraestructura crítica, seguridad Cloud y optimización financiera.", icon: <Server size={32} color={ACCENT_CYAN} /> },
                     { title: "Enfoque moderno", desc: "Infraestructura como Código, serverless, automatización y arquitectura multicloud.", icon: <Terminal size={32} color={ACCENT_CYAN} /> },
-                    { title: "Seguridad integrada", desc: "WAF, Prisma Cloud, pentesting y aplicación estricta de buenas prácticas.", icon: <Shield size={32} color={ACCENT_CYAN} /> },
-                    { title: "Mentalidad empresarial", desc: "Entendemos de presupuesto, escalabilidad y retorno de inversión.", icon: <TrendingUp size={32} color={ACCENT_CYAN} /> }
+                    { title: "Seguridad integrada desde el diseño", desc: "WAF, Prisma Cloud, pentesting y buenas prácticas.", icon: <Shield size={32} color={ACCENT_CYAN} /> },
+                    { title: "Mentalidad empresarial", desc: "Entendemos presupuesto, escalabilidad y retorno de inversión.", icon: <TrendingUp size={32} color={ACCENT_CYAN} /> }
                 ].map((item, i) => (
                     <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                        style={{ 
-                            padding: '30px 25px', 
-                            backgroundColor: '#000c2d', // Tarjetas en fondo azul
-                            border: `1px solid ${ACCENT_CYAN}30`, 
-                            borderRadius: '20px', 
-                            transition: 'all 0.3s ease',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'flex-start'
-                        }}
+                        style={{ padding: '30px 25px', backgroundColor: BG_DARK, border: `1px solid ${ACCENT_CYAN}30`, borderRadius: '20px', transition: 'all 0.3s ease', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}
                         whileHover={{ borderColor: ACCENT_CYAN, y: -5, boxShadow: `0 15px 35px rgba(0, 12, 45, 0.3)` }}
                     >
                         <div style={{ marginBottom: '20px', padding: '12px', background: 'rgba(0, 194, 255, 0.1)', borderRadius: '12px', border: `1px solid ${ACCENT_CYAN}40` }}>
                             {item.icon}
                         </div>
-                        {/* Textos en blanco para contrastar con la tarjeta azul */}
                         <h3 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '12px', color: '#ffffff', lineHeight: 1.3 }}>{item.title}</h3>
                         <p style={{ fontSize: '1rem', lineHeight: 1.6, color: '#94a3b8', margin: 0 }}>{item.desc}</p>
                     </motion.div>
@@ -133,7 +155,7 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
       </section>
 
       {/* ==========================================
-          3️⃣ BLOQUE: NUESTRA EVOLUCIÓN (AZUL OSCURO)
+          🟦 3️⃣ BLOQUE: NUESTRA EVOLUCIÓN
           ========================================== */}
       <section style={{ padding: isMobile ? '120px 20px' : '180px 60px', backgroundColor: BG_DARK, position: 'relative' }}>
         <WaveDivider fillColor={BG_WHITE} />
@@ -141,38 +163,29 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '80px', alignItems: 'center', position: 'relative', zIndex: 2 }}>
             
             <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-                <h4 style={{ color: ACCENT_GOLD, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 700, marginBottom: '15px' }}>Evolución técnica y enfoque estratégico</h4>
-                <h2 style={{ fontSize: isMobile ? '2.2rem' : '3.2rem', fontWeight: 900, marginBottom: '25px', lineHeight: 1.1, color: '#ffffff' }}>
-                    Consultoría <br /><span style={{ color: ACCENT_CYAN }}>Multi-Cloud & FinOps</span>
+                <h2 style={{ fontSize: isMobile ? '2.5rem' : '3.5rem', fontWeight: 900, marginBottom: '30px', lineHeight: 1.1, color: '#ffffff' }}>
+                    Evolución técnica y <br /><span style={{ color: ACCENT_CYAN }}>enfoque estratégico</span>
                 </h2>
+                <div style={{ width: '60px', height: '4px', backgroundColor: ACCENT_GOLD, marginBottom: '30px', borderRadius: '2px' }} />
                 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '25px' }}>
-                    {[
-                        { title: "Gestión de Créditos Cloud", desc: "Apalancamiento financiero para startups y empresas en expansión." },
-                        { title: "Estrategia FinOps", desc: "Auditoría de costos y optimización de recursos para maximizar su ROI." },
-                        { title: "Backup & Disaster Recovery", desc: "Automatización de respaldos para garantizar la continuidad operativa." }
-                    ].map((item, i) => (
-                        <div key={i} style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                            <CheckCircle2 color={ACCENT_GOLD} size={24} style={{ flexShrink: 0, marginTop: '5px' }} />
-                            <p style={{ margin: 0, fontSize: '1.1rem', color: '#94a3b8', lineHeight: 1.5 }}>
-                                <strong style={{ color: '#ffffff', display: 'block', marginBottom: '2px' }}>{item.title}</strong> 
-                                {item.desc}
-                            </p>
-                        </div>
-                    ))}
-                </div>
+                <p style={{ fontSize: '1.15rem', lineHeight: 1.8, color: '#94a3b8', marginBottom: '20px' }}>
+                    Nuestra experiencia comenzó con implementaciones en AWS y ha evolucionado hacia arquitecturas multicloud, gobierno de datos y soluciones serverless.
+                </p>
+                <p style={{ fontSize: '1.15rem', lineHeight: 1.8, color: '#ffffff', fontWeight: 600 }}>
+                    Hoy integramos seguridad, automatización y optimización financiera como parte del diseño, no como elementos posteriores.
+                </p>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}
                 style={{ position: 'relative', borderRadius: '24px', overflow: 'hidden', border: `1px solid ${ACCENT_CYAN}30`, boxShadow: '0 30px 60px rgba(0,0,0,0.5)' }}
             >
-                <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1000&q=80" alt="Cloud Network" style={{ width: '100%', display: 'block' }} />
+                <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1000&q=80" alt="Cloud Evolution" style={{ width: '100%', display: 'block' }} />
             </motion.div>
         </div>
       </section>
 
       {/* ==========================================
-          4️⃣ BLOQUE: CÓMO TRABAJAMOS (BLANCO) CON ÍCONOS
+          🟦 4️⃣ BLOQUE: CÓMO TRABAJAMOS
           ========================================== */}
       <section style={{ padding: isMobile ? '120px 20px' : '180px 60px', backgroundColor: BG_WHITE, position: 'relative' }}>
         <WaveDivider fillColor={BG_DARK} />
@@ -186,22 +199,20 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                     {[
-                        { step: "01", title: "Diagnóstico", desc: "Evaluación técnica y financiera profunda.", icon: <Search size={28} color={ACCENT_CYAN} /> },
-                        { step: "02", title: "Diseño", desc: "Estructuración de arquitectura y seguridad.", icon: <PenTool size={28} color={ACCENT_CYAN} /> },
-                        { step: "03", title: "Implementación", desc: "Despliegue técnico controlado (IaC).", icon: <Rocket size={28} color={ACCENT_CYAN} /> },
-                        { step: "04", title: "Gobierno", desc: "Optimización continua y monitoreo FinOps.", icon: <ShieldCheck size={28} color={ACCENT_CYAN} /> }
+                        { step: "01", text: "Diagnóstico técnico y financiero.", icon: <Search size={28} color={ACCENT_CYAN} /> },
+                        { step: "02", text: "Diseño estructurado.", icon: <PenTool size={28} color={ACCENT_CYAN} /> },
+                        { step: "03", text: "Implementación controlada.", icon: <Rocket size={28} color={ACCENT_CYAN} /> },
+                        { step: "04", text: "Optimización continua.", icon: <ShieldCheck size={28} color={ACCENT_CYAN} /> }
                     ].map((item, i) => (
                         <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '15px', borderBottom: '1px solid #e2e8f0' }}>
-                            {/* Ícono de metodología */}
                             <div style={{ backgroundColor: `${ACCENT_CYAN}15`, padding: '12px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 {item.icon}
                             </div>
                             <div>
-                                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: TEXT_ON_WHITE_MAIN, margin: '0 0 5px 0' }}>
-                                    <span style={{ color: ACCENT_CYAN, marginRight: '10px' }}>{item.step}</span>
-                                    {item.title}
+                                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: TEXT_ON_WHITE_MAIN, margin: 0 }}>
+                                    <span style={{ color: ACCENT_CYAN, marginRight: '15px' }}>{item.step}</span>
+                                    {item.text}
                                 </h3>
-                                <p style={{ fontSize: '1rem', color: TEXT_ON_WHITE_SUB, margin: 0 }}>{item.desc}</p>
                             </div>
                         </div>
                     ))}
@@ -215,17 +226,27 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
       </section>
 
       {/* ==========================================
-          5️⃣ BLOQUE: FILOSOFÍA Y CTA (AZUL OSCURO)
+          🟦 5️⃣ BLOQUE: FILOSOFÍA Y CTA
           ========================================== */}
-      <section style={{ padding: isMobile ? '160px 20px 200px' : '220px 20px 260px', backgroundColor: BG_DARK, textAlign: 'center', position: 'relative' }}>
+      <section style={{ padding: isMobile ? '160px 20px 200px' : '220px 20px 260px', backgroundColor: BG_DEEP, textAlign: 'center', position: 'relative' }}>
         <WaveDivider fillColor={BG_WHITE} />
 
-        <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
             <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }}>
-                <h4 style={{ color: ACCENT_GOLD, textTransform: 'uppercase', letterSpacing: '4px', fontWeight: 800, marginBottom: '25px' }}>Nuestro Principio</h4>
-                <h2 style={{ fontSize: isMobile ? '2.5rem' : '4.5rem', fontWeight: 900, lineHeight: 1.1, color: '#ffffff', marginBottom: '30px' }}>La nube no debe ser compleja ni incierta.</h2>
+                
+                <h4 style={{ 
+                    color: ACCENT_GOLD, textTransform: 'uppercase', letterSpacing: '6px', 
+                    fontWeight: 900, marginBottom: '30px', fontSize: isMobile ? '1.8rem' : '2.5rem'
+                }}>
+                    Nuestro Principio
+                </h4>
+
+                <h2 style={{ fontSize: isMobile ? '2.5rem' : '4.5rem', fontWeight: 900, lineHeight: 1.1, color: '#ffffff', marginBottom: '30px' }}>
+                    La nube no debe ser compleja ni incierta.
+                </h2>
                 <p style={{ fontSize: isMobile ? '1.2rem' : '1.6rem', color: '#94a3b8', lineHeight: 1.6, marginBottom: '60px' }}>
-                    Debe ser una ventaja estratégica, construida con disciplina técnica y visión empresarial. <span style={{ color: '#ffffff', fontWeight: 700 }}>Minimalista. Fuerte. Profesional.</span>
+                    Debe ser una ventaja estratégica, construida con disciplina técnica y visión empresarial.<br />
+                    <span style={{ color: '#ffffff', fontWeight: 700, display: 'inline-block', marginTop: '15px' }}>Minimalista. Fuerte. Profesional.</span>
                 </p>
                 
                 <button 
@@ -252,6 +273,7 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
         </div>
       </section>
 
+      {/* ESTILOS GLOBALES */}
       <style>{`
         .wave-container { position: absolute; left: 0; width: 100%; height: clamp(80px, 10vw, 150px); overflow: hidden; line-height: 0; z-index: 1; pointer-events: none; }
         .top-waves { top: -1px; }

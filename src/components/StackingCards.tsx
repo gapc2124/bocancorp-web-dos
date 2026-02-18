@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
-import { useNavigate } from 'react-router-dom'; // 1. IMPORTAMOS NAVEGACIÓN
+import { useNavigate } from 'react-router-dom'; 
 
 // --- INTERFACES ---
 type ContentBlock = 
@@ -39,6 +39,24 @@ export const StackingCards = ({ data, isMobile }: StackingCardsProps) => {
         width: '100%' 
       }}
     >
+      {/* 🚀 LA MAGIA ESTÁ AQUÍ: ANCLAS INVISIBLES MATEMÁTICAMENTE SINCRONIZADAS */}
+      {data.map((item, index) => (
+        <div 
+          key={`anchor-${item.id}`}
+          id={`service-${item.id}`} 
+          style={{
+            position: 'absolute',
+            // Esta fórmula calcula el pixel exacto donde Framer Motion termina de animar la tarjeta
+            top: `calc(${index / data.length} * (100% - 100vh))`, 
+            left: 0,
+            width: '100%',
+            height: '1px',
+            pointerEvents: 'none',
+            visibility: 'hidden'
+          }}
+        />
+      ))}
+
       <div style={{ 
         position: 'sticky', 
         top: 0, 
@@ -75,16 +93,15 @@ interface CardProps {
 }
 
 const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
-  const navigate = useNavigate(); // 2. INICIALIZAMOS EL HOOK
+  const navigate = useNavigate(); 
 
-  // Lógica de movimiento y escala
   const y = useTransform(progress, [range[0] - 0.10, range[0]], ['100vh', '0vh']);
   const cardY = index === 0 ? '0vh' : y;
   const scale = useTransform(progress, [range[0], range[1]], [1, isMobile ? 0.95 : 0.95]);
 
   return (
     <motion.div
-      id={`service-${item.id}`} 
+      // QUITA EL ID DE AQUÍ, ya no lo necesitamos en la tarjeta visible
       style={{
         y: cardY,
         scale: scale,
@@ -98,15 +115,14 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        paddingTop: isMobile ? '80px' : '120px', 
+        paddingTop: isMobile ? '80px' : '100px', 
         boxSizing: 'border-box'
       }}
     >
       <div style={{
-        // 3. AMPLIAMOS LA TARJETA: Más ancha y más alta para que el texto respire
-        width: isMobile ? '95%' : '85%', 
-        height: isMobile ? '85vh' : '75vh', 
-        maxHeight: '900px', 
+        width: isMobile ? '92%' : '75%', 
+        height: isMobile ? '80vh' : '65vh', 
+        maxHeight: '750px', 
         backgroundColor: 'rgba(10, 16, 36, 0.5)', 
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
@@ -121,7 +137,7 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
         
         {/* COLUMNA: IMAGEN / MEDIA */}
         <div style={{
-          flex: isMobile ? '0 0 180px' : 1, // En escritorio le damos 50% de espacio (flex 1)
+          flex: isMobile ? '0 0 160px' : 0.8,
           position: 'relative',
           width: '100%',
           backgroundImage: `url(${item.image})`,
@@ -142,16 +158,15 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
 
         {/* COLUMNA: CONTENIDO TEXTUAL */}
         <div style={{
-          flex: isMobile ? 'auto' : 1.2, // Ocupa un poco más de la mitad en escritorio
-          // 4. MÁS ESPACIO INTERNO: Incrementamos el padding notablemente
-          padding: isMobile ? '25px 20px 40px' : '60px 70px', 
+          flex: isMobile ? 'auto' : 1.2, 
+          padding: isMobile ? '20px 15px 30px' : '40px 50px', 
           display: 'flex',
           flexDirection: 'column',
           justifyContent: isMobile ? 'flex-start' : 'center',
           background: 'linear-gradient(135deg, rgba(10,16,36,0.8) 0%, rgba(5,8,20,0.9) 100%)',
           zIndex: 2,
           position: 'relative',
-          overflowY: 'auto', // Permite scroll si pones MUCHÍSIMO texto
+          overflowY: 'auto', 
           scrollbarWidth: 'none', 
           msOverflowStyle: 'none', 
           order: isMobile ? 2 : 1 
@@ -159,41 +174,40 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
            <style>{`div::-webkit-scrollbar { display: none; }`}</style>
 
            {/* Cabecera de Servicio */}
-           <div style={{ display: 'flex', alignItems: 'flex-start', gap: isMobile ? '15px' : '25px', marginBottom: isMobile ? '25px' : '40px' }}> 
+           <div style={{ display: 'flex', alignItems: 'flex-start', gap: isMobile ? '12px' : '20px', marginBottom: isMobile ? '20px' : '30px' }}> 
              <div style={{
-               width: isMobile ? '40px' : '55px', 
-               height: isMobile ? '40px' : '55px', 
+               width: isMobile ? '35px' : '45px', 
+               height: isMobile ? '35px' : '45px', 
                borderRadius: '50%', 
                background: item.color, color: '#000', fontWeight: '900',
                display: 'flex', alignItems: 'center', justifyContent: 'center',
-               fontSize: isMobile ? '1.2rem' : '1.5rem', 
+               fontSize: isMobile ? '1.1rem' : '1.3rem', 
                boxShadow: `0 0 20px ${item.color}60`,
                flexShrink: 0,
-               marginTop: '5px' // Alinea el círculo con la primera línea del título
+               marginTop: '2px' 
              }}>
                {item.id}
              </div>
              <div>
-                <span style={{ color: item.color, fontWeight: 700, letterSpacing: '2px', fontSize: '0.8rem', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+                <span style={{ color: item.color, fontWeight: 700, letterSpacing: '1px', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
                     // {item.subtitle}
                 </span>
-                <h3 style={{ color: 'white', fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
+                <h3 style={{ color: 'white', fontSize: 'clamp(1.3rem, 3vw, 2rem)', fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
                   {item.title}
                 </h3>
              </div>
            </div>
            
            {/* Renderizado de Bloques de Contenido */}
-           <div style={{ color: '#dbe4ff', fontSize: isMobile ? '1rem' : '1.15rem', lineHeight: isMobile ? 1.6 : 1.8 }}> 
+           <div style={{ color: '#dbe4ff', fontSize: isMobile ? '0.95rem' : '1.05rem', lineHeight: isMobile ? 1.5 : 1.7 }}> 
              {item.content.map((block, i) => {
                if (block.type === 'highlight') {
                  return (
-                   // 5. SEPARACIÓN DE BLOQUES: Mayor margen entre textos
-                   <div key={i} style={{ margin: isMobile ? '25px 0' : '35px 0', paddingLeft: '18px', borderLeft: `4px solid ${item.color}`, backgroundColor: 'rgba(255,255,255,0.02)', padding: '15px 15px 15px 20px', borderRadius: '0 12px 12px 0' }}> 
+                   <div key={i} style={{ margin: isMobile ? '15px 0' : '20px 0', paddingLeft: '15px', borderLeft: `3px solid ${item.color}`, backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px 12px 12px 15px', borderRadius: '0 8px 8px 0' }}> 
                      <h4 style={{ 
-                       color: 'white', fontSize: isMobile ? '1.05rem' : '1.2rem', fontWeight: 800, marginBottom: '10px', 
+                       color: 'white', fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: 800, marginBottom: '8px', 
                        textTransform: 'uppercase', display: 'inline-block',
-                       borderBottom: `2px solid ${item.color}`, paddingBottom: '5px'
+                       borderBottom: `2px solid ${item.color}`, paddingBottom: '3px'
                      }}>
                        {block.title}
                      </h4>
@@ -201,29 +215,28 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
                    </div>
                  );
                } else {
-                 // Mayor margen inferior para separar párrafos
-                 return <p key={i} style={{ marginBottom: '20px' }}>{block.text}</p>; 
+                 return <p key={i} style={{ marginBottom: '15px' }}>{block.text}</p>; 
                }
              })}
            </div>
 
            {/* BOTÓN DE CONTRATACIÓN */}
-           <div style={{ marginTop: 'auto', paddingTop: '35px' }}> 
+           <div style={{ marginTop: 'auto', paddingTop: '20px' }}> 
              <motion.button
-               onClick={() => navigate('/contacto')} // 6. ACCIÓN DE NAVEGACIÓN
-               whileHover={{ scale: 1.03, boxShadow: `0 0 25px ${item.color}80` }}
+               onClick={() => navigate('/contacto')}
+               whileHover={{ scale: 1.03, boxShadow: `0 0 20px ${item.color}80` }}
                whileTap={{ scale: 0.95 }}
                style={{
                  width: isMobile ? '100%' : 'auto', 
-                 padding: isMobile ? '16px 24px' : '18px 40px', 
+                 padding: isMobile ? '14px 20px' : '15px 35px', 
                  backgroundColor: isMobile ? `${item.color}20` : 'transparent', 
                  color: 'white',
                  border: `2px solid ${item.color}`,
                  borderRadius: '50px',
-                 fontSize: isMobile ? '1rem' : '1.1rem', 
+                 fontSize: isMobile ? '0.9rem' : '1rem', 
                  fontWeight: '800',
                  textTransform: 'uppercase',
-                 letterSpacing: '2px',
+                 letterSpacing: '1px',
                  cursor: 'pointer',
                  transition: 'background-color 0.3s ease',
                  textAlign: 'center'
