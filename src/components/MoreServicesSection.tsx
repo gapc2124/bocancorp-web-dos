@@ -7,7 +7,7 @@ import {
   shaderMaterial
 } from '@react-three/drei';
 import * as THREE from 'three';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; // 1. Importamos Link para la conexión
 
 // --- COLORES ---
 const BG_COLOR = "#000c2d"; 
@@ -23,7 +23,7 @@ const CATEGORY_CONFIG = {
 
 type CategoryKey = keyof typeof CATEGORY_CONFIG;
 
-// --- DICCIONARIO DE TEXTOS CON VALORES CONECTADOS AL FORMULARIO ---
+// --- 2. DICCIONARIO DE TEXTOS CON IDs CONECTADOS ---
 const SECTION_TEXTS: any = {
   ES: {
     titleStart: "Explora",
@@ -32,19 +32,19 @@ const SECTION_TEXTS: any = {
       software: {
         label: "Desarrollo de Software",
         items: [
-          { label: "Desarrollo de Soluciones Multiplataforma", id: 1, value: "multiplataforma" },
-          { label: "Ecosistemas Cloud & Modernización", id: 2, value: "cloud-modernizacion" },
-          { label: "Diseño de Experiencia (UX/UI)", id: 3, value: "ux-ui" },
-          { label: "Consultoría de Arquitectura TI", id: 4, value: "consultoria-ti" }
+          { label: "Desarrollo de Soluciones Multiplataforma", id: 1 },
+          { label: "Ecosistemas Cloud & Modernización", id: 2 },
+          { label: "Diseño de Experiencia (UX/UI)", id: 3 },
+          { label: "Consultoría de Arquitectura TI", id: 4 }
         ]
       },
       cloud: {
         label: "Soluciones en la Nube",
         items: [
-          { label: "Arquitectura Multi-Cloud & Serverless", id: 5, value: "arquitectura-multi-cloud" },
-          { label: "Ciberseguridad & Conectividad", id: 6, value: "ciberseguridad" },
-          { label: "Cultura DevOps & Terraform", id: 7, value: "devops-terraform" },
-          { label: "FinOps & Optimización de Recursos", id: 8, value: "finops" }
+          { label: "Arquitectura Multi-Cloud & Serverless", id: 5 },
+          { label: "Ciberseguridad & Conectividad", id: 6 },
+          { label: "Cultura DevOps & Terraform", id: 7 },
+          { label: "FinOps & Optimización de Recursos", id: 8 }
         ]
       }
     }
@@ -56,19 +56,19 @@ const SECTION_TEXTS: any = {
       software: {
         label: "Software Development",
         items: [
-          { label: "Multi-platform Solutions Development", id: 1, value: "multiplataforma" },
-          { label: "Cloud Ecosystems & Modernization", id: 2, value: "cloud-modernizacion" },
-          { label: "User Experience Design (UX/UI)", id: 3, value: "ux-ui" },
-          { label: "IT Architecture Consulting", id: 4, value: "consultoria-ti" }
+          { label: "Multi-platform Solutions Development", id: 1 },
+          { label: "Cloud Ecosystems & Modernization", id: 2 },
+          { label: "User Experience Design (UX/UI)", id: 3 },
+          { label: "IT Architecture Consulting", id: 4 }
         ]
       },
       cloud: {
         label: "Cloud Solutions",
         items: [
-          { label: "Multi-Cloud & Serverless Architecture", id: 5, value: "arquitectura-multi-cloud" },
-          { label: "Cybersecurity & Networking", id: 6, value: "ciberseguridad" },
-          { label: "DevOps Culture & Terraform", id: 7, value: "devops-terraform" },
-          { label: "FinOps & Resource Optimization", id: 8, value: "finops" }
+          { label: "Multi-Cloud & Serverless Architecture", id: 5 },
+          { label: "Cybersecurity & Networking", id: 6 },
+          { label: "DevOps Culture & Terraform", id: 7 },
+          { label: "FinOps & Resource Optimization", id: 8 }
         ]
       }
     }
@@ -76,7 +76,7 @@ const SECTION_TEXTS: any = {
 };
 
 // =====================================================================
-// SHADERS Y PARTÍCULAS (INTACTOS)
+// 3. SHADERS Y PARTÍCULAS (INTACTOS)
 // =====================================================================
 const particlesVertexShader = `
   uniform float uTime;
@@ -150,7 +150,7 @@ const ServiceSectionParticles = () => {
 };
 
 // =====================================================================
-// PLANETAS (INTACTOS)
+// 4. PLANETAS (INTACTOS)
 // =====================================================================
 function SaturnCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
@@ -211,14 +211,14 @@ function UranusCartoon() {
 }
 
 // =====================================================================
-// BOTÓN ACTUALIZADO (Redirige a contacto con el parámetro 'value')
+// 5. BOTÓN ACTUALIZADO CON LINK A TARJETAS
 // =====================================================================
-const ServiceButton = ({ item, themeColor, value }: { item: string, themeColor: string, value: string }) => {
+const ServiceButton = ({ item, id, themeColor }: { item: string, id: number, themeColor: string }) => {
     const [isHovered, setIsHovered] = useState(false);
 
     return (
         <Link 
-            to={`/contacto?service=${value}`} // Conexión a contacto enviando el valor exacto del select
+            to={`/servicios#service-${id}`} // Conexión con el hash de la tarjeta
             style={{ textDecoration: 'none', width: '100%' }}
         >
             <div
@@ -263,7 +263,7 @@ const ServiceButton = ({ item, themeColor, value }: { item: string, themeColor: 
 };
 
 // =====================================================================
-// COMPONENTE PRINCIPAL
+// 6. COMPONENTE PRINCIPAL (ACTUALIZADO)
 // =====================================================================
 export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('software');
@@ -342,7 +342,7 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
                     <ServiceButton 
                         key={item.id} 
                         item={item.label} 
-                        value={item.value} 
+                        id={item.id} 
                         themeColor={CATEGORY_CONFIG[activeCategory].themeColor} 
                     />
                 ))}
