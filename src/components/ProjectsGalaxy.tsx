@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
 import * as THREE from 'three';
 import { shaderMaterial } from '@react-three/drei';
+import { useNavigate } from 'react-router-dom'; // <-- 1. IMPORTAMOS useNavigate
 
 // --- FUNCIÓN DE AYUDA PARA RUTAS (CRÍTICO: NO BORRAR) ---
 const resolvePath = (path: string) => {
@@ -194,6 +195,8 @@ const AmbientParticles = () => {
 // ==========================================
 const ProjectFlipCard = ({ project, isMobile, cardHint, buttonText }: { project: Project, isMobile: boolean, cardHint: string, buttonText: string }) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const navigate = useNavigate(); // <-- 2. INICIALIZAMOS NAVEGACIÓN
+
   useEffect(() => { setIsFlipped(false); }, [project.id]);
 
   const faceStyle: React.CSSProperties = {
@@ -218,7 +221,37 @@ const ProjectFlipCard = ({ project, isMobile, cardHint, buttonText }: { project:
         <div style={{ ...faceStyle, transform: 'rotateY(180deg)', background: '#1a1a2e' }}>
           <h3 style={{ color: project.color, fontSize: isMobile ? '1.8rem' : '2.2rem', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 900, textAlign: 'center', textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>{project.name}</h3>
           <p style={{ fontSize: isMobile ? '1rem' : '1.1rem', lineHeight: 1.6, color: '#ddd', textAlign: 'center' }}>{project.desc}</p>
-          <button style={{ marginTop: 'auto', marginBottom: '20px', padding: '12px 35px', background: project.color, border: 'none', borderRadius: '50px', color: 'black', fontWeight: 'bold', fontSize: '1rem', cursor: 'pointer' }}>{buttonText}</button>
+          
+          {/* 3. AGREGAMOS EL EVENTO ONCLICK AQUÍ 👇 */}
+          <button 
+            onClick={(e) => {
+                e.stopPropagation(); // Evitamos que al dar clic al botón se voltee la tarjeta de nuevo
+                navigate('/proyectos');
+            }}
+            style={{ 
+                marginTop: 'auto', 
+                marginBottom: '20px', 
+                padding: '12px 35px', 
+                background: project.color, 
+                border: 'none', 
+                borderRadius: '50px', 
+                color: 'black', 
+                fontWeight: 'bold', 
+                fontSize: '1rem', 
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease'
+            }}
+            onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'scale(1.05)';
+                e.currentTarget.style.boxShadow = `0 0 15px ${project.color}80`;
+            }}
+            onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            {buttonText}
+          </button>
         </div>
       </div>
       <style>{`@keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } 100% { transform: scale(1); opacity: 1; } }`}</style>
@@ -421,15 +454,15 @@ export const ProjectsGalaxy = ({ isMobile }: { isMobile: boolean }) => {
           transition: 'gap 0.3s ease'
         }}>
           
-          {/* COLUMNA SISTEMA SOLAR (ORDER 2 en móvil, 1 en desktop) */}
+          {/* COLUMNA SISTEMA SOLAR */}
           <div style={{ 
             flex: '1 1 600px', 
             minWidth: '300px', 
             width: '100%', 
             display: 'flex', 
             justifyContent: 'center',
-            order: isMobile ? 2 : 1, // EL SISTEMA SOLAR ABAJO
-            marginTop: isMobile ? '-120px' : '0' // SUBE EL SISTEMA PARA PEGARSE A LA TARJETA
+            order: isMobile ? 2 : 1, 
+            marginTop: isMobile ? '-120px' : '0' 
           }}>
             <SolarSystem 
                 projects={projects} 
@@ -440,15 +473,15 @@ export const ProjectsGalaxy = ({ isMobile }: { isMobile: boolean }) => {
             />
           </div>
           
-          {/* COLUMNA TARJETA DE DETALLE (ORDER 1 en móvil, 2 en desktop) */}
+          {/* COLUMNA TARJETA DE DETALLE */}
           <div style={{ 
             flex: '0 1 450px', 
             minWidth: '280px', 
             width: '100%', 
             display: 'flex', flexDirection: 'column', alignItems: 'center',
             zIndex: 30,
-            order: isMobile ? 1 : 2, // LA TARJETA ARRIBA
-            marginTop: isMobile ? '60px' : '0' // BAJA LA TARJETA PARA SEPARARSE DEL TÍTULO
+            order: isMobile ? 1 : 2, 
+            marginTop: isMobile ? '60px' : '0' 
           }}>
             <ProjectFlipCard 
                 project={activeProject} 

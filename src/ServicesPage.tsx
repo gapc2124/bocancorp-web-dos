@@ -2,7 +2,7 @@ import React, { Suspense, useEffect } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import { motion } from 'framer-motion';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom'; // Importamos useNavigate
 
 // --- IMPORTS DE COMPONENTES EXTERNOS ---
 import { CosmicSphere } from './components/CosmicSphere';
@@ -133,6 +133,7 @@ const HeroSection = ({ isMobile }: { isMobile: boolean }) => (
 // --- COMPONENTE PRINCIPAL ---
 export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
   const { hash } = useLocation();
+  const navigate = useNavigate(); // Hook de navegación
 
   useEffect(() => {
     if (hash) {
@@ -173,14 +174,15 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
       <div style={{ backgroundColor: '#000c2d', position: 'relative', zIndex: 1 }}>
           
           {/* 5. SOLUCIONES ESPECIALIZADAS (Dominio Técnico) */}
-          <section style={{ paddingTop: '80px', paddingBottom: '20px' }}> {/* Padding inferior reducido */}
+          <section style={{ paddingTop: '80px', paddingBottom: '20px' }}>
               <SpecializedSolutions isMobile={isMobile} />
           </section>
 
           {/* 6. BOTÓN FINAL CTA */}
-          <section style={{ padding: isMobile ? '40px 20px 100px' : '40px 0 120px', textAlign: 'center' }}> {/* Padding superior reducido */}
+          <section style={{ padding: isMobile ? '40px 20px 100px' : '40px 0 120px', textAlign: 'center' }}>
               <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
                 <motion.button
+                    onClick={() => navigate('/contacto')} // Redirección al formulario
                     whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(255, 204, 0, 0.6)', backgroundColor: '#ffe033' }}
                     whileTap={{ scale: 0.95 }}
                     animate={{ boxShadow: ['0 0 20px rgba(255, 204, 0, 0.2)', '0 0 35px rgba(255, 204, 0, 0.5)', '0 0 20px rgba(255, 204, 0, 0.2)'] }}
