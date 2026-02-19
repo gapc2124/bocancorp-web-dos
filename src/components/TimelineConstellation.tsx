@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
 import * as THREE from 'three';
 import { shaderMaterial } from '@react-three/drei';
-import { Rocket, Globe, Code2, Building, ShoppingCart, BrainCircuit, Database, MapPin, X, Star } from 'lucide-react';
+import { Rocket, ShieldCheck, Globe, Building, Target, MapPin, X, Star } from 'lucide-react';
 
 // ==========================================
-// 1. DATOS DE LA CONSTELACIÓN (LÍNEA DE TIEMPO)
+// 1. DATOS DE LA CONSTELACIÓN (HISTORIA ACTUALIZADA BOCANCORP)
 // ==========================================
 interface TimelineNode {
   id: string;
@@ -22,53 +22,41 @@ interface TimelineNode {
 
 const TIMELINE_DATA: TimelineNode[] = [
   { 
-    id: 't1', year: '2019', title: 'Fundación de Bocancorp', type: 'milestone', 
-    desc: 'El Big Bang de nuestra historia.', 
-    details: 'Nace Bocancorp con la visión de transformar la infraestructura tecnológica empresarial, apostando desde el día cero por la nube y la escalabilidad.',
+    id: 't1', year: '2023', title: 'Fundación y Visión Estratégica', type: 'milestone', 
+    desc: 'Bocancorp se establece en Virginia, EE. UU.', 
+    details: 'Nacemos con el propósito de cerrar la brecha entre tecnología avanzada y lenguaje empresarial en LATAM. Desde el día cero, la compañía se enfoca en arquitectura Cloud moderna y comunicación técnica orientada al negocio.',
     align: 'left', icon: <Rocket />, color: '#FAA918' 
   },
   { 
-    id: 't2', year: '2020', title: 'Expansión a Aruba', type: 'milestone', 
-    desc: 'Nuestro primer salto internacional.', 
-    details: 'Iniciamos operaciones en el Caribe, estableciendo alianzas estratégicas y adaptando nuestras soluciones a mercados internacionales emergentes.',
-    align: 'right', icon: <Globe />, color: '#00C2FF' 
+    id: 't2', year: '2023', title: 'Consolidación en Ecosistema AWS', type: 'project', 
+    desc: 'Iniciamos acercamiento formal en EE. UU.', 
+    details: 'Identificamos la oportunidad estratégica de convertirnos en Partner Select. Este proceso impulsó la certificación de nuestro equipo y la ejecución de nuestros primeros proyectos exitosos de migración a la nube.',
+    align: 'right', icon: <Target />, color: '#00C2FF' 
   },
   { 
-    id: 't3', year: '2021', title: 'Core Bancario Serverless', type: 'project', 
-    desc: 'Modernización Fintech.', 
-    details: 'Migración exitosa del core transaccional de una importante Fintech a una arquitectura 100% Serverless en AWS, reduciendo la latencia un 60%.',
-    align: 'left', icon: <Code2 />, color: '#ff007a' 
+    id: 't3', year: '2024', title: 'Validación Oficial como AWS Partner', type: 'milestone', 
+    desc: 'Alcanzamos el estatus de Partner Select.', 
+    details: 'Obtuvimos la validación técnica FTR para migraciones y el Service Delivery Program (SDP) en AWS WAF. Fortalecimos nuestro equipo con certificaciones oficiales, consolidando la especialización en arquitectura y seguridad.',
+    align: 'left', icon: <ShieldCheck />, color: '#ff007a' 
   },
   { 
-    id: 't4', year: '2022', title: 'Expansión a Estados Unidos', type: 'milestone', 
-    desc: 'Consolidación en Norteamérica.', 
-    details: 'Apertura oficial de nuestra sede corporativa en EE.UU., permitiéndonos competir en el mercado tecnológico más exigente del mundo.',
-    align: 'right', icon: <Building />, color: '#00ff8c' 
+    id: 't4', year: '2024', title: 'Proyectos de Mayor Escala', type: 'project', 
+    desc: 'Expansión regional a finales de año.', 
+    details: 'Comenzamos a trabajar con organizaciones multinacionales en LATAM, ejecutando proyectos de arquitectura Cloud avanzada y seguridad en entornos productivos de alta complejidad.',
+    align: 'right', icon: <Globe />, color: '#00ff8c' 
   },
   { 
-    id: 't5', year: '2023', title: 'E-commerce de Alta Concurrencia', type: 'project', 
-    desc: 'Arquitectura Cloud-Native.', 
-    details: 'Despliegue de una plataforma retail B2C capaz de soportar picos masivos de tráfico en eventos Cyber sin un solo segundo de inactividad.',
-    align: 'left', icon: <ShoppingCart />, color: '#aa00ff' 
+    id: 't5', year: '2025', title: 'Sectores Regulados en Colombia', type: 'milestone', 
+    desc: 'Establecemos operaciones en febrero de 2025.', 
+    details: 'Ampliamos presencia regional iniciando proyectos en gobernanza de datos, arquitectura de red y soluciones serverless para organizaciones del sector tributario y financiero, fortaleciendo nuestra experiencia regulada.',
+    align: 'left', icon: <MapPin />, color: '#aa00ff' 
   },
   { 
-    id: 't6', year: '2023', title: 'Asistente IA Logístico', type: 'project', 
-    desc: 'Integración LLM Corporativa.', 
-    details: 'Desarrollo de un chatbot inteligente con IA Generativa para optimizar la trazabilidad y atención al cliente en una red logística global.',
-    align: 'right', icon: <BrainCircuit />, color: '#ff4d00' 
-  },
-  { 
-    id: 't7', year: '2024', title: 'Data Lake Minero', type: 'project', 
-    desc: 'Gobernanza de Datos.', 
-    details: 'Centralización de terabytes de datos operativos en Oracle Cloud para análisis predictivo y prevención de fallos en maquinaria pesada.',
-    align: 'left', icon: <Database />, color: '#33BEFF' 
-  },
-  { 
-    id: 't8', year: '2025', title: 'Expansión a Colombia', type: 'milestone', 
-    desc: 'Centro de Operaciones Estratégicas.', 
-    details: 'Establecemos nuestro nuevo HUB tecnológico en Bogotá, reforzando nuestra presencia en la región andina con talento élite.',
-    align: 'right', icon: <MapPin />, color: '#FAA918' 
-  },
+    id: 't6', year: '2025', title: 'Integración Estratégica Startups', type: 'project', 
+    desc: 'Consolidación técnica a finales de 2025.', 
+    details: 'Ampliamos nuestra presencia en el ecosistema de startups desarrollando arquitecturas en AWS con integración de ciberseguridad avanzada (Panorama y Prisma Cloud) y metodologías FinOps.',
+    align: 'right', icon: <Building />, color: '#ff4d00' 
+  }
 ];
 
 
@@ -166,12 +154,44 @@ export const TimelineConstellation = ({ isMobile }: { isMobile: boolean }) => {
 
       <div style={{ position: 'relative', zIndex: 10, maxWidth: '1200px', margin: '0 auto' }}>
         
-        {/* TÍTULO */}
-        <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} style={{ textAlign: 'center', marginBottom: '80px' }}>
-            <h2 style={{ color: 'white', fontSize: isMobile ? '2.5rem' : '4rem', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '2px', margin: 0 }}>
-                Nuestra <span style={{ color: '#00C2FF', textShadow: '0 0 20px rgba(0,194,255,0.5)' }}>Evolución</span>
+        {/* TÍTULO CON JERARQUÍA ACTUALIZADA */}
+        <motion.div 
+            initial={{ opacity: 0, y: -30 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            style={{ textAlign: 'center', marginBottom: '80px', padding: '0 20px' }}
+        >
+            {/* FRASE PRINCIPAL EN GRANDE */}
+            <h2 style={{ 
+                color: 'white', 
+                fontSize: isMobile ? '2.8rem' : '4.5rem', 
+                fontWeight: 950, 
+                textTransform: 'uppercase', 
+                letterSpacing: '2px', 
+                margin: '0 0 10px 0',
+                lineHeight: 1
+            }}>
+                Nuestra <span style={{ color: '#00C2FF', textShadow: '0 0 30px rgba(0,194,255,0.5)' }}>evolución</span>
             </h2>
-            <p style={{ color: '#94a3b8', fontSize: '1.2rem', marginTop: '15px' }}>Una constelación de hitos y proyectos que forjan nuestra historia.</p>
+
+            {/* FRASE COMPLEMENTARIA EN PEQUEÑO */}
+            <h3 style={{ 
+                color: '#e2e8f0', 
+                fontSize: isMobile ? '1.1rem' : '1.6rem', 
+                fontWeight: 600, 
+                textTransform: 'none', 
+                letterSpacing: '0.5px', 
+                margin: '0 auto',
+                maxWidth: '800px',
+                lineHeight: 1.4,
+                opacity: 0.9
+            }}>
+                ha sido guiada por especialización técnica y visión estratégica.
+            </h3>
+
+            {/* DESCRIPCIÓN FINAL */}
+            <p style={{ color: '#94a3b8', fontSize: '1rem', marginTop: '20px', fontWeight: 500 }}>
+                Una constelación de hitos que forjan nuestra historia.
+            </p>
         </motion.div>
 
         {/* CONTENEDOR DE LA LÍNEA DE TIEMPO */}

@@ -49,7 +49,7 @@ const PROJECTS_CONFIG = [
   }
 ];
 
-// Textos traducibles
+// Textos traducibles (AQUÍ ESTÁN TUS TEXTOS CORTOS EXACTOS)
 const GALAXY_TEXTS: any = {
   ES: {
     titleStart: "Conoce algunos de nuestros ",
@@ -58,12 +58,12 @@ const GALAXY_TEXTS: any = {
     cardHint: "CLICK PARA DETALLES ↻",
     cardButton: "Ver Más ➜",
     descriptions: {
-      miranda: "Optimización de rutas y gestión logística inteligente.",
-      myintelli: "Consultoría integral de Ciberseguridad.",
-      datecsa: "Plataforma transaccional B2B de alto rendimiento.",
-      ruedaverde: "Desarrollo de Chatbot inteligente con IA Generativa.",
-      tuulapp: "Marketplace de servicios on-demand.",
-      ingram: "Integración global de inventarios y logística."
+      miranda: "Implementamos una solución de backup automatizado en AWS mediante conexión VPN segura, reemplazando procesos manuales. La nueva arquitectura permite recuperación rápida ante incidentes y continuidad operativa.",
+      myintelli: "Ejecutamos evaluación de seguridad sobre plataforma SaaS en producción, identificando vulnerabilidades y proponiendo mejoras. Acompañamos en optimización de consumo AWS/GCP e implementación de WAF.",
+      datecsa: "Diseñamos e implementamos infraestructura en AWS para soportar la solución OnBase, incluyendo base de datos, red, SSL y réplica a producción. Un entorno Cloud estable, seguro y preparado para operación empresarial.",
+      ruedaverde: "Implementamos un chatbot sobre arquitectura serverless en AWS, permitiendo automatizar consultas frecuentes con un modelo de consumo optimizado. Redujo carga operativa y mejoró eficiencia sin incrementar complejidad.",
+      tuulapp: "Acompañamos la optimización y modernización de su arquitectura en AWS, incluyendo estrategia de migración de base de datos hacia Amazon Aurora y control de costos para preparar la plataforma para un crecimiento escalable.",
+      ingram: "Participación en múltiples iniciativas Cloud dentro del ecosistema de partners regionales en LATAM, ejecutando soluciones tecnológicas para distribución y ecosistemas empresariales corporativos y regulados."
     }
   },
   EN: {
@@ -73,12 +73,12 @@ const GALAXY_TEXTS: any = {
     cardHint: "CLICK FOR DETAILS ↻",
     cardButton: "See More ➜",
     descriptions: {
-      miranda: "Route optimization and intelligent logistics management.",
-      myintelli: "Comprehensive Cybersecurity consulting.",
-      datecsa: "High-performance B2B transactional platform.",
-      ruedaverde: "Intelligent Chatbot development with Generative AI.",
-      tuulapp: "On-demand services marketplace.",
-      ingram: "Global inventory and logistics integration."
+      miranda: "We implemented an automated backup solution in AWS via secure VPN, replacing manual processes. The new architecture enables rapid incident recovery and operational continuity.",
+      myintelli: "We executed a security assessment on a production SaaS platform, identifying vulnerabilities and proposing improvements. We assist in AWS/GCP consumption optimization and WAF implementation.",
+      datecsa: "We designed and implemented AWS infrastructure to support the OnBase solution, including database, network, SSL, and production replication. A stable, secure Cloud environment ready for enterprise operation.",
+      ruedaverde: "We implemented a chatbot on serverless architecture in AWS, automating frequent queries with an optimized consumption model. It reduced operational load and improved efficiency without increasing complexity.",
+      tuulapp: "We supported the optimization and modernization of their AWS architecture, including database migration strategy to Amazon Aurora and cost control to prepare the platform for scalable growth.",
+      ingram: "Participation in multiple Cloud initiatives within the LATAM regional partner ecosystem, executing technological solutions for distribution and corporate/regulated business ecosystems."
     }
   }
 };
@@ -218,9 +218,11 @@ const ProjectFlipCard = ({ project, isMobile, cardHint, buttonText }: { project:
           </div>
           <p style={{ marginTop: '10px', marginBottom: '10px', color: project.color, fontWeight: '900', fontSize: isMobile ? '1.2rem' : '1.5rem', letterSpacing: '1px', textAlign: 'center', animation: 'pulse 2s infinite', textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>{cardHint}</p>
         </div>
-        <div style={{ ...faceStyle, transform: 'rotateY(180deg)', background: '#1a1a2e' }}>
-          <h3 style={{ color: project.color, fontSize: isMobile ? '1.8rem' : '2.2rem', textTransform: 'uppercase', marginBottom: '20px', fontWeight: 900, textAlign: 'center', textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>{project.name}</h3>
-          <p style={{ fontSize: isMobile ? '1rem' : '1.1rem', lineHeight: 1.6, color: '#ddd', textAlign: 'center' }}>{project.desc}</p>
+        
+        {/* CARA TRASERA CON TEXTOS REALES */}
+        <div style={{ ...faceStyle, transform: 'rotateY(180deg)', background: '#1a1a2e', padding: isMobile ? '20px' : '35px' }}>
+          <h3 style={{ color: project.color, fontSize: isMobile ? '1.6rem' : '2rem', textTransform: 'uppercase', marginBottom: '15px', fontWeight: 900, textAlign: 'center', textShadow: '0 0 10px rgba(0,0,0,0.5)' }}>{project.name}</h3>
+          <p style={{ fontSize: isMobile ? '0.95rem' : '1.05rem', lineHeight: 1.5, color: '#ddd', textAlign: 'center' }}>{project.desc}</p>
           
           {/* 3. AGREGAMOS EL EVENTO ONCLICK AQUÍ 👇 */}
           <button 
@@ -230,7 +232,7 @@ const ProjectFlipCard = ({ project, isMobile, cardHint, buttonText }: { project:
             }}
             style={{ 
                 marginTop: 'auto', 
-                marginBottom: '20px', 
+                marginBottom: '10px', 
                 padding: '12px 35px', 
                 background: project.color, 
                 border: 'none', 

@@ -50,7 +50,17 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
       {/* ==========================================
           🟦 1️⃣ BLOQUE: IDENTIDAD SOBRE AURORAS (HERO)
           ========================================== */}
-      <section style={{ position: 'relative', height: '100vh', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: BG_DEEP }}>
+      <section style={{ 
+        position: 'relative', 
+        height: '100vh', 
+        width: '100%', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        overflow: 'hidden', 
+        backgroundColor: BG_DEEP,
+        paddingTop: isMobile ? '60px' : '100px' 
+      }}>
         
         {/* CAPA 1: FONDO DE AURORAS 3D */}
         <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
@@ -59,49 +69,73 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
           </Canvas>
         </div>
 
-        {/* CAPA 2: FOG (NIEBLA) PARA DIFUMINAR LAS AURORAS Y RESALTAR EL TEXTO */}
+        {/* CAPA 2: FOG AJUSTADO (Reducido ligeramente para dar profundidad) */}
         <div style={{ 
             position: 'absolute', 
             top: 0, 
             left: 0, 
             width: '100%', 
             height: '100%', 
-            // Degradado radial: Más oscuro en el centro para que las letras contrasten perfecto
-            background: 'radial-gradient(circle at center, rgba(0, 2, 10, 0.65) 0%, rgba(0, 2, 10, 0.2) 100%)',
-            // Efecto de difuminado sobre las auroras
-            backdropFilter: 'blur(6px)', 
-            WebkitBackdropFilter: 'blur(6px)',
+            // Gradiente equilibrado
+            background: 'radial-gradient(circle at center, rgba(0, 2, 10, 0.75) 0%, rgba(0, 2, 10, 0.25) 100%)',
+            // Difuminado reducido a 8px para que las auroras respiren un poco más
+            backdropFilter: 'blur(8px)', 
+            WebkitBackdropFilter: 'blur(8px)',
             zIndex: 1 
         }} />
 
-        {/* CAPA 3: Gradiente base para suavizar el corte antes de la constelación */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '20%', background: `linear-gradient(to bottom, transparent, ${BG_DEEP})`, zIndex: 2 }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '25%', background: `linear-gradient(to bottom, transparent, ${BG_DEEP})`, zIndex: 2 }} />
 
-        {/* CAPA 4: CONTENIDO DE TEXTO */}
         <motion.div 
           initial={{ opacity: 0, y: 30 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 1 }}
           style={{ maxWidth: '1100px', margin: '0 auto', textAlign: 'center', position: 'relative', zIndex: 3, padding: '0 20px' }}
         >
-            <h2 style={{ fontSize: isMobile ? '2.8rem' : '5rem', fontWeight: 950, lineHeight: 1.1, margin: 0, color: '#ffffff', textShadow: '0 0 30px rgba(0,194,255,0.4)' }}>
+            <h2 style={{ 
+                fontSize: isMobile ? '2.2rem' : '4rem', 
+                fontWeight: 950, 
+                lineHeight: 1.1, 
+                margin: 0, 
+                color: '#ffffff', 
+                textShadow: '0 4px 30px rgba(0,0,0,0.9)' 
+            }}>
                 Arquitectura Cloud con <br />
-                <span style={{ color: ACCENT_CYAN, textShadow: `0 0 40px ${ACCENT_CYAN}80` }}>criterio empresarial.</span>
+                <span style={{ 
+                    color: ACCENT_CYAN, 
+                    textShadow: `0 0 50px ${ACCENT_CYAN}50` 
+                }}>
+                    criterio empresarial.
+                </span>
             </h2>
-            
-            <div style={{ marginTop: '50px', maxWidth: '850px', margin: '50px auto 0' }}>
-                <p style={{ fontSize: isMobile ? '1.25rem' : '1.8rem', color: '#e2e8f0', marginBottom: '40px', lineHeight: 1.6, textShadow: '0 2px 10px rgba(0,0,0,0.8)' }}>
+
+            <div style={{ marginTop: '30px', maxWidth: '850px', margin: '30px auto 0' }}>
+                <p style={{ 
+                    fontSize: isMobile ? '1.15rem' : '1.45rem', 
+                    color: '#e2e8f0', 
+                    marginBottom: '40px', 
+                    lineHeight: 1.6, 
+                    textShadow: '0 2px 15px rgba(0,0,0,0.9)',
+                    fontWeight: 500
+                }}>
                     En Bocancorp diseñamos arquitecturas Cloud modernas que integran infraestructura, seguridad, automatización y gobierno financiero.
                 </p>
-                <div style={{ display: 'inline-block', padding: isMobile ? '20px' : '30px 50px', backgroundColor: 'rgba(0, 194, 255, 0.05)', border: `1px solid ${ACCENT_CYAN}40`, borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)' }}>
-                    <p style={{ fontSize: isMobile ? '1.2rem' : '1.6rem', color: '#ffffff', margin: 0, fontWeight: 700 }}>
+                <div style={{ 
+                    display: 'inline-block', 
+                    padding: isMobile ? '15px 20px' : '25px 50px', 
+                    backgroundColor: 'rgba(0, 194, 255, 0.05)', 
+                    border: `1px solid ${ACCENT_CYAN}30`, 
+                    borderRadius: '20px', 
+                    backdropFilter: 'blur(10px)', 
+                    boxShadow: '0 10px 40px rgba(0,0,0,0.6)' 
+                }}>
+                    <p style={{ fontSize: isMobile ? '1.1rem' : '1.35rem', color: '#ffffff', margin: 0, fontWeight: 700 }}>
                         No somos implementadores aislados: construimos ecosistemas tecnológicos preparados para crecer.
                     </p>
                 </div>
             </div>
         </motion.div>
 
-        {/* Indicador de scroll */}
         <div 
             onClick={scrollToTimeline}
             style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', zIndex: 10 }}
@@ -185,43 +219,51 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
       </section>
 
       {/* ==========================================
-          🟦 4️⃣ BLOQUE: CÓMO TRABAJAMOS
+          🟦 4️⃣ BLOQUE: CÓMO TRABAJAMOS (AJUSTADO A HORIZONTAL EN DESKTOP)
           ========================================== */}
       <section style={{ padding: isMobile ? '120px 20px' : '180px 60px', backgroundColor: BG_WHITE, position: 'relative' }}>
         <WaveDivider fillColor={BG_DARK} />
 
-        <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: isMobile ? 'column' : 'row-reverse', gap: '80px', alignItems: 'center', position: 'relative', zIndex: 2 }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
             
-            <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} style={{ flex: 1 }}>
-                <h2 style={{ fontSize: isMobile ? '2.5rem' : '3.5rem', fontWeight: 900, color: TEXT_ON_WHITE_MAIN, marginBottom: '40px', lineHeight: 1.1 }}>
+            {/* TÍTULO CENTRALIZADO EN DESKTOP PARA MEJORAR LAYOUT HORIZONTAL */}
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: isMobile ? 'left' : 'center', marginBottom: '60px' }}>
+                <h2 style={{ fontSize: isMobile ? '2.5rem' : '3.5rem', fontWeight: 900, color: TEXT_ON_WHITE_MAIN, lineHeight: 1.1 }}>
                     Cómo construimos <br /><span style={{ color: ACCENT_CYAN }}>arquitectura moderna</span>
                 </h2>
+            </motion.div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* CONTENEDOR FLEX: HORIZONTAL EN DESKTOP, VERTICAL EN MÓVIL */}
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '40px', alignItems: 'stretch' }}>
+                
+                {/* LISTA DE PASOS */}
+                <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px', justifyContent: 'center' }}>
                     {[
                         { step: "01", text: "Diagnóstico técnico y financiero.", icon: <Search size={28} color={ACCENT_CYAN} /> },
                         { step: "02", text: "Diseño estructurado.", icon: <PenTool size={28} color={ACCENT_CYAN} /> },
                         { step: "03", text: "Implementación controlada.", icon: <Rocket size={28} color={ACCENT_CYAN} /> },
                         { step: "04", text: "Optimización continua.", icon: <ShieldCheck size={28} color={ACCENT_CYAN} /> }
                     ].map((item, i) => (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '15px', borderBottom: '1px solid #e2e8f0' }}>
+                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '20px', backgroundColor: 'rgba(0,194,255,0.05)', borderRadius: '16px', border: `1px solid ${ACCENT_CYAN}30` }}>
                             <div style={{ backgroundColor: `${ACCENT_CYAN}15`, padding: '12px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 {item.icon}
                             </div>
                             <div>
-                                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: TEXT_ON_WHITE_MAIN, margin: 0 }}>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: TEXT_ON_WHITE_MAIN, margin: 0 }}>
                                     <span style={{ color: ACCENT_CYAN, marginRight: '15px' }}>{item.step}</span>
                                     {item.text}
                                 </h3>
                             </div>
                         </div>
                     ))}
-                </div>
-            </motion.div>
+                </motion.div>
 
-            <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} style={{ flex: 1, borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
-                <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1000&q=80" alt="Tech Architecture" style={{ width: '100%', height: 'auto', display: 'block' }} />
-            </motion.div>
+                {/* IMAGEN REPRESENTATIVA */}
+                <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} style={{ flex: 1, borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+                    <img src="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=1000&q=80" alt="Tech Architecture" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                </motion.div>
+                
+            </div>
         </div>
       </section>
 
