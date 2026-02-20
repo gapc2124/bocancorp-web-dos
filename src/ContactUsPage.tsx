@@ -11,6 +11,7 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // Nuevo estado para el feedback del botón
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,12 +21,45 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
     setFormData({ ...formData, phone: value || '' });
   };
 
-  const handleSubmit = () => {
+  // --- FUNCIÓN DE ENVÍO CONECTADA A AWS ---
+  const handleSubmit = async () => {
     setIsSubmitted(true);
-    console.log("Datos enviados:", formData);
+    
+    // Validación básica
+    const isValid = formData.name && formData.email && formData.message && formData.phone;
+    if (!isValid) return;
+
+    setIsLoading(true);
+
+    // Tu URL de API Gateway
+    const API_URL = "https://22gsjev800.execute-api.us-east-1.amazonaws.com/sendContactEmail_Bocancorp";
+
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        alert("¡Solicitud enviada con éxito! El equipo de Bocancorp se pondrá en contacto pronto. 🚀");
+        // Reiniciamos el formulario
+        setFormData({ name: '', email: '', phone: '', country: '', company: '', position: '', message: '' });
+        setIsSubmitted(false);
+      } else {
+        const errorData = await response.json();
+        console.error("Error de AWS:", errorData);
+        alert("Hubo un problema al enviar el correo. Por favor, intenta de nuevo.");
+      }
+    } catch (error) {
+      console.error("Error de conexión:", error);
+      alert("No se pudo conectar con el servidor de AWS. Verifica tu conexión.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // --- ESCALADO DINÁMICO (Crece en monitores grandes) ---
+  // --- ESCALADO DINÁMICO ---
   const dynamicPadding = isMobile ? '14px' : 'clamp(16px, 1.5vw, 24px)';
   const dynamicFontSize = isMobile ? '1rem' : 'clamp(1rem, 1.2vw, 1.2rem)';
 
@@ -33,14 +67,14 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
     const value = formData[fieldName] || '';
     let borderColor = 'rgba(255, 255, 255, 0.4)'; 
     let shadow = '0 0 5px rgba(255, 255, 255, 0.1)';
-    let isValid = value.trim() !== '';
-    if (fieldName === 'email' && value) isValid = /\S+@\S+\.\S+/.test(value);
-    if (fieldName === 'phone' && value) isValid = value.length > 8; 
+    let isValidField = value.trim() !== '';
+    if (fieldName === 'email' && value) isValidField = /\S+@\S+\.\S+/.test(value);
+    if (fieldName === 'phone' && value) isValidField = value.length > 8; 
 
-    if (isSubmitted && !isValid) {
+    if (isSubmitted && !isValidField) {
         borderColor = '#ff3333'; 
         shadow = '0 0 15px rgba(255, 51, 51, 0.6), inset 0 0 8px rgba(255, 51, 51, 0.2)';
-    } else if (isValid) {
+    } else if (isValidField) {
         borderColor = '#00C2FF'; 
         shadow = '0 0 15px rgba(0, 194, 255, 0.5), inset 0 0 8px rgba(0, 194, 255, 0.2)';
     }
@@ -86,7 +120,6 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
           gap: isMobile ? '30px' : 'clamp(40px, 4vw, 80px)', alignItems: 'stretch'
       }}>
           
-          {/* --- COLUMNA INFORMACIÓN --- */}
           <motion.div 
               initial={{ opacity: 0, x: isMobile ? 0 : -30 }} 
               animate={{ opacity: 1, x: 0 }} 
@@ -104,7 +137,6 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
                   Equipo técnico especializado listo para diseñar y escalar su infraestructura empresarial.
               </p>
 
-              {/* CORREO */}
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: isMobile ? '12px' : 'clamp(15px, 2vw, 25px)', marginBottom: isMobile ? '20px' : '40px' }}>
                   <div style={{ backgroundColor: 'rgba(0, 194, 255, 0.1)', padding: isMobile ? '10px' : 'clamp(12px, 1.5vw, 20px)', borderRadius: '12px', border: '1px solid rgba(0, 194, 255, 0.4)', flexShrink: 0, display: 'flex' }}>
                       <svg width={isMobile ? 20 : 32} height={isMobile ? 20 : 32} viewBox="0 0 24 24" fill="none" stroke="#00C2FF" strokeWidth="2.5">
@@ -123,7 +155,6 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
                   </div>
               </div>
 
-              {/* SEDE */}
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: isMobile ? '12px' : 'clamp(15px, 2vw, 25px)' }}>
                   <div style={{ backgroundColor: 'rgba(250, 169, 24, 0.1)', padding: isMobile ? '10px' : 'clamp(12px, 1.5vw, 20px)', borderRadius: '12px', border: '1px solid rgba(250, 169, 24, 0.4)', flexShrink: 0, display: 'flex' }}>
                       <svg width={isMobile ? 20 : 32} height={isMobile ? 20 : 32} viewBox="0 0 24 24" fill="none" stroke="#FAA918" strokeWidth="2.5">
@@ -138,7 +169,6 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
               </div>
           </motion.div>
 
-          {/* --- COLUMNA FORMULARIO --- */}
           <motion.div 
               initial={{ opacity: 0, x: isMobile ? 0 : 30 }} 
               animate={{ opacity: 1, x: 0 }} 
@@ -164,9 +194,8 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
                   <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '20px' : 'clamp(20px, 2vw, 30px)' }}>
                       <div style={{ flex: 1 }}>
                           <label style={labelStyle}>Número de Celular</label>
-                          {/* Contenedor del celular ahora coincide con el estilo de getDynamicStyle */}
                           <div style={getDynamicStyle('phone')} className="cyber-phone-container">
-                            <PhoneInput international defaultCountry="US" labels={es} value={formData.phone} onChange={handlePhoneChange} className="cyber-phone-inner" />
+                            <PhoneInput international defaultCountry="PE" labels={es} value={formData.phone} onChange={handlePhoneChange} className="cyber-phone-inner" />
                           </div>
                       </div>
                       <div style={{ flex: 1 }}>
@@ -192,18 +221,22 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
                   </div>
 
                   <button 
-                      type="button" onClick={handleSubmit} 
+                      type="button" 
+                      onClick={handleSubmit} 
+                      disabled={isLoading}
                       style={{ 
                           marginTop: '5px',
-                          background: 'linear-gradient(135deg, #00C2FF 0%, #0078ff 100%)', color: '#ffffff', 
+                          background: isLoading ? '#555' : 'linear-gradient(135deg, #00C2FF 0%, #0078ff 100%)', 
+                          color: '#ffffff', 
                           fontSize: isMobile ? '1.1rem' : 'clamp(1.2rem, 1.5vw, 1.5rem)', fontWeight: 900, 
                           padding: isMobile ? '16px' : 'clamp(18px, 1.5vw, 24px)', border: 'none', 
-                          borderRadius: '16px', cursor: 'pointer', transition: 'all 0.3s ease', textTransform: 'uppercase', letterSpacing: '1px'
+                          borderRadius: '16px', cursor: isLoading ? 'not-allowed' : 'pointer', 
+                          transition: 'all 0.3s ease', textTransform: 'uppercase', letterSpacing: '1px'
                       }}
-                      onMouseOver={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, #FAA918 0%, #e09615 100%)'; e.currentTarget.style.transform = 'scale(1.02)'; }}
-                      onMouseOut={(e) => { e.currentTarget.style.background = 'linear-gradient(135deg, #00C2FF 0%, #0078ff 100%)'; e.currentTarget.style.transform = 'scale(1)'; }}
+                      onMouseOver={(e) => { if(!isLoading) { e.currentTarget.style.background = 'linear-gradient(135deg, #FAA918 0%, #e09615 100%)'; e.currentTarget.style.transform = 'scale(1.02)'; } }}
+                      onMouseOut={(e) => { if(!isLoading) { e.currentTarget.style.background = 'linear-gradient(135deg, #00C2FF 0%, #0078ff 100%)'; e.currentTarget.style.transform = 'scale(1)'; } }}
                   >
-                      Solicitar Diagnóstico
+                      {isLoading ? 'Enviando...' : 'Solicitar Diagnóstico'}
                   </button>
               </form>
           </motion.div>
@@ -212,7 +245,6 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
       <style>{`
         input:-webkit-autofill { -webkit-text-fill-color: #ffffff !important; -webkit-box-shadow: 0 0 0px 1000px #001848 inset !important; }
         
-        /* FIX DEFINITIVO PARA EL CAMPO CELULAR */
         .cyber-phone-container { padding: 0 !important; border: none !important; box-shadow: none !important; }
         .cyber-phone-inner { width: 100%; display: flex; gap: clamp(10px, 1vw, 20px); align-items: stretch; }
         
@@ -224,7 +256,6 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
             display: flex; justify-content: center; align-items: center; 
         }
         
-        /* Pasamos las variables exactas dinámicas al input del teléfono */
         .cyber-phone-inner input { 
             background-color: rgba(0, 24, 72, 0.85) !important; color: #ffffff !important; 
             padding: ${dynamicPadding} !important; font-size: ${dynamicFontSize} !important;
@@ -232,7 +263,6 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
             font-family: inherit;
         }
 
-        /* Escalado de la bandera */
         .PhoneInputCountryIcon { width: clamp(24px, 2vw, 32px) !important; height: auto !important; }
         .PhoneInputCountrySelectArrow { color: #ffffff; opacity: 0.8; margin-left: 8px; width: clamp(6px, 0.5vw, 8px) !important; height: clamp(6px, 0.5vw, 8px) !important; }
         
