@@ -11,7 +11,7 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
   });
 
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false); // Nuevo estado para el feedback del botón
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -21,17 +21,12 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
     setFormData({ ...formData, phone: value || '' });
   };
 
-  // --- FUNCIÓN DE ENVÍO CONECTADA A AWS ---
   const handleSubmit = async () => {
     setIsSubmitted(true);
-    
-    // Validación básica
     const isValid = formData.name && formData.email && formData.message && formData.phone;
     if (!isValid) return;
 
     setIsLoading(true);
-
-    // Tu URL de API Gateway
     const API_URL = "https://22gsjev800.execute-api.us-east-1.amazonaws.com/sendContactEmail_Bocancorp";
 
     try {
@@ -43,7 +38,6 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
 
       if (response.ok) {
         alert("¡Solicitud enviada con éxito! El equipo de Bocancorp se pondrá en contacto pronto. 🚀");
-        // Reiniciamos el formulario
         setFormData({ name: '', email: '', phone: '', country: '', company: '', position: '', message: '' });
         setIsSubmitted(false);
       } else {
@@ -53,13 +47,12 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
       }
     } catch (error) {
       console.error("Error de conexión:", error);
-      alert("No se pudo conectar con el servidor de AWS. Verifica tu conexión.");
+      alert("No se pudo conectar con el servidor de AWS.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // --- ESCALADO DINÁMICO ---
   const dynamicPadding = isMobile ? '14px' : 'clamp(16px, 1.5vw, 24px)';
   const dynamicFontSize = isMobile ? '1rem' : 'clamp(1rem, 1.2vw, 1.2rem)';
 
@@ -111,7 +104,14 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
       
       <Helmet>
         <title>Contacto | Inicia tu Proyecto Cloud con Bocancorp</title>
-        <meta name="description" content="Solicita un diagnóstico inicial para modernizar tus aplicaciones e implementar seguridad avanzada." />
+        <meta name="description" content="Solicita un diagnóstico tecnológico con Bocancorp. Expertos en modernización de infraestructura y seguridad avanzada en la nube." />
+        <meta name="keywords" content="Bocancorp, Cloud Computing, Ingeniería de Software, Seguridad Cloud, Diagnóstico Tecnológico" />
+        {/* Open Graph para Redes Sociales */}
+        <meta property="og:title" content="Contacto | Bocancorp" />
+        <meta property="og:description" content="Hablemos de negocios. Equipo técnico especializado listo para escalar su infraestructura." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://www.bocancorporation.com/contact" />
+        <meta property="og:image" content="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80" />
       </Helmet>
 
       <div style={{ 
@@ -195,7 +195,8 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
                       <div style={{ flex: 1 }}>
                           <label style={labelStyle}>Número de Celular</label>
                           <div style={getDynamicStyle('phone')} className="cyber-phone-container">
-                            <PhoneInput international defaultCountry="PE" labels={es} value={formData.phone} onChange={handlePhoneChange} className="cyber-phone-inner" />
+                            {/* CAMBIADO: defaultCountry a US */}
+                            <PhoneInput international defaultCountry="US" labels={es} value={formData.phone} onChange={handlePhoneChange} className="cyber-phone-inner" />
                           </div>
                       </div>
                       <div style={{ flex: 1 }}>
@@ -251,7 +252,7 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
         .PhoneInputCountry { 
             padding: 0 clamp(10px, 1vw, 20px); 
             background-color: rgba(0, 24, 72, 0.85); 
-            border-radius: 12px; border: inherit; box-shadow: inherit; 
+            borderRadius: 12px; border: inherit; box-shadow: inherit; 
             min-width: clamp(70px, 6vw, 110px); 
             display: flex; justify-content: center; align-items: center; 
         }
