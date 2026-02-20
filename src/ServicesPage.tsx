@@ -140,7 +140,7 @@ const TRANSLATIONS: any = {
       },
       { 
         id: 5, subtitle: "MULTI-CLOUD STRATEGY", title: "Serverless Architecture", color: "#00a2ff",
-        image: "assets/aws-bg.jpeg",
+        image: "assets/serverless-bg.png",
         content: [
           { type: 'paragraph', text: "Leverage cloud power without managing physical servers. We implement architectures that automatically scale with demand, drastically reducing your operational costs." },
           { type: 'highlight', title: "SERVERLESS AGILITY", text: "Design of elastic solutions that maximize deployment speed and eliminate maintenance complexity." }

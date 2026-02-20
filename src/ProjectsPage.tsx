@@ -297,9 +297,25 @@ export const ProjectsPage = ({ isMobile }: { isMobile: boolean }) => {
   const scrollToProjects = () => projectsRef.current?.scrollIntoView({ behavior: 'smooth' });
 
   const handleSelectProject = (index: number) => {
-    setActiveProjectIndex(index);
-    setTimeout(() => carouselRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
-  };
+  setActiveProjectIndex(index);
+  
+  // Esperamos un momento a que React renderice la tarjeta grande
+  setTimeout(() => {
+    if (carouselRef.current) {
+      // Obtenemos la posición de la tarjeta respecto al documento
+      const elementPosition = carouselRef.current.getBoundingClientRect().top + window.pageYOffset;
+      
+      // Ajustamos el offset: le restamos 100px para que no choque con el Nav
+      // Puedes cambiar el 100 por el valor que mejor te funcione
+      const offsetPosition = elementPosition - (isMobile ? 80 : 120);
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+  }, 150);
+};
 
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#00020a', color: '#ffffff', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
@@ -344,90 +360,158 @@ export const ProjectsPage = ({ isMobile }: { isMobile: boolean }) => {
         </div>
       </section>
 
-      {/* CARRUSEL DETALLADO (TARJETA MASIVA EN ESCRITORIO) */}
-      <div ref={carouselRef} style={{ width: '100%', overflow: 'hidden', paddingBottom: activeProjectIndex !== null ? '100px' : '0' }}>
-          <AnimatePresence mode="wait">
-              {activeProjectIndex !== null && (
-                  <motion.div key={t.projects[activeProjectIndex].id} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} transition={{ duration: 0.4 }} 
-                      style={{ maxWidth: isMobile ? '100%' : '1450px', margin: '0 auto', padding: '0 15px' }} 
-                  >
-                      <div style={{ 
-                          backgroundColor: '#000c2d', border: `2px solid ${t.projects[activeProjectIndex].color}50`, borderRadius: isMobile ? '24px' : '40px', 
-                          padding: isMobile ? '30px 20px' : '80px 100px', boxShadow: `0 30px 70px rgba(0,0,0,0.8), inset 0 0 50px ${t.projects[activeProjectIndex].color}15`, 
-                          display: 'flex', flexDirection: 'column', gap: isMobile ? '40px' : '60px' 
-                      }}>
-                          
-                          {/* HEADER */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '20px' : '40px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: isMobile ? '30px' : '40px' }}>
-                              <div style={{ padding: isMobile ? '20px' : '35px', backgroundColor: 'rgba(0,2,10,0.6)', borderRadius: '24px', border: `2px solid ${t.projects[activeProjectIndex].color}40`, flexShrink: 0 }}>
-                                  <div style={{ transform: isMobile ? 'scale(1)' : 'scale(1.2)' }}>
-                                      {t.projects[activeProjectIndex].icon}
-                                  </div>
-                              </div>
-                              <div>
-                                  <h3 style={{ color: t.projects[activeProjectIndex].color, fontSize: isMobile ? '2rem' : '4.5rem', fontWeight: 950, textTransform: 'uppercase', marginBottom: '10px', lineHeight: 1 }}>
-                                      {t.projects[activeProjectIndex].name}
-                                  </h3>
-                                  <p style={{ color: '#cbd5e1', fontSize: isMobile ? '0.9rem' : '1.3rem', fontWeight: 600, margin: 0, letterSpacing: '1px' }}>
-                                      <span style={{color: 'white'}}>{t.sectorLabel}:</span> {t.projects[activeProjectIndex].sector}
-                                  </p>
-                              </div>
-                          </div>
+      {/* CARRUSEL DETALLADO - OPTIMIZADO PARA LAPTOPS Y DESKTOP */}
+<div ref={carouselRef} style={{ width: '100%', overflow: 'hidden', paddingBottom: activeProjectIndex !== null ? '100px' : '0' }}>
+    <AnimatePresence mode="wait">
+        {activeProjectIndex !== null && (
+            <motion.div 
+                key={t.projects[activeProjectIndex].id} 
+                initial={{ opacity: 0, scale: 0.98, y: 20 }} 
+                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                exit={{ opacity: 0, scale: 0.98, y: -20 }} 
+                transition={{ duration: 0.4 }} 
+                style={{ 
+                    maxWidth: isMobile ? '100%' : '1100px', // Reducido de 1450px a 1100px para laptops
+                    margin: '0 auto', 
+                    padding: isMobile ? '0 15px' : '0 30px' 
+                }} 
+            >
+                <div style={{ 
+                    backgroundColor: '#000c2d', 
+                    border: `2px solid ${t.projects[activeProjectIndex].color}50`, 
+                    borderRadius: isMobile ? '24px' : '32px', 
+                    // Padding fluido: menos espacio en laptops, más en monitores grandes
+                    padding: isMobile ? '30px 20px' : 'clamp(40px, 5vw, 60px) clamp(30px, 6vw, 70px)', 
+                    boxShadow: `0 30px 70px rgba(0,0,0,0.8), inset 0 0 50px ${t.projects[activeProjectIndex].color}15`, 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: isMobile ? '30px' : '40px' 
+                }}>
+                    
+                    {/* HEADER - Ajuste de tamaño de fuente */}
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: isMobile ? '20px' : '30px', 
+                        borderBottom: '1px solid rgba(255,255,255,0.1)', 
+                        paddingBottom: isMobile ? '25px' : '30px' 
+                    }}>
+                        <div style={{ 
+                            padding: isMobile ? '15px' : '20px', 
+                            backgroundColor: 'rgba(0,2,10,0.6)', 
+                            borderRadius: '20px', 
+                            border: `2px solid ${t.projects[activeProjectIndex].color}40`, 
+                            flexShrink: 0 
+                        }}>
+                            <div style={{ transform: isMobile ? 'scale(0.9)' : 'scale(1)' }}>
+                                {t.projects[activeProjectIndex].icon}
+                            </div>
+                        </div>
+                        <div>
+                            <h3 style={{ 
+                                color: t.projects[activeProjectIndex].color, 
+                                fontSize: isMobile ? '1.8rem' : 'clamp(2.2rem, 3.5vw, 3.5rem)', // Escalado dinámico
+                                fontWeight: 950, 
+                                textTransform: 'uppercase', 
+                                marginBottom: '5px', 
+                                lineHeight: 1 
+                            }}>
+                                {t.projects[activeProjectIndex].name}
+                            </h3>
+                            <p style={{ 
+                                color: '#cbd5e1', 
+                                fontSize: isMobile ? '0.85rem' : 'clamp(0.9rem, 1vw, 1.1rem)', 
+                                fontWeight: 600, 
+                                margin: 0, 
+                                letterSpacing: '1px' 
+                            }}>
+                                <span style={{color: 'white'}}>{t.sectorLabel}:</span> {t.projects[activeProjectIndex].sector}
+                            </p>
+                        </div>
+                    </div>
 
-                          {/* BODY: 3 COLUMNAS */}
-                          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '30px' : '50px' }}>
-                              
-                              <div style={{ padding: isMobile ? '25px' : '40px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '24px', borderTop: '4px solid #ff3333' }}>
-                                  <h4 style={{ color: 'white', fontSize: isMobile ? '1.2rem' : '1.5rem', fontWeight: 800, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                    <Target size={isMobile ? 24 : 32} color="#ff3333"/> {t.detailDesafio}
-                                  </h4>
-                                  <p style={{ color: '#94a3b8', fontSize: isMobile ? '1.05rem' : '1.2rem', lineHeight: 1.7, margin: 0 }}>
-                                      {t.projects[activeProjectIndex].desafio}
-                                  </p>
-                              </div>
+                    {/* BODY: 3 COLUMNAS - Ajustado para que quepa en pantalla */}
+                    <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', 
+                        gap: isMobile ? '20px' : '25px' // Menos gap en laptop
+                    }}>
+                        
+                        <div style={{ 
+                            padding: isMobile ? '20px' : '25px', 
+                            backgroundColor: 'rgba(255,255,255,0.02)', 
+                            borderRadius: '18px', 
+                            borderTop: '4px solid #ff3333' 
+                        }}>
+                            <h4 style={{ color: 'white', fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: 800, marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <Target size={isMobile ? 22 : 26} color="#ff3333"/> {t.detailDesafio}
+                            </h4>
+                            <p style={{ color: '#94a3b8', fontSize: isMobile ? '0.95rem' : '1.05rem', lineHeight: 1.6, margin: 0 }}>
+                                {t.projects[activeProjectIndex].desafio}
+                            </p>
+                        </div>
 
-                              <div style={{ padding: isMobile ? '25px' : '40px', backgroundColor: `rgba(255,255,255,0.02)`, borderRadius: '24px', borderTop: `4px solid ${t.projects[activeProjectIndex].color}` }}>
-                                  <h4 style={{ color: 'white', fontSize: isMobile ? '1.2rem' : '1.5rem', fontWeight: 800, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                    <Cpu size={isMobile ? 24 : 32} color={t.projects[activeProjectIndex].color}/> {t.detailSolucion}
-                                  </h4>
-                                  <ul style={{ paddingLeft: '0', margin: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                                      {t.projects[activeProjectIndex].arquitectura.map((item: string, i: number) => (
-                                          <li key={i} style={{ color: '#cbd5e1', fontSize: isMobile ? '1.05rem' : '1.2rem', lineHeight: 1.5, display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                              <CheckCircle2 size={isMobile ? 20 : 24} color={t.projects[activeProjectIndex].color} style={{ flexShrink: 0, marginTop: '2px' }} />
-                                              <span>{item}</span>
-                                          </li>
-                                      ))}
-                                  </ul>
-                              </div>
+                        <div style={{ 
+                            padding: isMobile ? '20px' : '25px', 
+                            backgroundColor: `rgba(255,255,255,0.02)`, 
+                            borderRadius: '18px', 
+                            borderTop: `4px solid ${t.projects[activeProjectIndex].color}` 
+                        }}>
+                            <h4 style={{ color: 'white', fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: 800, marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <Cpu size={isMobile ? 22 : 26} color={t.projects[activeProjectIndex].color}/> {t.detailSolucion}
+                            </h4>
+                            <ul style={{ paddingLeft: '0', margin: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                {t.projects[activeProjectIndex].arquitectura.map((item: string, i: number) => (
+                                    <li key={i} style={{ color: '#cbd5e1', fontSize: isMobile ? '0.95rem' : '1.05rem', lineHeight: 1.4, display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                                        <CheckCircle2 size={18} color={t.projects[activeProjectIndex].color} style={{ flexShrink: 0, marginTop: '2px' }} />
+                                        <span>{item}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
 
-                              <div style={{ padding: isMobile ? '25px' : '40px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '24px', borderTop: '4px solid #00ff88' }}>
-                                  <h4 style={{ color: 'white', fontSize: isMobile ? '1.2rem' : '1.5rem', fontWeight: 800, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                                    <Award size={isMobile ? 24 : 32} color="#00ff88"/> {t.detailImpacto}
-                                  </h4>
-                                  <p style={{ color: '#94a3b8', fontSize: isMobile ? '1.05rem' : '1.2rem', lineHeight: 1.7, margin: 0 }}>
-                                      {t.projects[activeProjectIndex].resultado}
-                                  </p>
-                              </div>
+                        <div style={{ 
+                            padding: isMobile ? '20px' : '25px', 
+                            backgroundColor: 'rgba(255,255,255,0.02)', 
+                            borderRadius: '18px', 
+                            borderTop: '4px solid #00ff88' 
+                        }}>
+                            <h4 style={{ color: 'white', fontSize: isMobile ? '1.1rem' : '1.25rem', fontWeight: 800, marginBottom: '15px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <Award size={isMobile ? 22 : 26} color="#00ff88"/> {t.detailImpacto}
+                            </h4>
+                            <p style={{ color: '#94a3b8', fontSize: isMobile ? '0.95rem' : '1.05rem', lineHeight: 1.6, margin: 0 }}>
+                                {t.projects[activeProjectIndex].resultado}
+                            </p>
+                        </div>
 
-                          </div>
+                    </div>
 
-                          {/* FOOTER */}
-                          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: 'center', gap: '20px', marginTop: '20px', paddingTop: '40px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                              <button onClick={() => handleSelectProject((activeProjectIndex - 1 + t.projects.length) % t.projects.length)} style={navBtnStyle(t.projects[activeProjectIndex].color, isMobile)}>
-                                {t.detailPrev}
-                              </button>
-                              <button onClick={() => setActiveProjectIndex(null)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', padding: '15px', cursor: 'pointer', textDecoration: 'underline', fontWeight: 800, fontSize: isMobile ? '1.1rem' : '1.2rem', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#ffffff'} onMouseOut={(e) => e.currentTarget.style.color = '#94a3b8'}>
-                                {t.detailClose}
-                              </button>
-                              <button onClick={() => handleSelectProject((activeProjectIndex + 1) % t.projects.length)} style={navBtnStyle(t.projects[activeProjectIndex].color, isMobile)}>
-                                {t.detailNext}
-                              </button>
-                          </div>
-                      </div>
-                  </motion.div>
-              )}
-          </AnimatePresence>
-      </div>
+                    {/* FOOTER - Botones compactos */}
+                    <div style={{ 
+                        display: 'flex', 
+                        flexDirection: isMobile ? 'column' : 'row', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center', 
+                        gap: '20px', 
+                        marginTop: '10px', 
+                        paddingTop: '30px', 
+                        borderTop: '1px solid rgba(255,255,255,0.1)' 
+                    }}>
+                        <button onClick={() => handleSelectProject((activeProjectIndex - 1 + t.projects.length) % t.projects.length)} style={navBtnStyle(t.projects[activeProjectIndex].color, isMobile)}>
+                          {t.detailPrev}
+                        </button>
+                        <button onClick={() => setActiveProjectIndex(null)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', padding: '10px', cursor: 'pointer', textDecoration: 'underline', fontWeight: 800, fontSize: isMobile ? '1rem' : '1.1rem', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#ffffff'} onMouseOut={(e) => e.currentTarget.style.color = '#94a3b8'}>
+                          {t.detailClose}
+                        </button>
+                        <button onClick={() => handleSelectProject((activeProjectIndex + 1) % t.projects.length)} style={navBtnStyle(t.projects[activeProjectIndex].color, isMobile)}>
+                          {t.detailNext}
+                        </button>
+                    </div>
+                </div>
+            </motion.div>
+        )}
+    </AnimatePresence>
+</div>
 
       {/* DEMANDAS DEL MERCADO */}
       <section style={{ padding: isMobile ? '60px 15px' : '140px 60px', backgroundColor: '#000c2d', position: 'relative' }}>
