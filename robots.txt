@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Aquí le decimos a Google exactamente dónde está nuestro mapa
+Sitemap: https://bocancorporation.com/sitemap.xml
