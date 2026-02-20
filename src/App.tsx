@@ -23,7 +23,7 @@ function App() {
   }, []);
 
   return (
-    <BrowserRouter basename="/bocancorp-web-dos/">
+    <BrowserRouter basename="/">
       <div style={{ 
         position: 'relative', 
         width: '100%', 
