@@ -1,62 +1,136 @@
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-// --- DATOS SINTETIZADOS ---
-const SOLUTIONS = [
-  {
-    id: 'cloud',
-    title: "Consultoría Multi-Cloud & FinOps",
-    badge: "AWS Select Partner",
-    desc: "Diseñamos, migramos y administramos infraestructuras críticas con un enfoque financiero.",
-    features: [
-      "Gestión de Créditos Cloud para Startups",
-      "FinOps: Auditoría y Maximizacion de ROI",
-      "Backup & Disaster Recovery Automatizado"
-    ],
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80",
-    colSpan: 1
+// ==========================================
+// 1. DICCIONARIO DE TRADUCCIONES
+// ==========================================
+const TRANSLATIONS: any = {
+  ES: {
+    titleMain: "Dominio ",
+    titleHighlight: "Técnico",
+    subtitle: "Experiencia certificada y soluciones de alto nivel",
+    solutions: [
+      {
+        id: 'cloud',
+        title: "Consultoría Multi-Cloud & FinOps",
+        badge: "AWS Select Partner",
+        desc: "Diseñamos, migramos y administramos infraestructuras críticas con un enfoque financiero.",
+        features: [
+          "Gestión de Créditos Cloud para Startups",
+          "FinOps: Auditoría y Maximizacion de ROI",
+          "Backup & Disaster Recovery Automatizado"
+        ],
+        image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        id: 'ai',
+        title: "Inteligencia Artificial & Chatbots",
+        badge: "IA Generativa",
+        desc: "Llevamos la IA a sus canales de atención. Asistentes virtuales integrados a su CRM/ERP.",
+        features: [
+          "Automatización WhatsApp/Web",
+          "NLP para Análisis de Datos",
+          "Predicción Comercial con ML"
+        ],
+        image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        id: 'dev',
+        title: "Desarrollo Software Cloud-Native",
+        badge: "Serverless & Contenedores",
+        desc: "Ingeniería diseñada para la nube desde la primera línea de código.",
+        features: [
+          "Web & E-commerce de Alto Tráfico",
+          "Apps Móviles Nativas e Híbridas",
+          "Modernización de Sistemas Legados"
+        ],
+        image: "https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        id: 'elite',
+        title: "Equipo Élite & Certificaciones",
+        badge: "Calidad Validada",
+        desc: "Expertos certificados en AWS, GCP y tecnologías de vanguardia para el sector corporativo.",
+        features: [
+          "AWS Select Partner & Acreditaciones FTR/SDP",
+          "Solutions Architect, DevOps & Ciberseguridad",
+          "Stack: Terraform, Kubernetes, ML & AI"
+        ],
+        image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80"
+      }
+    ]
   },
-  {
-    id: 'ai',
-    title: "Inteligencia Artificial & Chatbots",
-    badge: "IA Generativa",
-    desc: "Llevamos la IA a sus canales de atención. Asistentes virtuales integrados a su CRM/ERP.",
-    features: [
-      "Automatización WhatsApp/Web",
-      "NLP para Análisis de Datos",
-      "Predicción Comercial con ML"
-    ],
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80",
-    colSpan: 1
-  },
-  {
-    id: 'dev',
-    title: "Desarrollo Software Cloud-Native",
-    badge: "Serverless & Contenedores",
-    desc: "Ingeniería diseñada para la nube desde la primera línea de código.",
-    features: [
-      "Web & E-commerce de Alto Tráfico",
-      "Apps Móviles Nativas e Híbridas",
-      "Modernización de Sistemas Legados"
-    ],
-    image: "https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&w=800&q=80",
-    colSpan: 1
-  },
-  {
-    id: 'elite',
-    title: "Equipo Élite & Certificaciones",
-    badge: "Calidad Validada",
-    desc: "Expertos certificados en AWS, GCP y tecnologías de vanguardia.",
-    features: [
-      "AWS Select Partner & Acreditaciones FTR/SDP",
-      "Solutions Architect, DevOps & Ciberseguridad",
-      "Stack: Terraform, Kubernetes, ML & AI"
-    ],
-    image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80",
-    colSpan: 3 // Este ocupará todo el ancho en desktop para destacar
+  EN: {
+    titleMain: "Technical ",
+    titleHighlight: "Mastery",
+    subtitle: "Certified expertise and high-level solutions",
+    solutions: [
+      {
+        id: 'cloud',
+        title: "Multi-Cloud & FinOps Consulting",
+        badge: "AWS Select Partner",
+        desc: "We design, migrate, and manage critical infrastructures with a financial focus.",
+        features: [
+          "Cloud Credit Management for Startups",
+          "FinOps: Auditing & ROI Maximization",
+          "Automated Backup & Disaster Recovery"
+        ],
+        image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        id: 'ai',
+        title: "Artificial Intelligence & Chatbots",
+        badge: "Generative AI",
+        desc: "We bring AI to your service channels. Virtual assistants integrated with your CRM/ERP.",
+        features: [
+          "WhatsApp/Web Automation",
+          "NLP for Data Analysis",
+          "Commercial Prediction with ML"
+        ],
+        image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        id: 'dev',
+        title: "Cloud-Native Software Development",
+        badge: "Serverless & Containers",
+        desc: "Engineering designed for the cloud from the very first line of code.",
+        features: [
+          "High-Traffic Web & E-commerce",
+          "Native & Hybrid Mobile Apps",
+          "Legacy Systems Modernization"
+        ],
+        image: "https://images.unsplash.com/photo-1555099962-4199c345e5dd?auto=format&fit=crop&w=800&q=80"
+      },
+      {
+        id: 'elite',
+        title: "Elite Team & Certifications",
+        badge: "Validated Quality",
+        desc: "Certified experts in AWS, GCP, and cutting-edge technologies for the corporate sector.",
+        features: [
+          "AWS Select Partner & FTR/SDP Accreditations",
+          "Solutions Architect, DevOps & Cybersecurity",
+          "Stack: Terraform, Kubernetes, ML & AI"
+        ],
+        image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?auto=format&fit=crop&w=800&q=80"
+      }
+    ]
   }
-];
+};
 
 export const SpecializedSolutions = ({ isMobile }: { isMobile: boolean }) => {
+  // --- LÓGICA DE IDIOMA ---
+  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
+
+  useEffect(() => {
+    const handleLangChange = () => {
+      setLang(localStorage.getItem('appLanguage') || 'ES');
+    };
+    window.addEventListener('languageChange', handleLangChange);
+    return () => window.removeEventListener('languageChange', handleLangChange);
+  }, []);
+
+  const t = TRANSLATIONS[lang];
+
   return (
     <div style={{ 
       width: '100%', 
@@ -71,18 +145,18 @@ export const SpecializedSolutions = ({ isMobile }: { isMobile: boolean }) => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          style={{ fontSize: isMobile ? '2rem' : '3.5rem', fontWeight: 800, color: 'white', marginBottom: '10px' }}
+          style={{ fontSize: isMobile ? '2.5rem' : '4rem', fontWeight: 950, color: 'white', marginBottom: '10px', textTransform: 'uppercase' }}
         >
-          Dominio <span style={{ color: '#00C2FF' }}>Técnico</span>
+          {t.titleMain}<span style={{ color: '#00C2FF' }}>{t.titleHighlight}</span>
         </motion.h2>
         <motion.p 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
           viewport={{ once: true }}
-          style={{ color: '#aaa', fontSize: '1.1rem' }}
+          style={{ color: '#aaa', fontSize: '1.2rem', fontWeight: 500 }}
         >
-          Experiencia certificada y soluciones de alto nivel
+          {t.subtitle}
         </motion.p>
       </div>
 
@@ -92,7 +166,7 @@ export const SpecializedSolutions = ({ isMobile }: { isMobile: boolean }) => {
         gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
         gap: '20px'
       }}>
-        {SOLUTIONS.map((item, i) => (
+        {t.solutions.map((item: any, i: number) => (
           <motion.div
             key={item.id}
             initial={{ opacity: 0, y: 30 }}
@@ -101,43 +175,42 @@ export const SpecializedSolutions = ({ isMobile }: { isMobile: boolean }) => {
             transition={{ delay: i * 0.1, duration: 0.5 }}
             style={{
               gridColumn: isMobile ? 'auto' : (item.id === 'elite' ? 'span 3' : 'span 1'),
-              backgroundColor: 'rgba(10, 16, 36, 0.6)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
+              backgroundColor: 'rgba(10, 16, 36, 0.7)',
+              backdropFilter: 'blur(16px)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
               borderRadius: '24px',
               overflow: 'hidden',
               position: 'relative',
               display: 'flex',
               flexDirection: isMobile || item.id !== 'elite' ? 'column' : 'row',
-              height: isMobile ? 'auto' : (item.id === 'elite' ? '350px' : '500px'),
-              // CORRECCIÓN: ELIMINADA LA LÍNEA "group: 'card'" QUE DABA ERROR
+              height: isMobile ? 'auto' : (item.id === 'elite' ? '380px' : '550px'),
             }}
-            whileHover={{ y: -5, borderColor: 'rgba(0, 194, 255, 0.3)', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}
+            whileHover={{ y: -5, borderColor: '#00C2FF', boxShadow: '0 15px 40px rgba(0, 194, 255, 0.3)' }}
           >
             
             {/* IMAGEN DE FONDO / LATERAL */}
             <div style={{
-              width: (isMobile || item.id !== 'elite') ? '100%' : '40%',
-              height: (isMobile || item.id !== 'elite') ? '200px' : '100%',
+              width: (isMobile || item.id !== 'elite') ? '100%' : '45%',
+              height: (isMobile || item.id !== 'elite') ? '220px' : '100%',
               position: 'relative',
               overflow: 'hidden'
             }}>
                <img 
                  src={item.image} 
                  alt={item.title} 
-                 style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.7)' }}
+                 style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.6)' }}
                />
                <div style={{
                  position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
                  background: (isMobile || item.id !== 'elite')
-                    ? 'linear-gradient(to top, rgba(10,16,36,1), transparent)'
-                    : 'linear-gradient(to right, rgba(10,16,36,1), transparent)'
+                    ? 'linear-gradient(to top, rgba(10,16,36,1) 5%, transparent 100%)'
+                    : 'linear-gradient(to right, rgba(10,16,36,1) 5%, transparent 100%)'
                }} />
             </div>
 
             {/* CONTENIDO */}
             <div style={{
-              padding: '30px',
+              padding: isMobile ? '25px' : '40px',
               flex: 1,
               display: 'flex',
               flexDirection: 'column',
@@ -146,38 +219,41 @@ export const SpecializedSolutions = ({ isMobile }: { isMobile: boolean }) => {
               {/* Badge */}
               <div style={{ 
                 alignSelf: 'flex-start', 
-                padding: '5px 12px', 
-                borderRadius: '20px', 
-                background: 'rgba(0, 194, 255, 0.15)', 
+                padding: '6px 14px', 
+                borderRadius: '50px', 
+                background: 'rgba(0, 194, 255, 0.1)', 
                 color: '#00C2FF', 
-                fontSize: '0.75rem', 
-                fontWeight: 700,
-                marginBottom: '15px',
-                border: '1px solid rgba(0, 194, 255, 0.3)'
+                fontSize: '0.8rem', 
+                fontWeight: 800,
+                marginBottom: '20px',
+                border: '1px solid rgba(0, 194, 255, 0.3)',
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
               }}>
                 {item.badge}
               </div>
 
-              <h3 style={{ color: 'white', fontSize: isMobile ? '1.5rem' : '1.8rem', fontWeight: 700, marginBottom: '10px', lineHeight: 1.2 }}>
+              <h3 style={{ color: 'white', fontSize: isMobile ? '1.6rem' : '1.9rem', fontWeight: 900, marginBottom: '15px', lineHeight: 1.2 }}>
                 {item.title}
               </h3>
 
-              <p style={{ color: '#b0b8d1', fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '20px' }}>
+              <p style={{ color: '#b0b8d1', fontSize: '1.05rem', lineHeight: 1.6, marginBottom: '25px', fontWeight: 500 }}>
                 {item.desc}
               </p>
 
               {/* Lista de Features */}
               <ul style={{ padding: 0, margin: 0, listStyle: 'none' }}>
-                {item.features.map((feature, idx) => (
+                {item.features.map((feature: string, idx: number) => (
                   <li key={idx} style={{ 
-                    color: '#ddd', 
-                    fontSize: '0.9rem', 
-                    marginBottom: '8px', 
+                    color: '#ffffff', 
+                    fontSize: '0.95rem', 
+                    marginBottom: '10px', 
                     display: 'flex', 
                     alignItems: 'center', 
-                    gap: '10px' 
+                    gap: '12px',
+                    fontWeight: 600
                   }}>
-                    <span style={{ color: '#00C2FF', fontSize: '1.2rem' }}>•</span>
+                    <span style={{ color: '#00C2FF', fontSize: '1.5rem', lineHeight: 0 }}>•</span>
                     {feature}
                   </li>
                 ))}

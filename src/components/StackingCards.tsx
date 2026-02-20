@@ -1,8 +1,8 @@
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
 import { useNavigate } from 'react-router-dom'; 
 
-// --- INTERFACES ---
+// --- INTERFACES RESTAURADAS EN SU LUGAR ORIGINAL ---
 type ContentBlock = 
   | { type: 'paragraph'; text: string }
   | { type: 'highlight'; title: string; text: string };
@@ -18,6 +18,14 @@ export interface ServiceItem {
 
 interface StackingCardsProps {
   data: ServiceItem[];
+  isMobile: boolean;
+}
+
+interface CardProps {
+  item: ServiceItem;
+  index: number;
+  range: [number, number];
+  progress: MotionValue<number>;
   isMobile: boolean;
 }
 
@@ -39,14 +47,13 @@ export const StackingCards = ({ data, isMobile }: StackingCardsProps) => {
         width: '100%' 
       }}
     >
-      {/* 🚀 LA MAGIA ESTÁ AQUÍ: ANCLAS INVISIBLES MATEMÁTICAMENTE SINCRONIZADAS */}
+      {/* 🚀 ANCLAS INVISIBLES MATEMÁTICAMENTE SINCRONIZADAS */}
       {data.map((item, index) => (
         <div 
           key={`anchor-${item.id}`}
           id={`service-${item.id}`} 
           style={{
             position: 'absolute',
-            // Esta fórmula calcula el pixel exacto donde Framer Motion termina de animar la tarjeta
             top: `calc(${index / data.length} * (100% - 100vh))`, 
             left: 0,
             width: '100%',
@@ -84,24 +91,28 @@ export const StackingCards = ({ data, isMobile }: StackingCardsProps) => {
 };
 
 // --- SUB-COMPONENTE TARJETA ---
-interface CardProps {
-  item: ServiceItem;
-  index: number;
-  range: [number, number];
-  progress: MotionValue<number>;
-  isMobile: boolean;
-}
-
 const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
   const navigate = useNavigate(); 
+  
+  // Lógica para el rango ultra-angosto (< 660px)
+  const [isUltraNarrow, setIsUltraNarrow] = useState(window.innerWidth < 660);
+
+  useEffect(() => {
+    const handleResize = () => setIsUltraNarrow(window.innerWidth < 660);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const y = useTransform(progress, [range[0] - 0.10, range[0]], ['100vh', '0vh']);
   const cardY = index === 0 ? '0vh' : y;
   const scale = useTransform(progress, [range[0], range[1]], [1, isMobile ? 0.95 : 0.95]);
 
+  // Traducción rápida del botón basada en el Nav
+  const currentLang = localStorage.getItem('appLanguage') || 'ES';
+  const btnText = currentLang === 'EN' ? 'Request Consultation' : 'Solicitar asesoría';
+
   return (
     <motion.div
-      // QUITA EL ID DE AQUÍ, ya no lo necesitamos en la tarjeta visible
       style={{
         y: cardY,
         scale: scale,
@@ -120,12 +131,14 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
       }}
     >
       <div style={{
-        width: isMobile ? '92%' : '75%', 
-        height: isMobile ? '80vh' : '65vh', 
-        maxHeight: '750px', 
-        backgroundColor: 'rgba(10, 16, 36, 0.5)', 
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        width: isUltraNarrow ? '94%' : (isMobile ? '90%' : '75%'), 
+        // 🚀 FIX CLAVE: Auto en móviles para que crezca y no corte el botón.
+        height: isMobile ? 'auto' : '65vh', 
+        // Límite máximo para que no se salga de la pantalla (evita que tape el Nav)
+        maxHeight: isMobile ? 'calc(100vh - 120px)' : '750px', 
+        backgroundColor: 'rgba(10, 16, 36, 0.85)', 
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         border: `1px solid ${item.color}30`,
         borderRadius: '24px',
         overflow: 'hidden',
@@ -137,7 +150,8 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
         
         {/* COLUMNA: IMAGEN / MEDIA */}
         <div style={{
-          flex: isMobile ? '0 0 160px' : 0.8,
+          // Ajuste de altura de imagen: 130px en <660px, 160px en 660-1024px
+          flex: isUltraNarrow ? '0 0 130px' : (isMobile ? '0 0 160px' : 0.8),
           position: 'relative',
           width: '100%',
           backgroundImage: `url(${item.image})`,
@@ -150,38 +164,41 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
             <div style={{
                 position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
                 background: isMobile 
-                  ? `linear-gradient(to bottom, transparent 40%, rgba(10,16,36,1) 100%)`
+                  ? `linear-gradient(to bottom, transparent 20%, rgba(10,16,36,1) 100%)`
                   : `linear-gradient(to right, rgba(10,16,36,0.95) 0%, transparent 40%, ${item.color}10 100%)`,
                 pointerEvents: 'none'
             }} />
         </div>
 
         {/* COLUMNA: CONTENIDO TEXTUAL */}
-        <div style={{
-          flex: isMobile ? 'auto' : 1.2, 
-          padding: isMobile ? '20px 15px 30px' : '40px 50px', 
+        <div className="stacking-card-content" style={{
+          flex: isMobile ? '1' : 1.2, 
+          // Paddings ajustados para no empujar el botón fuera de la vista
+          padding: isUltraNarrow ? '15px 15px 20px' : (isMobile ? '20px 25px 25px' : '40px 50px'), 
           display: 'flex',
           flexDirection: 'column',
           justifyContent: isMobile ? 'flex-start' : 'center',
           background: 'linear-gradient(135deg, rgba(10,16,36,0.8) 0%, rgba(5,8,20,0.9) 100%)',
           zIndex: 2,
           position: 'relative',
+          // 🚀 CÓDIGO RESTAURADO: Si el texto es MUY largo, permite scroll pero oculta la barra
           overflowY: 'auto', 
           scrollbarWidth: 'none', 
           msOverflowStyle: 'none', 
           order: isMobile ? 2 : 1 
         }}>
+           {/* 🚀 CÓDIGO RESTAURADO */}
            <style>{`div::-webkit-scrollbar { display: none; }`}</style>
 
            {/* Cabecera de Servicio */}
-           <div style={{ display: 'flex', alignItems: 'flex-start', gap: isMobile ? '12px' : '20px', marginBottom: isMobile ? '20px' : '30px' }}> 
+           <div style={{ display: 'flex', alignItems: 'flex-start', gap: isUltraNarrow ? '12px' : '20px', marginBottom: isUltraNarrow ? '15px' : '30px' }}> 
              <div style={{
-               width: isMobile ? '35px' : '45px', 
-               height: isMobile ? '35px' : '45px', 
+               width: isUltraNarrow ? '35px' : '45px', 
+               height: isUltraNarrow ? '35px' : '45px', 
                borderRadius: '50%', 
                background: item.color, color: '#000', fontWeight: '900',
                display: 'flex', alignItems: 'center', justifyContent: 'center',
-               fontSize: isMobile ? '1.1rem' : '1.3rem', 
+               fontSize: isUltraNarrow ? '1rem' : '1.3rem', 
                boxShadow: `0 0 20px ${item.color}60`,
                flexShrink: 0,
                marginTop: '2px' 
@@ -192,20 +209,20 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
                 <span style={{ color: item.color, fontWeight: 700, letterSpacing: '1px', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
                     // {item.subtitle}
                 </span>
-                <h3 style={{ color: 'white', fontSize: 'clamp(1.3rem, 3vw, 2rem)', fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
+                <h3 style={{ color: 'white', fontSize: isUltraNarrow ? '1.3rem' : 'clamp(1.4rem, 3vw, 2rem)', fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
                   {item.title}
                 </h3>
              </div>
            </div>
            
            {/* Renderizado de Bloques de Contenido */}
-           <div style={{ color: '#dbe4ff', fontSize: isMobile ? '0.95rem' : '1.05rem', lineHeight: isMobile ? 1.5 : 1.7 }}> 
+           <div style={{ color: '#dbe4ff', fontSize: isUltraNarrow ? '0.9rem' : '1.05rem', lineHeight: isMobile ? 1.5 : 1.7 }}> 
              {item.content.map((block, i) => {
                if (block.type === 'highlight') {
                  return (
-                   <div key={i} style={{ margin: isMobile ? '15px 0' : '20px 0', paddingLeft: '15px', borderLeft: `3px solid ${item.color}`, backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px 12px 12px 15px', borderRadius: '0 8px 8px 0' }}> 
-                     <h4 style={{ 
-                       color: 'white', fontSize: isMobile ? '1rem' : '1.1rem', fontWeight: 800, marginBottom: '8px', 
+                   <div key={i} className="highlight-box" style={{ margin: isMobile ? '15px 0' : '20px 0', paddingLeft: '15px', borderLeft: `3px solid ${item.color}`, backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px 12px 12px 15px', borderRadius: '0 8px 8px 0' }}> 
+                     <h4 className="highlight-title" style={{ 
+                       color: 'white', fontSize: isUltraNarrow ? '0.9rem' : '1.1rem', fontWeight: 800, marginBottom: '8px', 
                        textTransform: 'uppercase', display: 'inline-block',
                        borderBottom: `2px solid ${item.color}`, paddingBottom: '3px'
                      }}>
@@ -215,13 +232,13 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
                    </div>
                  );
                } else {
-                 return <p key={i} style={{ marginBottom: '15px' }}>{block.text}</p>; 
+                 return <p key={i} style={{ marginBottom: isUltraNarrow ? '10px' : '15px' }}>{block.text}</p>; 
                }
              })}
            </div>
 
            {/* BOTÓN DE CONTRATACIÓN */}
-           <div style={{ marginTop: 'auto', paddingTop: '20px' }}> 
+           <div style={{ marginTop: 'auto', paddingTop: '15px' }}> 
              <motion.button
                onClick={() => navigate('/contacto')}
                whileHover={{ scale: 1.03, boxShadow: `0 0 20px ${item.color}80` }}
@@ -244,7 +261,7 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = `${item.color}40`)}
                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = isMobile ? `${item.color}20` : 'transparent')}
              >
-               Solicitar asesoría
+               {btnText}
              </motion.button>
            </div>
         </div>

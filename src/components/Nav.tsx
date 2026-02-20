@@ -17,12 +17,25 @@ const ScrollToTop = () => {
   return null;
 };
 
+// ==========================================
+// 1. TRADUCCIONES ACTUALIZADAS
+// ==========================================
 const TRANSLATIONS = {
   ES: {
-    nav: { services: "Servicios", about: "Sobre Nosotros", projects: "Proyectos", contact: "Contáctanos" }
+    nav: { 
+      services: "Servicios", 
+      about: "Sobre Nosotros", 
+      projects: "Arquitecturas", // 👈 Actualizado
+      contact: "Contáctanos" 
+    }
   },
   EN: {
-    nav: { services: "Services", about: "About Us", projects: "Projects", contact: "Contact Us" }
+    nav: { 
+      services: "Services", 
+      about: "About Us", 
+      projects: "Architectures", // 👈 Actualizado para sonar corporativo
+      contact: "Contact Us" 
+    }
   }
 };
 
@@ -56,7 +69,6 @@ export const Nav = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Separamos el ítem de contacto de los demás para darle un estilo único
   const navItems = [
     { label: t.nav.services, path: "/servicios" },
     { label: t.nav.about, path: "/nosotros" },
@@ -188,7 +200,6 @@ export const Nav = () => {
              </Link>
            ))}
            
-           {/* Botón contacto en móvil */}
            <Link 
                 to="/contacto" 
                 style={{ 

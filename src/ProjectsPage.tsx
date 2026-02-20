@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { ShoppingCart, Bot, CloudUpload, LayoutDashboard, Cpu, BarChart3, ArrowRight, ChevronDown, Server, Shield, Globe } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { ShoppingCart, Bot, CloudUpload, LayoutDashboard, Cpu, BarChart3, ArrowRight, ChevronDown, Server, Shield, Globe, CheckCircle2, Target, Award } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 
 const resolvePath = (path: string) => {
   const base = import.meta.env.BASE_URL || '/';
@@ -10,83 +11,195 @@ const resolvePath = (path: string) => {
 };
 
 // ==========================================
-// 1. DATOS DE EMPRESAS
+// 1. DICCIONARIO DE TRADUCCIONES (ES / EN)
 // ==========================================
-const COMPANY_PROJECTS = [
-  { 
-    id: 'miranda', name: 'Torre Miranda', color: '#FFFFFF', 
-    img: 'assets/Miranda.png', 
-    shortDesc: 'Solución de backup automatizado en AWS reemplazando procesos manuales vulnerables.',
-    highlights: ['Conexión VPN segura', 'Automatización vía scripts', 'Recuperación rápida'],
-    fullDesc: 'La organización realizaba respaldos manuales de equipos locales, generando riesgo de pérdida de información crítica. Diseñamos una solución de respaldo automatizado en AWS, integrando conectividad segura mediante VPN, automatización de backups mediante scripts programados y almacenamiento estructurado. La nueva arquitectura permite recuperación rápida ante incidentes y continuidad operativa.',
-    sector: 'Centro empresarial y oficinas corporativas.',
-    icon: <Server size={54} color="#FFFFFF" />
-  },
-  { 
-    id: 'myintelli', name: 'MyIntelli', color: '#33BEFF', 
-    img: 'assets/MyIntelli.png', 
-    shortDesc: 'Evaluación de seguridad SaaS y optimización de consumo en entornos multicloud.',
-    highlights: ['Ethical hacking (Caja negra)', 'Optimización AWS/GCP', 'Protección WAF perimetral'],
-    fullDesc: 'Desafío: Fortalecer la postura de seguridad de una plataforma SaaS expuesta a internet y optimizar el consumo en AWS y GCP. Ejecutamos pruebas de seguridad (ethical hacking caja negra), identificamos vulnerabilidades críticas y recomendamos optimizaciones de costos. Actualmente acompañamos la implementación progresiva de protección perimetral mediante AWS WAF.',
-    sector: 'Software Cloud para control de acceso biométrico.',
-    icon: <Shield size={54} color="#33BEFF" />
-  },
-  { 
-    id: 'datecsa', name: 'DATECSA', color: '#FF3333', 
-    img: 'assets/DateCSA.png', 
-    shortDesc: 'Diseño e implementación de infraestructura en AWS para soportar OnBase.',
-    highlights: ['Despliegue de infraestructura', 'Configuración red/SSL', 'Réplica a producción'],
-    fullDesc: 'Migración y estructuración de infraestructura en AWS para soportar la solución empresarial OnBase (Organización DeLima). El proyecto abarcó el diseño y despliegue de infraestructura, configuración de SO, base de datos, red, SSL y réplica a producción. El resultado es un entorno Cloud estable, seguro y preparado para operación empresarial con altas demandas.',
-    sector: 'Soluciones tecnológicas empresariales.',
-    icon: <CloudUpload size={54} color="#FF3333" />
-  },
-  { 
-    id: 'ruedaverde', name: 'Rueda Verde', color: '#00ff88', 
-    img: 'assets/RuedaVerde.png', 
-    shortDesc: 'Implementación de chatbot serverless en AWS para automatizar consultas.',
-    highlights: ['Chatbot Serverless AWS', 'Servicios administrados', 'Consumo optimizado'],
-    fullDesc: 'El desafío era reducir la carga operativa del equipo ante consultas repetitivas con presupuestos ajustados. Implementamos un chatbot sobre arquitectura serverless en AWS utilizando servicios administrados para alta disponibilidad y bajo mantenimiento. La solución redujo la carga operativa y mejoró la eficiencia organizacional sin incrementar la complejidad tecnológica.',
-    sector: 'Corporación ambiental (gestión de llantas usadas).',
-    icon: <Bot size={54} color="#00ff88" />
-  },
-  { 
-    id: 'tuulapp', name: 'TuulApp', color: '#aa00ff', 
-    img: 'assets/tuulapp.png', 
-    shortDesc: 'Modernización de arquitectura en AWS para preparar plataforma hacia el crecimiento.',
-    highlights: ['Estructuración facturación', 'Migración a Amazon Aurora', 'Estrategia escalabilidad'],
-    fullDesc: 'El objetivo era optimizar la arquitectura Cloud y preparar la plataforma para crecimiento. Brindamos acompañamiento en la estructuración de facturación Cloud, evaluación de consumo en AWS, y diseñamos una estrategia para migrar su base de datos de MongoDB hacia Amazon Aurora. La intervención preparó a la plataforma para escalar de manera sostenible.',
-    sector: 'Startup tecnológica para digitalización de talleres mecánicos.',
-    icon: <Cpu size={54} color="#aa00ff" />
-  },
-  { 
-    id: 'ingram', name: 'Ingram Micro', color: '#2952ff', 
-    img: 'assets/Ingram.png', 
-    shortDesc: 'Participación en múltiples iniciativas Cloud en ecosistema de partners regionales.',
-    highlights: ['Soluciones distribución', 'Sectores corporativos', 'Cumplimiento regulatorio'],
-    fullDesc: 'Participación estratégica en múltiples iniciativas Cloud dentro del ecosistema de partners regionales en LATAM. Ejecución y acompañamiento en soluciones tecnológicas avanzadas para la distribución y estructuración de ecosistemas empresariales, abarcando corporativos y sectores fuertemente regulados.',
-    sector: 'Distribución tecnológica y soluciones empresariales regionales.',
-    icon: <Globe size={54} color="#2952ff" />
-  }
-];
+const TRANSLATIONS: any = {
+    ES: {
+      seoTitle: "Casos de Éxito y Proyectos Cloud | Bocancorp",
+      seoDesc: "Descubre cómo hemos transformado empresas con arquitecturas Cloud en AWS, implementaciones serverless, ciberseguridad y chatbots con IA. Nuestro portafolio.",
+      heroTitle: "Ver Proyectos",
+      titleMain1: "Arquitecturas Cloud",
+      titleMain2: "Implementadas",
+      subtitle: "Empresas de talla internacional que confían en nuestra capacidad técnica.",
+      marketTitle1: "Demandas del Mercado",
+      marketTitle2: "Soluciones",
+      marketTitle3: "Más Solicitadas",
+      ctaTitle1: "Tu empresa podría ser nuestra próxima",
+      ctaTitle2: "gran estrella.",
+      ctaDesc: "Cuéntanos tus desafíos técnicos y diseñaremos la arquitectura perfecta para superarlos.",
+      ctaButton: "Iniciar mi proyecto",
+      cardFlipHint: "Ver Resumen ↻",
+      cardFlipBtn: "Saber Más",
+      detailDesafio: "El Desafío",
+      detailSolucion: "Solución Técnica",
+      detailImpacto: "Impacto",
+      detailPrev: "← Proyecto Anterior",
+      detailNext: "Siguiente Proyecto →",
+      detailClose: "Cerrar Detalles",
+      sectorLabel: "Sector",
+      projects: [
+        { 
+          id: 'miranda', name: 'Torre Miranda', shortTitle: 'Arquitectura de Respaldo Cloud', color: '#FFFFFF', 
+          img: 'assets/Miranda.png', icon: <Server size={48} color="#FFFFFF" />,
+          shortDesc: ['Solución de backup automatizado en AWS con VPN segura.', 'Garantiza recuperación rápida ante incidentes y continuidad operativa.'],
+          sector: 'Centro empresarial corporativo.',
+          desafio: 'Respaldos manuales locales con alto riesgo de pérdida de datos críticos y sin plan de contingencia.',
+          arquitectura: ['Conexión VPN segura a AWS.', 'Backups automatizados (Scripts).', 'Almacenamiento estructurado.'],
+          resultado: 'Infraestructura resiliente con recuperación eficiente y máxima protección de la información.'
+        },
+        { 
+          id: 'myintelli', name: 'MyIntelli', shortTitle: 'Seguridad y Optimización', color: '#33BEFF', 
+          img: 'assets/MyIntelli.png', icon: <Shield size={48} color="#33BEFF" />,
+          shortDesc: ['Evaluación de seguridad SaaS y optimización FinOps multicloud.', 'Implementación de WAF perimetral.'],
+          sector: 'Software Cloud biométrico.',
+          desafio: 'Robustecer la seguridad de una plataforma pública y reducir el alto consumo en AWS y GCP.',
+          arquitectura: ['Ethical Hacking (caja negra).', 'Optimización de costos.', 'Protección perimetral (AWS WAF).'],
+          resultado: 'Postura de seguridad sólida, visibilidad financiera clara y protección activa en producción.'
+        },
+        { 
+          id: 'datecsa', name: 'Datecsa', shortTitle: 'Arquitectura Empresarial AWS', color: '#FF3333', 
+          img: 'assets/DateCSA.png', icon: <CloudUpload size={48} color="#FF3333" />,
+          shortDesc: ['Infraestructura en AWS para soportar OnBase.', 'Entorno Cloud estable y seguro para operación empresarial.'],
+          sector: 'Soluciones tecnológicas empresariales.',
+          desafio: 'Migrar plataforma OnBase a AWS asegurando alta disponibilidad y cumplimiento de estándares corporativos.',
+          arquitectura: ['Despliegue de red y BD.', 'Endurecimiento de SO.', 'Certificados SSL y réplica a prod.'],
+          resultado: 'Plataforma empresarial ágil, escalable y operando bajo las mejores prácticas Cloud.'
+        },
+        { 
+          id: 'ruedaverde', name: 'Rueda Verde', shortTitle: 'Automatización Serverless', color: '#00ff88', 
+          img: 'assets/RuedaVerde.png', icon: <Bot size={48} color="#00ff88" />,
+          shortDesc: ['Chatbot serverless en AWS para atención automatizada.', 'Menor carga operativa con costos mínimos.'],
+          sector: 'Corporación de gestión ambiental.',
+          desafio: 'Automatizar consultas frecuentes con bajo presupuesto para liberar al equipo operativo.',
+          arquitectura: ['Arquitectura Serverless AWS.', 'Servicios administrados.', 'Modelo de pago por uso.'],
+          resultado: 'Atención digital 24/7, equipo enfocado en el impacto ambiental y optimización de costos.'
+        },
+        { 
+          id: 'tuulapp', name: 'Tuulapp', shortTitle: 'Evolución Cloud SaaS', color: '#ccff00', 
+          img: 'assets/tuulapp.png', icon: <Cpu size={48} color="#ccff00" />,
+          shortDesc: ['Modernización Cloud en AWS.', 'Estrategia de migración a Amazon Aurora y control FinOps.'],
+          sector: 'Startup SaaS de talleres mecánicos.',
+          desafio: 'Preparar la plataforma para escalabilidad masiva, controlando los costos de infraestructura.',
+          arquitectura: ['Reestructuración FinOps.', 'Migración a Amazon Aurora.', 'Optimización de consumo.'],
+          resultado: 'Hoja de ruta clara para crecimiento masivo, eficiencia operativa y arquitectura sostenible.'
+        },
+        { 
+          id: 'ingram', name: 'Ingram Micro', shortTitle: 'Iniciativas Cloud LATAM', color: '#2952ff', 
+          img: 'assets/Ingram.png', icon: <Globe size={48} color="#2952ff" />,
+          shortDesc: ['Proyectos en ecosistema LATAM.', 'Gobernanza de datos, redes avanzadas y seguridad Cloud.'],
+          sector: 'Distribución tecnológica regional.',
+          desafio: 'Ejecutar iniciativas críticas (regulaciones, banca, construcción) en entornos altamente corporativos.',
+          arquitectura: ['Gobernanza en AWS.', 'Networking (Palo Alto).', 'Prisma Cloud (Banca) y FinOps.'],
+          resultado: 'Despliegues exitosos de alta criticidad combinando seguridad avanzada y optimización financiera.'
+        }
+      ],
+      popular: [
+          { id: 'ecommerce', title: 'E-commerce de Alto Rendimiento', desc: 'Aplicaciones escalables preparadas para picos masivos.', icon: <ShoppingCart size={32} color="#00C2FF" /> },
+          { id: 'chatbot', title: 'Chatbots con IA Generativa', desc: 'Asistentes avanzados integrados a CRM y WhatsApp.', icon: <Bot size={32} color="#FAA918" /> },
+          { id: 'cloud', title: 'Migración y Arquitectura Cloud', desc: 'Modernización de sistemas legados y control de costos.', icon: <CloudUpload size={32} color="#00ff8c" /> },
+          { id: 'saas', title: 'Plataformas SaaS B2B', desc: 'Desarrollo de software a medida con modelo recurrente.', icon: <LayoutDashboard size={32} color="#ff007a" /> },
+          { id: 'rpa', title: 'Automatización de Procesos', desc: 'Eliminación de tareas manuales mediante flujos RPA.', icon: <Cpu size={32} color="#aa00ff" /> },
+          { id: 'data', title: 'Business Intelligence y Data', desc: 'Dashboards interactivos para toma de decisiones.', icon: <BarChart3 size={32} color="#33BEFF" /> }
+      ]
+    },
+    EN: {
+      seoTitle: "Success Stories & Cloud Projects | Bocancorp",
+      seoDesc: "Discover how we have transformed companies with Cloud architectures on AWS, serverless implementations, cybersecurity, and AI chatbots. Our portfolio.",
+      heroTitle: "View Projects",
+      titleMain1: "Implemented",
+      titleMain2: "Cloud Architectures",
+      subtitle: "International companies that trust our technical capacity.",
+      marketTitle1: "Market Demands",
+      marketTitle2: "Most Requested",
+      marketTitle3: "Solutions",
+      ctaTitle1: "Your company could be our next",
+      ctaTitle2: "big star.",
+      ctaDesc: "Tell us your technical challenges and we will design the perfect architecture to overcome them.",
+      ctaButton: "Start my project",
+      cardFlipHint: "View Summary ↻",
+      cardFlipBtn: "Know More",
+      detailDesafio: "The Challenge",
+      detailSolucion: "Technical Solution",
+      detailImpacto: "Impact",
+      detailPrev: "← Previous Project",
+      detailNext: "Next Project →",
+      detailClose: "Close Details",
+      sectorLabel: "Sector",
+      projects: [
+        { 
+          id: 'miranda', name: 'Torre Miranda', shortTitle: 'Cloud Backup Architecture', color: '#FFFFFF', 
+          img: 'assets/Miranda.png', icon: <Server size={48} color="#FFFFFF" />,
+          shortDesc: ['Automated backup solution on AWS with secure VPN.', 'Guarantees rapid recovery from incidents and operational continuity.'],
+          sector: 'Corporate business center.',
+          desafio: 'Local manual backups with high risk of critical data loss and no contingency plan.',
+          arquitectura: ['Secure VPN connection to AWS.', 'Automated backups (Scripts).', 'Structured storage.'],
+          resultado: 'Resilient infrastructure with efficient recovery and maximum information protection.'
+        },
+        { 
+          id: 'myintelli', name: 'MyIntelli', shortTitle: 'Security & Optimization', color: '#33BEFF', 
+          img: 'assets/MyIntelli.png', icon: <Shield size={48} color="#33BEFF" />,
+          shortDesc: ['SaaS security assessment and multicloud FinOps optimization.', 'Perimeter WAF implementation.'],
+          sector: 'Biometric Cloud Software.',
+          desafio: 'Strengthen the security of a public platform and reduce high consumption in AWS and GCP.',
+          arquitectura: ['Ethical Hacking (black box).', 'Cost optimization.', 'Perimeter protection (AWS WAF).'],
+          resultado: 'Solid security posture, clear financial visibility, and active protection in production.'
+        },
+        { 
+          id: 'datecsa', name: 'Datecsa', shortTitle: 'Enterprise AWS Architecture', color: '#FF3333', 
+          img: 'assets/DateCSA.png', icon: <CloudUpload size={48} color="#FF3333" />,
+          shortDesc: ['AWS infrastructure to support OnBase.', 'Stable and secure Cloud environment for enterprise operations.'],
+          sector: 'Enterprise technology solutions.',
+          desafio: 'Migrate OnBase platform to AWS ensuring high availability and compliance with corporate standards.',
+          arquitectura: ['Network and DB deployment.', 'OS hardening.', 'SSL certificates and prod replication.'],
+          resultado: 'Agile, scalable enterprise platform operating under Cloud best practices.'
+        },
+        { 
+          id: 'ruedaverde', name: 'Rueda Verde', shortTitle: 'Serverless Automation', color: '#00ff88', 
+          img: 'assets/RuedaVerde.png', icon: <Bot size={48} color="#00ff88" />,
+          shortDesc: ['Serverless chatbot on AWS for automated customer service.', 'Lower operational load with minimal costs.'],
+          sector: 'Environmental management corporation.',
+          desafio: 'Automate frequent queries with a low budget to free up the operational team.',
+          arquitectura: ['AWS Serverless Architecture.', 'Managed services.', 'Pay-as-you-go model.'],
+          resultado: '24/7 digital service, team focused on environmental impact, and cost optimization.'
+        },
+        { 
+          id: 'tuulapp', name: 'Tuulapp', shortTitle: 'SaaS Cloud Evolution', color: '#ccff00', 
+          img: 'assets/tuulapp.png', icon: <Cpu size={48} color="#ccff00" />,
+          shortDesc: ['Cloud modernization on AWS.', 'Migration strategy to Amazon Aurora and FinOps control.'],
+          sector: 'Mechanic shop SaaS startup.',
+          desafio: 'Prepare the platform for massive scalability while controlling infrastructure costs.',
+          arquitectura: ['FinOps restructuring.', 'Migration to Amazon Aurora.', 'Consumption optimization.'],
+          resultado: 'Clear roadmap for massive growth, operational efficiency, and sustainable architecture.'
+        },
+        { 
+          id: 'ingram', name: 'Ingram Micro', shortTitle: 'LATAM Cloud Initiatives', color: '#2952ff', 
+          img: 'assets/Ingram.png', icon: <Globe size={48} color="#2952ff" />,
+          shortDesc: ['Projects in the LATAM ecosystem.', 'Data governance, advanced networking, and Cloud security.'],
+          sector: 'Regional technology distribution.',
+          desafio: 'Execute critical initiatives (regulations, banking, construction) in highly corporate environments.',
+          arquitectura: ['Governance in AWS.', 'Networking (Palo Alto).', 'Prisma Cloud (Banking) & FinOps.'],
+          resultado: 'Successful deployments of high criticality combining advanced security and financial optimization.'
+        }
+      ],
+      popular: [
+          { id: 'ecommerce', title: 'High-Performance E-commerce', desc: 'Scalable applications prepared for massive spikes.', icon: <ShoppingCart size={32} color="#00C2FF" /> },
+          { id: 'chatbot', title: 'Generative AI Chatbots', desc: 'Advanced assistants integrated into CRM and WhatsApp.', icon: <Bot size={32} color="#FAA918" /> },
+          { id: 'cloud', title: 'Cloud Migration & Architecture', desc: 'Modernization of legacy systems and cost control.', icon: <CloudUpload size={32} color="#00ff8c" /> },
+          { id: 'saas', title: 'B2B SaaS Platforms', desc: 'Custom software development with recurring models.', icon: <LayoutDashboard size={32} color="#ff007a" /> },
+          { id: 'rpa', title: 'Process Automation', desc: 'Elimination of manual tasks via RPA flows.', icon: <Cpu size={32} color="#aa00ff" /> },
+          { id: 'data', title: 'Business Intelligence & Data', desc: 'Interactive dashboards for decision making.', icon: <BarChart3 size={32} color="#33BEFF" /> }
+      ]
+    }
+};
 
-const POPULAR_PROJECTS = [
-    { id: 'ecommerce', title: 'E-commerce de Alto Rendimiento', desc: 'Aplicaciones escalables preparadas para picos masivos.', icon: <ShoppingCart size={32} color="#00C2FF" /> },
-    { id: 'chatbot', title: 'Chatbots con IA Generativa', desc: 'Asistentes avanzados integrados a CRM y WhatsApp.', icon: <Bot size={32} color="#FAA918" /> },
-    { id: 'cloud', title: 'Migración y Arquitectura Cloud', desc: 'Modernización de sistemas legados y control de costos.', icon: <CloudUpload size={32} color="#00ff8c" /> },
-    { id: 'saas', title: 'Plataformas SaaS B2B', desc: 'Desarrollo de software a medida con modelo recurrente.', icon: <LayoutDashboard size={32} color="#ff007a" /> },
-    { id: 'rpa', title: 'Automatización de Procesos', desc: 'Eliminación de tareas manuales mediante flujos RPA.', icon: <Cpu size={32} color="#aa00ff" /> },
-    { id: 'data', title: 'Business Intelligence y Data', desc: 'Dashboards interactivos para toma de decisiones.', icon: <BarChart3 size={32} color="#33BEFF" /> }
-];
-
 // ==========================================
-// 3. FLIP CARD (Ajustada para ser más "chata" en isTiny)
+// 2. FLIP CARD ACHATADA (VERSIÓN CORTA)
 // ==========================================
-const FlipCard = ({ project, isMobile, isSmall, isTiny, onSelect }: { project: any, isMobile: boolean, isSmall: boolean, isTiny: boolean, onSelect: () => void }) => {
+const FlipCard = ({ project, t, isMobile, isSmall, onSelect }: { project: any, t: any, isMobile: boolean, isSmall: boolean, onSelect: () => void }) => {
   const [isFlipped, setIsFlipped] = useState(false);
 
-  // Cuando está en una sola fila (isTiny), la hacemos mucho más chata (250px)
-  const cardHeight = isTiny ? '250px' : (isSmall ? '340px' : (isMobile ? '380px' : '480px'));
-  const backPadding = isTiny ? '12px 10px' : (isSmall ? '15px 10px' : (isMobile ? '20px 15px' : '35px'));
+  const cardHeight = isMobile ? '320px' : '400px'; 
+  const backPadding = isMobile ? '20px 15px' : '30px';
 
   const faceStyle: React.CSSProperties = {
     position: 'absolute', width: '100%', height: '100%',
@@ -101,47 +214,40 @@ const FlipCard = ({ project, isMobile, isSmall, isTiny, onSelect }: { project: a
     boxShadow: `0 15px 40px rgba(0,0,0,0.6)`,
   };
 
-  const titleSize = isTiny ? '0.95rem' : (isSmall ? '1.1rem' : (isMobile ? '1.3rem' : '2rem'));
-  const descSize = isTiny ? '0.7rem' : (isSmall ? '0.75rem' : (isMobile ? '0.85rem' : '1rem'));
-  const bulletSize = isTiny ? '0.65rem' : (isSmall ? '0.7rem' : (isMobile ? '0.75rem' : '0.95rem'));
-  const buttonSize = isTiny ? '0.65rem' : (isSmall ? '0.75rem' : (isMobile ? '0.8rem' : '1rem'));
-  const buttonPadding = isTiny ? '6px 12px' : (isSmall ? '8px 16px' : (isMobile ? '10px 20px' : '14px 40px'));
+  const titleSize = isMobile ? '1.1rem' : '1.4rem';
+  const descSize = isSmall ? '0.8rem' : (isMobile ? '0.85rem' : '0.95rem');
 
   return (
-    <div 
-        style={{ width: '100%', height: cardHeight, perspective: '1200px', cursor: 'pointer' }} 
-        onClick={() => setIsFlipped(!isFlipped)}
-    >
+    <div style={{ width: '100%', height: cardHeight, perspective: '1200px', cursor: 'pointer' }} onClick={() => setIsFlipped(!isFlipped)}>
       <div style={{ position: 'relative', width: '100%', height: '100%', transition: 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)', transformStyle: 'preserve-3d', transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)' }}>
         
+        {/* CARA FRONTAL */}
         <div style={{ ...faceStyle }}>
           <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <img src={resolvePath(project.img)} alt={project.name} style={{ maxWidth: '85%', maxHeight: isTiny ? '40%' : '55%', objectFit: 'contain' }} />
+            <img src={resolvePath(project.img)} alt={project.name} style={{ maxWidth: '85%', maxHeight: '55%', objectFit: 'contain' }} />
           </div>
-          <p style={{ marginTop: '10px', color: project.color, fontWeight: '900', fontSize: isTiny ? '0.65rem' : (isMobile ? '0.75rem' : '0.95rem'), letterSpacing: '2px', textAlign: 'center', textTransform: 'uppercase' }}>
-              Ver Resumen ↻
+          <p style={{ marginTop: '10px', color: project.color, fontWeight: '900', fontSize: isMobile ? '0.8rem' : '0.95rem', letterSpacing: '2px', textAlign: 'center', textTransform: 'uppercase' }}>
+              {t.cardFlipHint}
           </p>
         </div>
 
+        {/* CARA TRASERA */}
         <div style={{ ...faceStyle, transform: 'rotateY(180deg)', background: '#000c2d', border: `2px solid ${project.color}`, padding: backPadding, justifyContent: 'flex-start' }}>
-          <h3 style={{ color: project.color, fontSize: titleSize, textTransform: 'uppercase', marginBottom: isTiny ? '6px' : '15px', fontWeight: 950, textAlign: 'center', lineHeight: 1.1 }}>
-              {project.name}
+          <h3 style={{ color: project.color, fontSize: titleSize, textTransform: 'uppercase', marginBottom: '15px', fontWeight: 950, textAlign: 'center', lineHeight: 1.2, flexShrink: 0 }}>
+              {project.shortTitle}
           </h3>
-          <p style={{ fontSize: descSize, lineHeight: 1.4, color: '#e2e8f0', textAlign: 'center', margin: isTiny ? '0 0 6px 0' : '0 0 20px 0', fontWeight: 600 }}>
-              {project.shortDesc}
-          </p>
-          <ul style={{ paddingLeft: isTiny ? '15px' : '20px', margin: isTiny ? '0 0 8px 0' : '0 0 20px 0', color: '#ffffff', fontSize: bulletSize, lineHeight: 1.5, textAlign: 'left', width: '100%', fontWeight: 700 }}>
-              {project.highlights.map((item: string, i: number) => (
-                  <li key={i} style={{ marginBottom: '2px' }}>{item}</li>
-              ))}
-          </ul>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '10px', width: '100%' }}>
+            {project.shortDesc.map((desc: string, idx: number) => (
+                <p key={idx} style={{ fontSize: descSize, lineHeight: 1.4, color: '#e2e8f0', textAlign: 'center', margin: 0, fontWeight: 500 }}>{desc}</p>
+            ))}
+          </div>
           <button 
             onClick={(e) => { e.stopPropagation(); onSelect(); }}
-            style={{ marginTop: 'auto', padding: buttonPadding, background: project.color, border: 'none', borderRadius: '50px', color: '#000', fontWeight: '900', fontSize: buttonSize, cursor: 'pointer', transition: 'all 0.3s ease', textTransform: 'uppercase', letterSpacing: '1px' }}
-            onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = `0 0 20px ${project.color}80`; }}
+            style={{ flexShrink: 0, width: '100%', marginTop: '15px', padding: isMobile ? '12px' : '14px', background: project.color, border: 'none', borderRadius: '50px', color: '#000', fontWeight: '900', fontSize: isMobile ? '0.85rem' : '1rem', cursor: 'pointer', transition: 'all 0.3s ease', textTransform: 'uppercase', letterSpacing: '1px' }}
+            onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.03)'; e.currentTarget.style.boxShadow = `0 0 20px ${project.color}80`; }}
             onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
           >
-            Saber Más
+            {t.cardFlipBtn}
           </button>
         </div>
       </div>
@@ -149,99 +255,173 @@ const FlipCard = ({ project, isMobile, isSmall, isTiny, onSelect }: { project: a
   );
 };
 
+// ==========================================
+// 3. COMPONENTE PRINCIPAL
+// ==========================================
 export const ProjectsPage = ({ isMobile }: { isMobile: boolean }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const projectsRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(null);
-  
-  // Estados de quiebre para asegurar el responsive
   const [isSmall, setIsSmall] = useState(false);
-  const [isTiny, setIsTiny] = useState(false);
+
+  // --- LÓGICA DE IDIOMA ---
+  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
 
   useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      setIsSmall(width < 475);
-      setIsTiny(width < 350);
+    const handleLangChange = () => {
+      setLang(localStorage.getItem('appLanguage') || 'ES');
     };
+    window.addEventListener('languageChange', handleLangChange);
+    return () => window.removeEventListener('languageChange', handleLangChange);
+  }, []);
+
+  const t = TRANSLATIONS[lang];
+
+  useEffect(() => {
+    const handleResize = () => setIsSmall(window.innerWidth < 475);
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const scrollToProjects = () => {
-    projectsRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  useEffect(() => {
+    if (location.state && location.state.projectId) {
+      const pIndex = t.projects.findIndex((p: any) => p.id === location.state.projectId);
+      if (pIndex !== -1) { handleSelectProject(pIndex); }
+      window.history.replaceState({}, document.title)
+    }
+  }, [location, t.projects]);
+
+  const scrollToProjects = () => projectsRef.current?.scrollIntoView({ behavior: 'smooth' });
 
   const handleSelectProject = (index: number) => {
     setActiveProjectIndex(index);
-    setTimeout(() => {
-        carouselRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 150);
+    setTimeout(() => carouselRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 150);
   };
 
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#00020a', color: '#ffffff', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       
-      {/* HERO DE VIDEO (Se oculta en isTiny < 350px) */}
-      <section style={{ position: 'relative', width: '100%', backgroundColor: '#000', overflow: 'hidden', paddingTop: isMobile ? (isTiny ? '80px' : '60px') : '85px', minHeight: isTiny ? '150px' : 'auto' }}>
-        
-        {!isTiny && (
-          <video autoPlay loop muted playsInline style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.85 }}>
-            <source src={resolvePath('assets/video.mp4')} type="video/mp4" />
-          </video>
-        )}
-        
+      <Helmet>
+        <title>{t.seoTitle}</title>
+        <meta name="description" content={t.seoDesc} />
+      </Helmet>
+
+      {/* HERO DE VIDEO */}
+      <section style={{ position: 'relative', width: '100%', backgroundColor: '#000', overflow: 'hidden', paddingTop: isMobile ? '60px' : '85px' }}>
+        <video autoPlay loop muted playsInline style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.85 }}>
+          <source src={resolvePath('assets/video.mp4')} type="video/mp4" />
+        </video>
         <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '50%', background: 'linear-gradient(to bottom, transparent 0%, #00020a 100%)', zIndex: 1, pointerEvents: 'none' }} />
         
-        {/* BOTÓN SOLO VISIBLE EN DESKTOP */}
         {!isMobile && (
           <div onClick={scrollToProjects} style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', cursor: 'pointer', zIndex: 10, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{ color: '#ffffff', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '4px', marginBottom: '10px', fontWeight: 900 }}>Ver Proyectos</span>
-              <motion.div animate={{ y: [0, 12, 0] }} transition={{ duration: 1.5, repeat: Infinity }}>
-                  <ChevronDown color="#00C2FF" size={48} />
-              </motion.div>
+              <span style={{ color: '#ffffff', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '4px', marginBottom: '10px', fontWeight: 900 }}>{t.heroTitle}</span>
+              <motion.div animate={{ y: [0, 12, 0] }} transition={{ duration: 1.5, repeat: Infinity }}><ChevronDown color="#00C2FF" size={48} /></motion.div>
           </div>
         )}
       </section>
 
-      {/* SECCIÓN ALIANZAS ESTRATÉGICAS */}
-      <section ref={projectsRef} style={{ padding: isMobile ? '40px 15px 40px' : '120px 60px 80px', backgroundColor: '#00020a' }}>
+      {/* SECCIÓN ALIANZAS (GRILLA) */}
+      <section ref={projectsRef} style={{ padding: isMobile ? '40px 15px' : '120px 60px 80px', backgroundColor: '#00020a' }}>
         <div style={{ maxWidth: '1300px', margin: '0 auto' }}>
             <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: isMobile ? '40px' : '80px' }}>
-                <h4 style={{ color: '#FAA918', textTransform: 'uppercase', letterSpacing: '4px', fontWeight: 900, marginBottom: '10px', fontSize: isTiny ? '0.9rem' : (isMobile ? '1rem' : '1.2rem') }}>Casos de Éxito</h4>
-                <h2 style={{ fontSize: isTiny ? '2rem' : (isMobile ? '2.4rem' : '4.5rem'), fontWeight: 950, color: '#ffffff', margin: 0, lineHeight: 1, letterSpacing: '-1px' }}>Alianzas <span style={{ color: '#00C2FF' }}>Estratégicas</span></h2>
-                <p style={{ color: '#94a3b8', fontSize: isTiny ? '1rem' : (isMobile ? '1.1rem' : '1.4rem'), marginTop: '20px', maxWidth: '800px', margin: '20px auto 0', fontWeight: 600, lineHeight: 1.6 }}>Empresas de talla internacional que confían en nuestra capacidad técnica.</p>
+                <h2 style={{ fontSize: isMobile ? '2.4rem' : '4.5rem', fontWeight: 950, color: '#ffffff', margin: 0, lineHeight: 1, letterSpacing: '-1px' }}>
+                    <span style={{ color: '#00C2FF' }}>{t.titleMain1}</span> {t.titleMain2}
+                </h2>
+                <p style={{ color: '#94a3b8', fontSize: isMobile ? '1.1rem' : '1.4rem', marginTop: '20px', maxWidth: '800px', margin: '20px auto 0', fontWeight: 600, lineHeight: 1.6 }}>{t.subtitle}</p>
             </motion.div>
 
             <div className="responsive-grid">
-                {COMPANY_PROJECTS.map((project, index) => (
+                {t.projects.map((project: any, index: number) => (
                     <motion.div key={project.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }}>
-                        <FlipCard project={project} isMobile={isMobile} isSmall={isSmall} isTiny={isTiny} onSelect={() => handleSelectProject(index)} />
+                        <FlipCard project={project} t={t} isMobile={isMobile} isSmall={isSmall} onSelect={() => handleSelectProject(index)} />
                     </motion.div>
                 ))}
             </div>
         </div>
       </section>
 
-      {/* SECCIÓN CARRUSEL DETALLADO */}
+      {/* CARRUSEL DETALLADO (TARJETA MASIVA EN ESCRITORIO) */}
       <div ref={carouselRef} style={{ width: '100%', overflow: 'hidden', paddingBottom: activeProjectIndex !== null ? '100px' : '0' }}>
           <AnimatePresence mode="wait">
               {activeProjectIndex !== null && (
-                  <motion.div key={COMPANY_PROJECTS[activeProjectIndex].id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} transition={{ duration: 0.4 }} style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 15px' }}>
-                      <div style={{ backgroundColor: '#000c2d', border: `2px solid ${COMPANY_PROJECTS[activeProjectIndex].color}50`, borderRadius: isTiny ? '24px' : '32px', padding: isTiny ? '30px 20px' : (isMobile ? '40px 25px' : '60px'), boxShadow: `0 30px 70px rgba(0,0,0,0.7), inset 0 0 50px ${COMPANY_PROJECTS[activeProjectIndex].color}15`, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isTiny ? '30px' : '40px', alignItems: 'center' }}>
-                          <div style={{ flex: '0 0 auto', padding: isTiny ? '25px' : '35px', backgroundColor: 'rgba(0,2,10,0.6)', borderRadius: '28px', border: `2px solid ${COMPANY_PROJECTS[activeProjectIndex].color}40` }}>{COMPANY_PROJECTS[activeProjectIndex].icon}</div>
-                          <div style={{ flex: 1 }}>
-                              <h3 style={{ color: COMPANY_PROJECTS[activeProjectIndex].color, fontSize: isTiny ? '1.8rem' : (isMobile ? '2.2rem' : '3.5rem'), fontWeight: 950, textTransform: 'uppercase', marginBottom: '10px', lineHeight: 1 }}>{COMPANY_PROJECTS[activeProjectIndex].name}</h3>
-                              <p style={{ color: '#FAA918', fontSize: isTiny ? '0.8rem' : (isMobile ? '0.9rem' : '1.1rem'), fontWeight: 800, textTransform: 'uppercase', letterSpacing: '3px', marginBottom: '20px' }}>Sector: {COMPANY_PROJECTS[activeProjectIndex].sector}</p>
-                              <div style={{ height: '2px', width: '80px', backgroundColor: COMPANY_PROJECTS[activeProjectIndex].color, marginBottom: '25px' }} />
-                              <p style={{ color: '#ffffff', fontSize: isTiny ? '0.95rem' : (isMobile ? '1.05rem' : '1.25rem'), lineHeight: 1.7, margin: 0, fontWeight: 600 }}>{COMPANY_PROJECTS[activeProjectIndex].fullDesc}</p>
-                              <div style={{ display: 'flex', gap: isTiny ? '10px' : '20px', marginTop: '40px', flexWrap: 'wrap' }}>
-                                  <button onClick={() => handleSelectProject((activeProjectIndex - 1 + COMPANY_PROJECTS.length) % COMPANY_PROJECTS.length)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: isTiny ? '10px 20px' : '12px 25px', borderRadius: '50px', cursor: 'pointer', fontSize: isTiny ? '0.8rem' : '0.9rem', fontWeight: 700 }}>← Anterior</button>
-                                  <button onClick={() => handleSelectProject((activeProjectIndex + 1) % COMPANY_PROJECTS.length)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', padding: isTiny ? '10px 20px' : '12px 25px', borderRadius: '50px', cursor: 'pointer', fontSize: isTiny ? '0.8rem' : '0.9rem', fontWeight: 700 }}>Siguiente →</button>
-                                  <button onClick={() => setActiveProjectIndex(null)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', padding: '12px', cursor: 'pointer', marginLeft: 'auto', textDecoration: 'underline', fontWeight: 700, fontSize: isTiny ? '0.8rem' : '1rem' }}>Cerrar</button>
+                  <motion.div key={t.projects[activeProjectIndex].id} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} transition={{ duration: 0.4 }} 
+                      style={{ maxWidth: isMobile ? '100%' : '1450px', margin: '0 auto', padding: '0 15px' }} 
+                  >
+                      <div style={{ 
+                          backgroundColor: '#000c2d', border: `2px solid ${t.projects[activeProjectIndex].color}50`, borderRadius: isMobile ? '24px' : '40px', 
+                          padding: isMobile ? '30px 20px' : '80px 100px', boxShadow: `0 30px 70px rgba(0,0,0,0.8), inset 0 0 50px ${t.projects[activeProjectIndex].color}15`, 
+                          display: 'flex', flexDirection: 'column', gap: isMobile ? '40px' : '60px' 
+                      }}>
+                          
+                          {/* HEADER */}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '20px' : '40px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: isMobile ? '30px' : '40px' }}>
+                              <div style={{ padding: isMobile ? '20px' : '35px', backgroundColor: 'rgba(0,2,10,0.6)', borderRadius: '24px', border: `2px solid ${t.projects[activeProjectIndex].color}40`, flexShrink: 0 }}>
+                                  <div style={{ transform: isMobile ? 'scale(1)' : 'scale(1.2)' }}>
+                                      {t.projects[activeProjectIndex].icon}
+                                  </div>
                               </div>
+                              <div>
+                                  <h3 style={{ color: t.projects[activeProjectIndex].color, fontSize: isMobile ? '2rem' : '4.5rem', fontWeight: 950, textTransform: 'uppercase', marginBottom: '10px', lineHeight: 1 }}>
+                                      {t.projects[activeProjectIndex].name}
+                                  </h3>
+                                  <p style={{ color: '#cbd5e1', fontSize: isMobile ? '0.9rem' : '1.3rem', fontWeight: 600, margin: 0, letterSpacing: '1px' }}>
+                                      <span style={{color: 'white'}}>{t.sectorLabel}:</span> {t.projects[activeProjectIndex].sector}
+                                  </p>
+                              </div>
+                          </div>
+
+                          {/* BODY: 3 COLUMNAS */}
+                          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: isMobile ? '30px' : '50px' }}>
+                              
+                              <div style={{ padding: isMobile ? '25px' : '40px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '24px', borderTop: '4px solid #ff3333' }}>
+                                  <h4 style={{ color: 'white', fontSize: isMobile ? '1.2rem' : '1.5rem', fontWeight: 800, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                    <Target size={isMobile ? 24 : 32} color="#ff3333"/> {t.detailDesafio}
+                                  </h4>
+                                  <p style={{ color: '#94a3b8', fontSize: isMobile ? '1.05rem' : '1.2rem', lineHeight: 1.7, margin: 0 }}>
+                                      {t.projects[activeProjectIndex].desafio}
+                                  </p>
+                              </div>
+
+                              <div style={{ padding: isMobile ? '25px' : '40px', backgroundColor: `rgba(255,255,255,0.02)`, borderRadius: '24px', borderTop: `4px solid ${t.projects[activeProjectIndex].color}` }}>
+                                  <h4 style={{ color: 'white', fontSize: isMobile ? '1.2rem' : '1.5rem', fontWeight: 800, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                    <Cpu size={isMobile ? 24 : 32} color={t.projects[activeProjectIndex].color}/> {t.detailSolucion}
+                                  </h4>
+                                  <ul style={{ paddingLeft: '0', margin: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                      {t.projects[activeProjectIndex].arquitectura.map((item: string, i: number) => (
+                                          <li key={i} style={{ color: '#cbd5e1', fontSize: isMobile ? '1.05rem' : '1.2rem', lineHeight: 1.5, display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                                              <CheckCircle2 size={isMobile ? 20 : 24} color={t.projects[activeProjectIndex].color} style={{ flexShrink: 0, marginTop: '2px' }} />
+                                              <span>{item}</span>
+                                          </li>
+                                      ))}
+                                  </ul>
+                              </div>
+
+                              <div style={{ padding: isMobile ? '25px' : '40px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '24px', borderTop: '4px solid #00ff88' }}>
+                                  <h4 style={{ color: 'white', fontSize: isMobile ? '1.2rem' : '1.5rem', fontWeight: 800, marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                    <Award size={isMobile ? 24 : 32} color="#00ff88"/> {t.detailImpacto}
+                                  </h4>
+                                  <p style={{ color: '#94a3b8', fontSize: isMobile ? '1.05rem' : '1.2rem', lineHeight: 1.7, margin: 0 }}>
+                                      {t.projects[activeProjectIndex].resultado}
+                                  </p>
+                              </div>
+
+                          </div>
+
+                          {/* FOOTER */}
+                          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', justifyContent: 'space-between', alignItems: 'center', gap: '20px', marginTop: '20px', paddingTop: '40px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                              <button onClick={() => handleSelectProject((activeProjectIndex - 1 + t.projects.length) % t.projects.length)} style={navBtnStyle(t.projects[activeProjectIndex].color, isMobile)}>
+                                {t.detailPrev}
+                              </button>
+                              <button onClick={() => setActiveProjectIndex(null)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', padding: '15px', cursor: 'pointer', textDecoration: 'underline', fontWeight: 800, fontSize: isMobile ? '1.1rem' : '1.2rem', transition: 'color 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#ffffff'} onMouseOut={(e) => e.currentTarget.style.color = '#94a3b8'}>
+                                {t.detailClose}
+                              </button>
+                              <button onClick={() => handleSelectProject((activeProjectIndex + 1) % t.projects.length)} style={navBtnStyle(t.projects[activeProjectIndex].color, isMobile)}>
+                                {t.detailNext}
+                              </button>
                           </div>
                       </div>
                   </motion.div>
@@ -249,53 +429,26 @@ export const ProjectsPage = ({ isMobile }: { isMobile: boolean }) => {
           </AnimatePresence>
       </div>
 
-      {/* SECCIÓN DEMANDAS DEL MERCADO (Ajustado contra overflow) */}
+      {/* DEMANDAS DEL MERCADO */}
       <section style={{ padding: isMobile ? '60px 15px' : '140px 60px', backgroundColor: '#000c2d', position: 'relative' }}>
          <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '120px', background: 'linear-gradient(to bottom, #00020a 0%, transparent 100%)', pointerEvents: 'none' }} />
          <div style={{ maxWidth: '1300px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: isMobile ? '50px' : '90px' }}>
-                <h4 style={{ color: '#FAA918', textTransform: 'uppercase', letterSpacing: '3px', fontWeight: 900, fontSize: isMobile ? '0.9rem' : '1.1rem' }}>Demandas del Mercado</h4>
-                <h2 style={{ fontSize: isTiny ? '1.8rem' : (isMobile ? '2.2rem' : '4rem'), fontWeight: 950, letterSpacing: '-1px', lineHeight: 1 }}>Soluciones <span style={{ color: '#00C2FF' }}>Más Solicitadas</span></h2>
+                <h4 style={{ color: '#FAA918', textTransform: 'uppercase', letterSpacing: '3px', fontWeight: 900, fontSize: isMobile ? '0.9rem' : '1.1rem' }}>{t.marketTitle1}</h4>
+                <h2 style={{ fontSize: isMobile ? '2.2rem' : '4rem', fontWeight: 950, letterSpacing: '-1px', lineHeight: 1 }}>{t.marketTitle2} <span style={{ color: '#00C2FF' }}>{t.marketTitle3}</span></h2>
             </motion.div>
 
             <div className="responsive-grid">
-                {POPULAR_PROJECTS.map((project, index) => (
+                {t.popular.map((project: any, index: number) => (
                     <motion.div key={project.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * 0.1 }}
-                        style={{ 
-                            backgroundColor: 'rgba(255,255,255,0.03)', 
-                            border: '2px solid rgba(0,194,255,0.15)', 
-                            borderRadius: isMobile ? '16px' : '24px', 
-                            // Relleno mucho más compacto en isSmall para que no desborde en 2 columnas (351px - 400px)
-                            padding: isTiny ? '15px' : (isSmall ? '15px 10px' : (isMobile ? '25px 20px' : '45px 35px')),
-                            wordBreak: 'break-word', // Evita que palabras largas rompan el diseño
-                            overflowWrap: 'break-word'
-                        }}
+                        style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '2px solid rgba(0,194,255,0.15)', borderRadius: isMobile ? '16px' : '24px', padding: isMobile ? '25px 20px' : '45px 35px' }}
                         whileHover={{ y: -8, borderColor: '#00C2FF', backgroundColor: 'rgba(0,194,255,0.08)', boxShadow: '0 20px 40px rgba(0,194,255,0.2)' }}
                     >
-                        <div style={{ 
-                            marginBottom: isSmall ? '12px' : '20px', 
-                            padding: isSmall ? '10px' : '18px', 
-                            backgroundColor: 'rgba(0,2,10,0.6)', 
-                            borderRadius: '16px', display: 'inline-block', border: '1px solid rgba(0,194,255,0.3)' 
-                        }}>
-                            {/* Achicamos el ícono en pantallas problemáticas */}
-                            <div style={{ transform: isSmall ? 'scale(0.8)' : 'scale(1)', transformOrigin: 'left center' }}>
-                                {project.icon}
-                            </div>
+                        <div style={{ marginBottom: isSmall ? '12px' : '20px', padding: isSmall ? '10px' : '18px', backgroundColor: 'rgba(0,2,10,0.6)', borderRadius: '16px', display: 'inline-block', border: '1px solid rgba(0,194,255,0.3)' }}>
+                            <div style={{ transform: isSmall ? 'scale(0.8)' : 'scale(1)', transformOrigin: 'left center' }}>{project.icon}</div>
                         </div>
-                        
-                        <h3 style={{ 
-                            fontSize: isTiny ? '0.95rem' : (isSmall ? '1.05rem' : (isMobile ? '1.2rem' : '1.6rem')), 
-                            fontWeight: 900, marginBottom: '10px', lineHeight: 1.2, color: '#ffffff' 
-                        }}>
-                            {project.title}
-                        </h3>
-                        <p style={{ 
-                            fontSize: isTiny ? '0.8rem' : (isSmall ? '0.85rem' : (isMobile ? '0.9rem' : '1.05rem')), 
-                            color: '#cbd5e1', margin: 0, lineHeight: 1.5, fontWeight: 600 
-                        }}>
-                            {project.desc}
-                        </p>
+                        <h3 style={{ fontSize: isSmall ? '1.05rem' : (isMobile ? '1.2rem' : '1.6rem'), fontWeight: 900, marginBottom: '10px', lineHeight: 1.2, color: '#ffffff' }}>{project.title}</h3>
+                        <p style={{ fontSize: isSmall ? '0.85rem' : (isMobile ? '0.9rem' : '1.05rem'), color: '#cbd5e1', margin: 0, lineHeight: 1.5, fontWeight: 600 }}>{project.desc}</p>
                     </motion.div>
                 ))}
             </div>
@@ -306,23 +459,35 @@ export const ProjectsPage = ({ isMobile }: { isMobile: boolean }) => {
       <section style={{ padding: isMobile ? '60px 15px' : '160px 20px', backgroundColor: '#00020a', textAlign: 'center', position: 'relative' }}>
           <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '120px', background: 'linear-gradient(to bottom, #000c2d 0%, transparent 100%)', pointerEvents: 'none' }} />
           <motion.div initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} style={{ position: 'relative', zIndex: 2 }}>
-              <h2 style={{ fontSize: isTiny ? '1.8rem' : (isMobile ? '2rem' : '4rem'), fontWeight: 950, marginBottom: '25px', lineHeight: 1, letterSpacing: '-1px' }}>Tu empresa podría ser nuestra próxima <br /><span style={{ color: '#FAA918' }}>gran estrella.</span></h2>
-              <p style={{ fontSize: isTiny ? '1rem' : (isMobile ? '1.1rem' : '1.5rem'), color: '#94a3b8', marginBottom: '40px', maxWidth: '900px', margin: '25px auto 40px', fontWeight: 600 }}>Cuéntanos tus desafíos técnicos y diseñaremos la arquitectura perfecta para superarlos.</p>
-              <button onClick={() => navigate('/contacto')} style={{ display: 'inline-flex', alignItems: 'center', backgroundColor: '#00C2FF', color: '#000c2d', fontSize: isTiny ? '0.9rem' : (isMobile ? '1rem' : '1.2rem'), fontWeight: 900, padding: isTiny ? '15px 30px' : (isMobile ? '18px 35px' : '22px 55px'), border: 'none', borderRadius: '60px', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)', boxShadow: '0 15px 35px rgba(0,194,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px' }} onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ffffff'; e.currentTarget.style.transform = 'scale(1.05)'; }} onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#00C2FF'; e.currentTarget.style.transform = 'scale(1)'; }}>
-                  Iniciar mi proyecto <ArrowRight size={isMobile ? 20 : 24} style={{ marginLeft: '12px' }} />
+              <h2 style={{ fontSize: isMobile ? '2rem' : '4rem', fontWeight: 950, marginBottom: '25px', lineHeight: 1, letterSpacing: '-1px' }}>{t.ctaTitle1} <br /><span style={{ color: '#FAA918' }}>{t.ctaTitle2}</span></h2>
+              <p style={{ fontSize: isMobile ? '1.1rem' : '1.5rem', color: '#94a3b8', marginBottom: '40px', maxWidth: '900px', margin: '25px auto 40px', fontWeight: 600 }}>{t.ctaDesc}</p>
+              <button onClick={() => navigate('/contacto')} style={{ display: 'inline-flex', alignItems: 'center', backgroundColor: '#00C2FF', color: '#000c2d', fontSize: isMobile ? '1rem' : '1.2rem', fontWeight: 900, padding: isMobile ? '18px 35px' : '22px 55px', border: 'none', borderRadius: '60px', cursor: 'pointer', transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)', boxShadow: '0 15px 35px rgba(0,194,255,0.4)', textTransform: 'uppercase', letterSpacing: '1px' }} onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ffffff'; e.currentTarget.style.transform = 'scale(1.05)'; }} onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#00C2FF'; e.currentTarget.style.transform = 'scale(1)'; }}>
+                  {t.ctaButton} <ArrowRight size={isMobile ? 20 : 24} style={{ marginLeft: '12px' }} />
               </button>
           </motion.div>
       </section>
 
       <style>{`
         .responsive-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
-        
-        @media (max-width: 900px) { .responsive-grid { gap: 20px; } }
-        @media (max-width: 768px) { .responsive-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; } }
-        @media (max-width: 480px) { .responsive-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; } }
-        /* NUEVA REGLA: 1 sola columna para pantallas hiper reducidas (<350px) */
-        @media (max-width: 350px) { .responsive-grid { grid-template-columns: 1fr; gap: 15px; } }
+        @media (max-width: 1024px) { .responsive-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } }
+        @media (max-width: 768px) { .responsive-grid { grid-template-columns: 1fr; gap: 20px; } }
       `}</style>
     </div>
   );
 };
+
+const navBtnStyle = (color: string, isMobile: boolean): React.CSSProperties => ({
+    background: 'rgba(255,255,255,0.05)', 
+    border: `2px solid ${color}50`, 
+    color: 'white', 
+    padding: isMobile ? '16px 20px' : '20px 45px', 
+    borderRadius: '16px', 
+    cursor: 'pointer', 
+    fontSize: isMobile ? '1.1rem' : '1.25rem', 
+    fontWeight: 900, 
+    transition: 'all 0.3s ease',
+    textTransform: 'uppercase',
+    letterSpacing: '1px',
+    width: isMobile ? '100%' : 'auto',
+    textAlign: 'center'
+});
