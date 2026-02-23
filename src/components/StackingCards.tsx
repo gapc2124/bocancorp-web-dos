@@ -1,8 +1,15 @@
 import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate, useParams } from 'react-router-dom'; // 👈 Agregamos useParams para el botón
 
-// --- INTERFACES RESTAURADAS EN SU LUGAR ORIGINAL ---
+// --- UTILIDAD PARA RUTAS DE IMÁGENES ---
+const resolvePath = (path: string) => {
+  const base = import.meta.env.BASE_URL || '/';
+  const cleanPath = path.replace(/^(\.?\/)/, '');
+  return `${base}${cleanPath}`;
+};
+
+// --- INTERFACES ---
 type ContentBlock = 
   | { type: 'paragraph'; text: string }
   | { type: 'highlight'; title: string; text: string };
@@ -47,7 +54,7 @@ export const StackingCards = ({ data, isMobile }: StackingCardsProps) => {
         width: '100%' 
       }}
     >
-      {/* 🚀 ANCLAS INVISIBLES MATEMÁTICAMENTE SINCRONIZADAS */}
+      {/* ANCLAS INVISIBLES MATEMÁTICAMENTE SINCRONIZADAS */}
       {data.map((item, index) => (
         <div 
           key={`anchor-${item.id}`}
@@ -93,8 +100,9 @@ export const StackingCards = ({ data, isMobile }: StackingCardsProps) => {
 // --- SUB-COMPONENTE TARJETA ---
 const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
   const navigate = useNavigate(); 
+  const { lang: urlLang } = useParams(); 
+  const currentLang = urlLang === 'en' ? 'EN' : 'ES';
   
-  // Lógica para el rango ultra-angosto (< 660px)
   const [isUltraNarrow, setIsUltraNarrow] = useState(window.innerWidth < 660);
 
   useEffect(() => {
@@ -107,8 +115,6 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
   const cardY = index === 0 ? '0vh' : y;
   const scale = useTransform(progress, [range[0], range[1]], [1, isMobile ? 0.95 : 0.95]);
 
-  // Traducción rápida del botón basada en el Nav
-  const currentLang = localStorage.getItem('appLanguage') || 'ES';
   const btnText = currentLang === 'EN' ? 'Request Consultation' : 'Solicitar asesoría';
 
   return (
@@ -132,9 +138,7 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
     >
       <div style={{
         width: isUltraNarrow ? '94%' : (isMobile ? '90%' : '75%'), 
-        // 🚀 FIX CLAVE: Auto en móviles para que crezca y no corte el botón.
         height: isMobile ? 'auto' : '65vh', 
-        // Límite máximo para que no se salga de la pantalla (evita que tape el Nav)
         maxHeight: isMobile ? 'calc(100vh - 120px)' : '750px', 
         backgroundColor: 'rgba(10, 16, 36, 0.85)', 
         backdropFilter: 'blur(16px)',
@@ -150,11 +154,12 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
         
         {/* COLUMNA: IMAGEN / MEDIA */}
         <div style={{
-          // Ajuste de altura de imagen: 130px en <660px, 160px en 660-1024px
-          flex: isUltraNarrow ? '0 0 130px' : (isMobile ? '0 0 160px' : 0.8),
+          // 👇 Reducimos la altura de la imagen en móvil para dar más espacio al texto
+          flex: isUltraNarrow ? '0 0 100px' : (isMobile ? '0 0 120px' : 0.8),
           position: 'relative',
           width: '100%',
-          backgroundImage: `url(${item.image})`,
+          // 👇 1. SOLUCIÓN DE IMÁGENES: Usamos resolvePath aquí
+          backgroundImage: `url(${resolvePath(item.image)})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           borderLeft: isMobile ? 'none' : `1px solid ${item.color}30`,
@@ -164,7 +169,7 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
             <div style={{
                 position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
                 background: isMobile 
-                  ? `linear-gradient(to bottom, transparent 20%, rgba(10,16,36,1) 100%)`
+                  ? `linear-gradient(to bottom, transparent 10%, rgba(10,16,36,1) 100%)`
                   : `linear-gradient(to right, rgba(10,16,36,0.95) 0%, transparent 40%, ${item.color}10 100%)`,
                 pointerEvents: 'none'
             }} />
@@ -173,32 +178,28 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
         {/* COLUMNA: CONTENIDO TEXTUAL */}
         <div className="stacking-card-content" style={{
           flex: isMobile ? '1' : 1.2, 
-          // Paddings ajustados para no empujar el botón fuera de la vista
-          padding: isUltraNarrow ? '15px 15px 20px' : (isMobile ? '20px 25px 25px' : '40px 50px'), 
+          // 👇 Reducción de paddings
+          padding: isUltraNarrow ? '10px 15px 15px' : (isMobile ? '15px 20px 20px' : '30px 40px'), 
           display: 'flex',
           flexDirection: 'column',
-          justifyContent: isMobile ? 'flex-start' : 'center',
+          justifyContent: 'space-between', // Ayuda a distribuir el espacio sin scroll
           background: 'linear-gradient(135deg, rgba(10,16,36,0.8) 0%, rgba(5,8,20,0.9) 100%)',
           zIndex: 2,
           position: 'relative',
-          // 🚀 CÓDIGO RESTAURADO: Si el texto es MUY largo, permite scroll pero oculta la barra
-          overflowY: 'auto', 
-          scrollbarWidth: 'none', 
-          msOverflowStyle: 'none', 
+          // 👇 2. ELIMINAMOS SCROLL INTERNO
+          overflow: 'hidden', 
           order: isMobile ? 2 : 1 
         }}>
-           {/* 🚀 CÓDIGO RESTAURADO */}
-           <style>{`div::-webkit-scrollbar { display: none; }`}</style>
 
            {/* Cabecera de Servicio */}
-           <div style={{ display: 'flex', alignItems: 'flex-start', gap: isUltraNarrow ? '12px' : '20px', marginBottom: isUltraNarrow ? '15px' : '30px' }}> 
+           <div style={{ display: 'flex', alignItems: 'flex-start', gap: isUltraNarrow ? '10px' : '15px', marginBottom: isUltraNarrow ? '10px' : '20px' }}> 
              <div style={{
-               width: isUltraNarrow ? '35px' : '45px', 
-               height: isUltraNarrow ? '35px' : '45px', 
+               width: isUltraNarrow ? '30px' : '40px', 
+               height: isUltraNarrow ? '30px' : '40px', 
                borderRadius: '50%', 
                background: item.color, color: '#000', fontWeight: '900',
                display: 'flex', alignItems: 'center', justifyContent: 'center',
-               fontSize: isUltraNarrow ? '1rem' : '1.3rem', 
+               fontSize: isUltraNarrow ? '0.9rem' : '1.1rem', 
                boxShadow: `0 0 20px ${item.color}60`,
                flexShrink: 0,
                marginTop: '2px' 
@@ -206,25 +207,26 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
                {item.id}
              </div>
              <div>
-                <span style={{ color: item.color, fontWeight: 700, letterSpacing: '1px', fontSize: '0.75rem', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>
+                <span style={{ color: item.color, fontWeight: 700, letterSpacing: '1px', fontSize: '0.65rem', textTransform: 'uppercase', display: 'block', marginBottom: '4px' }}>
                     // {item.subtitle}
                 </span>
-                <h3 style={{ color: 'white', fontSize: isUltraNarrow ? '1.3rem' : 'clamp(1.4rem, 3vw, 2rem)', fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
+                <h3 style={{ color: 'white', fontSize: isUltraNarrow ? '1.1rem' : 'clamp(1.2rem, 2.5vw, 1.8rem)', fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
                   {item.title}
                 </h3>
              </div>
            </div>
            
            {/* Renderizado de Bloques de Contenido */}
-           <div style={{ color: '#dbe4ff', fontSize: isUltraNarrow ? '0.9rem' : '1.05rem', lineHeight: isMobile ? 1.5 : 1.7 }}> 
+           <div style={{ color: '#dbe4ff', fontSize: isUltraNarrow ? '0.8rem' : '0.95rem', lineHeight: isMobile ? 1.3 : 1.5 }}> 
              {item.content.map((block, i) => {
                if (block.type === 'highlight') {
                  return (
-                   <div key={i} className="highlight-box" style={{ margin: isMobile ? '15px 0' : '20px 0', paddingLeft: '15px', borderLeft: `3px solid ${item.color}`, backgroundColor: 'rgba(255,255,255,0.02)', padding: '12px 12px 12px 15px', borderRadius: '0 8px 8px 0' }}> 
+                   // 👇 Márgenes y paddings muy reducidos en el Highlight
+                   <div key={i} className="highlight-box" style={{ margin: isMobile ? '8px 0' : '12px 0', paddingLeft: '10px', borderLeft: `3px solid ${item.color}`, backgroundColor: 'rgba(255,255,255,0.02)', padding: '8px', borderRadius: '0 8px 8px 0' }}> 
                      <h4 className="highlight-title" style={{ 
-                       color: 'white', fontSize: isUltraNarrow ? '0.9rem' : '1.1rem', fontWeight: 800, marginBottom: '8px', 
+                       color: 'white', fontSize: isUltraNarrow ? '0.8rem' : '0.95rem', fontWeight: 800, marginBottom: '4px', 
                        textTransform: 'uppercase', display: 'inline-block',
-                       borderBottom: `2px solid ${item.color}`, paddingBottom: '3px'
+                       borderBottom: `1px solid ${item.color}`, paddingBottom: '2px'
                      }}>
                        {block.title}
                      </h4>
@@ -232,25 +234,25 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
                    </div>
                  );
                } else {
-                 return <p key={i} style={{ marginBottom: isUltraNarrow ? '10px' : '15px' }}>{block.text}</p>; 
+                 return <p key={i} style={{ marginBottom: isUltraNarrow ? '6px' : '10px' }}>{block.text}</p>; 
                }
              })}
            </div>
 
            {/* BOTÓN DE CONTRATACIÓN */}
-           <div style={{ marginTop: 'auto', paddingTop: '15px' }}> 
+           <div style={{ marginTop: 'auto', paddingTop: '10px' }}> 
              <motion.button
-               onClick={() => navigate('/contacto')}
+               onClick={() => navigate(`/${currentLang.toLowerCase()}/contacto`)}
                whileHover={{ scale: 1.03, boxShadow: `0 0 20px ${item.color}80` }}
                whileTap={{ scale: 0.95 }}
                style={{
-                 width: isMobile ? '100%' : 'auto', 
-                 padding: isMobile ? '14px 20px' : '15px 35px', 
+                 width: '100%', 
+                 padding: isMobile ? '10px 15px' : '12px 25px', 
                  backgroundColor: isMobile ? `${item.color}20` : 'transparent', 
                  color: 'white',
                  border: `2px solid ${item.color}`,
                  borderRadius: '50px',
-                 fontSize: isMobile ? '0.9rem' : '1rem', 
+                 fontSize: isMobile ? '0.8rem' : '0.9rem', 
                  fontWeight: '800',
                  textTransform: 'uppercase',
                  letterSpacing: '1px',

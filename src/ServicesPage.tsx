@@ -2,7 +2,7 @@ import React, { Suspense, useEffect, useState, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import { motion } from 'framer-motion';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
 import { Helmet } from 'react-helmet-async';
 
 import { CosmicSphere } from './components/CosmicSphere';
@@ -35,8 +35,7 @@ const TRANSLATIONS: any = {
         subtitle: "INGENIERÍA DE SOFTWARE", 
         title: "Desarrollo Multiplataforma", 
         color: "#00f2ff",
-        // 👈 Quitamos el "." y pasamos la ruta por resolvePath en el renderizado
-        image: "assets/aws-bg.jpeg", 
+        image: "/assets/aws-bg.jpeg", 
         content: [
           { type: 'paragraph', text: "Desarrollamos soluciones de software a medida, escalables y seguras. Nos adaptamos a las necesidades de su negocio para garantizar una experiencia impecable en múltiples plataformas." },
           { type: 'highlight', title: "INGENIERÍA A MEDIDA", text: "Desarrollo integral Web y Móvil bajo los más estrictos estándares de la industria tecnológica." }
@@ -44,7 +43,7 @@ const TRANSLATIONS: any = {
       },
       { 
         id: 2, subtitle: "MODERNIZACIÓN DIGITAL", title: "Ecosistemas Cloud", color: "#7000ff",
-        image: "assets/cloud-bg.avif",
+        image: "/assets/cloud-bg.avif",
         content: [
           { type: 'paragraph', text: "Transformamos sistemas heredados en plataformas modernas nativas de la nube. Reducimos su deuda técnica para que innove con la agilidad que el mercado global exige." },
           { type: 'highlight', title: "ESPECIALISTAS MULTI-CLOUD", text: "Ejecutamos migraciones complejas y evolucionamos arquitecturas hacia entornos resilientes en las nubes líderes." }
@@ -52,7 +51,7 @@ const TRANSLATIONS: any = {
       },
       { 
         id: 3, subtitle: "EXPERIENCIA DE USUARIO", title: "Diseño UX/UI", color: "#ff007a",
-        image: "assets/uxui-bg.avif",
+        image: "/assets/uxui-bg.avif",
         content: [
           { type: 'paragraph', text: "Traducimos la complejidad técnica en interfaces digitales fluidas e intuitivas. Optimizamos los flujos de trabajo para maximizar la retención de usuarios y la conversión." },
           { type: 'highlight', title: "INTERFACES ESTRATÉGICAS", text: "Diseños centrados en el usuario final que reducen la fricción y potencian su producto digital." }
@@ -60,7 +59,7 @@ const TRANSLATIONS: any = {
       },
       { 
         id: 4, subtitle: "ESTRATEGIA TECNOLÓGICA", title: "Consultoría TI", color: "#00ff8c",
-        image: "assets/cti-bg.avif",
+        image: "/assets/cti-bg.avif",
         content: [
           { type: 'paragraph', text: "Definimos el rumbo tecnológico óptimo de su infraestructura. Alineamos cada decisión técnica con sus metas de negocio a largo plazo para asegurar el máximo retorno." },
           { type: 'highlight', title: "ASESORAMIENTO EJECUTIVO", text: "Diseñamos la hoja de ruta integral que su organización requiere para escalar y mitigar riesgos." }
@@ -68,7 +67,7 @@ const TRANSLATIONS: any = {
       },
       { 
         id: 5, subtitle: "ESTRATEGIA MULTINUBE", title: "Arquitectura Serverless", color: "#00a2ff",
-        image: "assets/serverless-bg.png",
+        image: "/assets/serverless-bg.png",
         content: [
           { type: 'paragraph', text: "Aproveche la potencia de la nube sin gestionar servidores físicos. Implementamos arquitecturas que escalan automáticamente, reduciendo costos operativos drásticamente." },
           { type: 'highlight', title: "AGILIDAD SIN SERVIDORES", text: "Diseño de soluciones elásticas que maximizan la velocidad de despliegue y eliminan el mantenimiento." }
@@ -91,7 +90,7 @@ const TRANSLATIONS: any = {
         ]
       },
       { 
-        id: 8, subtitle: "EFICIENCIA DE COSTOS", title: "FinOps & Optimización", color: "#ffee00",
+        id: 8, subtitle: "EFICIENCIA DE COSTOS", title: "FinOps & Optimization", color: "#ffee00",
         image: "assets/finops-bg.png",
         content: [
           { type: 'paragraph', text: "Recupere el control financiero de su nube. Analizamos su consumo para identificar y eliminar el desperdicio de recursos, asegurando que cada dólar genere máximo valor." },
@@ -213,15 +212,10 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
   const { hash } = useLocation();
   const navigate = useNavigate();
 
-  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
-
-  useEffect(() => {
-    const handleLangChange = () => setLang(localStorage.getItem('appLanguage') || 'ES');
-    window.addEventListener('languageChange', handleLangChange);
-    return () => window.removeEventListener('languageChange', handleLangChange);
-  }, []);
-
-  const t = TRANSLATIONS[lang];
+  // 👇 2. LEEMOS EL IDIOMA DIRECTO DE LA URL (Sustituye al useEffect/localStorage)
+  const { lang: urlLang } = useParams(); 
+  const currentLang = urlLang === 'en' ? 'EN' : 'ES';
+  const t = TRANSLATIONS[currentLang];
 
   useEffect(() => {
     if (hash) {
@@ -249,6 +243,8 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
       </Helmet>
 
       <HeroSection isMobile={isMobile} title={t.heroTitle} />
+      
+      {/* OJO: Estos subcomponentes también necesitan leer el idioma por URL dentro de su propio archivo */}
       <StrategicPillars isMobile={isMobile} />
 
       <section id="stacking-section-id" style={{ position: 'relative', zIndex: 1, paddingTop: '60px', backgroundColor: '#00020a' }}>
@@ -265,7 +261,8 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
           <section style={{ padding: isMobile ? '40px 20px 100px' : '40px 0 120px', textAlign: 'center' }}>
               <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
                 <motion.button
-                    onClick={() => navigate('/contacto')}
+                    // 👇 3. NAVEGACIÓN ACTUALIZADA CON EL IDIOMA
+                    onClick={() => navigate(`/${currentLang.toLowerCase()}/contacto`)}
                     whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(255, 204, 0, 0.6)', backgroundColor: '#ffe033' }}
                     whileTap={{ scale: 0.95 }}
                     animate={{ boxShadow: ['0 0 20px rgba(255, 204, 0, 0.2)', '0 0 35px rgba(255, 204, 0, 0.5)', '0 0 20px rgba(255, 204, 0, 0.2)'] }}

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Building } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
 
 interface VanguardMethodologyProps {
   isMobile: boolean;
@@ -44,18 +44,10 @@ const TRANSLATIONS: any = {
 export const VanguardMethodology = ({ isMobile }: VanguardMethodologyProps) => {
   const navigate = useNavigate();
 
-  // --- LÓGICA DE IDIOMA ---
-  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
-
-  useEffect(() => {
-    const handleLangChange = () => {
-      setLang(localStorage.getItem('appLanguage') || 'ES');
-    };
-    window.addEventListener('languageChange', handleLangChange);
-    return () => window.removeEventListener('languageChange', handleLangChange);
-  }, []);
-
-  const t = TRANSLATIONS[lang];
+  // 👇 2. LEEMOS EL IDIOMA DIRECTO DE LA URL
+  const { lang: urlLang } = useParams(); 
+  const currentLang = urlLang === 'en' ? 'EN' : 'ES';
+  const t = TRANSLATIONS[currentLang];
 
   return (
     <section style={{ 
@@ -88,7 +80,7 @@ export const VanguardMethodology = ({ isMobile }: VanguardMethodologyProps) => {
                   style={{ flex: 1, borderRadius: '24px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0,0,0,0.12)' }}
               >
                   <img 
-                    src="assets/metodologia-bg.avif" 
+                    src="/assets/metodologia-bg.avif" 
                     alt="Metodología y Modalidad" 
                     style={{ width: '100%', display: 'block' }} 
                   />
@@ -122,9 +114,9 @@ export const VanguardMethodology = ({ isMobile }: VanguardMethodologyProps) => {
                           </div>
                       </div>
 
-                      {/* BOTÓN CONTACTO */}
+                      {/* BOTÓN CONTACTO CON IDIOMA EN RUTA */}
                       <button 
-                          onClick={() => navigate('/contacto')}
+                          onClick={() => navigate(`/${currentLang.toLowerCase()}/contacto`)}
                           style={{ 
                               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', 
                               backgroundColor: '#00C2FF', color: '#ffffff', 

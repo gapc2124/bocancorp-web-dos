@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom'; // 1. Importamos el hook de navegación
+import { useNavigate, useParams } from 'react-router-dom'; // 1. IMPORTAMOS useParams y useNavigate
 
 // --- FUNCIÓN DE AYUDA PARA RUTAS ---
 const resolvePath = (path: string) => {
@@ -85,19 +85,12 @@ const CosmosBackground = () => {
 
 export const AboutUs = ({ isMobile }: AboutUsProps) => {
   const [os, setOs] = useState<OSType>('default');
-  const navigate = useNavigate(); // 2. Inicializamos el hook
+  const navigate = useNavigate(); 
   
-  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
-
-  useEffect(() => {
-    const handleLangChange = () => {
-      setLang(localStorage.getItem('appLanguage') || 'ES');
-    };
-    window.addEventListener('languageChange', handleLangChange);
-    return () => window.removeEventListener('languageChange', handleLangChange);
-  }, []);
-
-  const t = ABOUT_TEXTS[lang];
+  // 👇 2. NUEVA LÓGICA DE IDIOMA BASADA EN LA URL
+  const { lang: urlLang } = useParams(); 
+  const currentLang = urlLang === 'en' ? 'EN' : 'ES';
+  const t = ABOUT_TEXTS[currentLang];
   
   const containerRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLImageElement>(null);
@@ -134,7 +127,7 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
     return () => clearInterval(interval);
   }, [vel]);
 
-  const renderWindowHeader = () => {
+const renderWindowHeader = () => {
     switch (os) {
       case 'mac':
         return (
@@ -142,13 +135,13 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
             <div style={{...styles.dot, backgroundColor: '#ff5f56'}} />
             <div style={{...styles.dot, backgroundColor: '#ffbd2e'}} />
             <div style={{...styles.dot, backgroundColor: '#27c93f'}} />
-            <span style={styles.headerTitle}>Bocan Terminal (zsh)</span>
+            <span style={styles.headerTitle}>Bocancorp Terminal</span>
           </div>
         );
       case 'windows':
         return (
           <div style={styles.winHeader}>
-            <span style={{...styles.headerTitle, marginLeft: '10px'}}>BocanCorp Explorer</span>
+            <span style={{...styles.headerTitle, marginLeft: '10px'}}>Bocancorp Terminal</span>
             <div style={{display: 'flex', marginLeft: 'auto'}}>
               <div style={styles.winBtn}>─</div>
               <div style={styles.winBtn}>▢</div>
@@ -160,7 +153,7 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
         return (
           <div style={styles.linuxHeader}>
             <div style={styles.linuxBtn}>✖</div>
-            <span style={styles.headerTitle}>BocanCorp - Bash</span>
+            <span style={styles.headerTitle}>Bocancorp Terminal</span>
             <div style={{display: 'flex', gap: '5px'}}>
               <div style={styles.linuxBtn}>_</div>
               <div style={styles.linuxBtn}>□</div>
@@ -171,7 +164,7 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
         return (
           <div style={styles.defaultHeader}>
             <div style={styles.defaultDot} />
-            <span style={styles.headerTitle}>BocanCorp Cloud</span>
+            <span style={styles.headerTitle}>Bocancorp Terminal</span>
           </div>
         );
     }
@@ -208,8 +201,8 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
               ))}
             </p>
           </div>
-          {/* BOTÓN CON NAVEGACIÓN */}
-          <button onClick={() => navigate('/nosotros')} className="btn-primary">
+          {/* 👇 3. ACTUALIZAMOS LA NAVEGACIÓN CON EL IDIOMA ACTUAL */}
+          <button onClick={() => navigate(`/${urlLang || 'es'}/nosotros`)} className="btn-primary">
             {t.button}
           </button>
         </div>

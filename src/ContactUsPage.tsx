@@ -1,11 +1,102 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
+import { useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
 import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
 import es from 'react-phone-number-input/locale/es'; 
+import en from 'react-phone-number-input/locale/en'; // 👈 Importamos inglés para el selector de países
+
+// ==========================================
+// 1. DICCIONARIO DE TRADUCCIONES
+// ==========================================
+const TRANSLATIONS: any = {
+  ES: {
+    seo: {
+      title: "Contacto | Inicia tu Proyecto Cloud con Bocancorp",
+      desc: "Solicita un diagnóstico tecnológico con Bocancorp. Expertos en modernización de infraestructura y seguridad avanzada en la nube.",
+      keywords: "Bocancorp, Cloud Computing, Ingeniería de Software, Seguridad Cloud, Diagnóstico Tecnológico",
+      ogTitle: "Contacto | Bocancorp",
+      ogDesc: "Hablemos de negocios. Equipo técnico especializado listo para escalar su infraestructura."
+    },
+    alerts: {
+      success: "¡Solicitud enviada con éxito! El equipo de Bocancorp se pondrá en contacto pronto. 🚀",
+      awsError: "Hubo un problema al enviar el correo. Por favor, intenta de nuevo.",
+      netError: "No se pudo conectar con el servidor de AWS."
+    },
+    info: {
+      title1: "Hablemos de ",
+      title2: "Negocios",
+      desc: "Equipo técnico especializado listo para diseñar y escalar su infraestructura empresarial.",
+      emailTitle: "Email Corporativo",
+      hqTitle: "Sede Operativa",
+      hqDesc: "Atención global. Facturación local."
+    },
+    form: {
+      nameLabel: "Nombre Completo",
+      namePh: "Nombre",
+      emailLabel: "Email Corporativo",
+      emailPh: "Email",
+      phoneLabel: "Número Celular",
+      countryLabel: "País",
+      countryPh: "País",
+      companyLabel: "Empresa",
+      companyPh: "Organización",
+      positionLabel: "Cargo",
+      positionPh: "Ej. CTO",
+      msgLabel: "¿En qué podemos ayudarte?",
+      msgPh: "Describe tu desafío...",
+      btnSubmit: "Solicitar Diagnóstico",
+      btnLoading: "Enviando..."
+    }
+  },
+  EN: {
+    seo: {
+      title: "Contact Us | Start your Cloud Project with Bocancorp",
+      desc: "Request a technological diagnosis with Bocancorp. Experts in infrastructure modernization and advanced cloud security.",
+      keywords: "Bocancorp, Cloud Computing, Software Engineering, Cloud Security, Tech Diagnosis",
+      ogTitle: "Contact Us | Bocancorp",
+      ogDesc: "Let's talk business. Specialized technical team ready to scale your infrastructure."
+    },
+    alerts: {
+      success: "Request sent successfully! The Bocancorp team will contact you soon. 🚀",
+      awsError: "There was a problem sending the email. Please try again.",
+      netError: "Could not connect to the AWS server."
+    },
+    info: {
+      title1: "Let's Talk ",
+      title2: "Business",
+      desc: "Specialized technical team ready to design and scale your enterprise infrastructure.",
+      emailTitle: "Corporate Email",
+      hqTitle: "Operating Headquarters",
+      hqDesc: "Global service. Local billing."
+    },
+    form: {
+      nameLabel: "Full Name",
+      namePh: "Name",
+      emailLabel: "Corporate Email",
+      emailPh: "Email",
+      phoneLabel: "Phone Number",
+      countryLabel: "Country",
+      countryPh: "Country",
+      companyLabel: "Company",
+      companyPh: "Organization",
+      positionLabel: "Job Title",
+      positionPh: "e.g., CTO",
+      msgLabel: "How can we help you?",
+      msgPh: "Describe your challenge...",
+      btnSubmit: "Request Diagnosis",
+      btnLoading: "Sending..."
+    }
+  }
+};
 
 export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
+  // 👇 2. LEEMOS EL IDIOMA DIRECTO DE LA URL
+  const { lang: urlLang } = useParams(); 
+  const currentLang = urlLang === 'en' ? 'EN' : 'ES';
+  const t = TRANSLATIONS[currentLang];
+
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', country: '', company: '', position: '', message: ''
   });
@@ -37,23 +128,22 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
       });
 
       if (response.ok) {
-        alert("¡Solicitud enviada con éxito! El equipo de Bocancorp se pondrá en contacto pronto. 🚀");
+        alert(t.alerts.success);
         setFormData({ name: '', email: '', phone: '', country: '', company: '', position: '', message: '' });
         setIsSubmitted(false);
       } else {
         const errorData = await response.json();
         console.error("Error de AWS:", errorData);
-        alert("Hubo un problema al enviar el correo. Por favor, intenta de nuevo.");
+        alert(t.alerts.awsError);
       }
     } catch (error) {
       console.error("Error de conexión:", error);
-      alert("No se pudo conectar con el servidor de AWS.");
+      alert(t.alerts.netError);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Ajustes de escalado para que en laptops se vea más compacto
   const dynamicPadding = isMobile ? '14px' : 'clamp(12px, 1.2vw, 18px)';
   const dynamicFontSize = isMobile ? '1rem' : 'clamp(0.9rem, 1vw, 1.1rem)';
 
@@ -104,18 +194,18 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
     }}>
       
       <Helmet>
-        <title>Contacto | Inicia tu Proyecto Cloud con Bocancorp</title>
-        <meta name="description" content="Solicita un diagnóstico tecnológico con Bocancorp. Expertos en modernización de infraestructura y seguridad avanzada en la nube." />
-        <meta name="keywords" content="Bocancorp, Cloud Computing, Ingeniería de Software, Seguridad Cloud, Diagnóstico Tecnológico" />
-        <meta property="og:title" content="Contacto | Bocancorp" />
-        <meta property="og:description" content="Hablemos de negocios. Equipo técnico especializado listo para escalar su infraestructura." />
+        <title>{t.seo.title}</title>
+        <meta name="description" content={t.seo.desc} />
+        <meta name="keywords" content={t.seo.keywords} />
+        <meta property="og:title" content={t.seo.ogTitle} />
+        <meta property="og:description" content={t.seo.ogDesc} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.bocancorporation.com/contact" />
         <meta property="og:image" content="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80" />
       </Helmet>
 
       <div style={{ 
-          maxWidth: '1100px', // Limita el ancho en laptops
+          maxWidth: '1100px',
           width: '100%', display: 'flex', 
           flexDirection: isMobile ? 'column-reverse' : 'row', 
           gap: isMobile ? '30px' : 'clamp(30px, 4vw, 60px)', alignItems: 'center'
@@ -133,10 +223,10 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
               }}
           >
               <h3 style={{ fontSize: isMobile ? '2rem' : 'clamp(2.2rem, 3vw, 3.2rem)', fontWeight: 950, color: '#ffffff', marginBottom: '15px', lineHeight: 1.1 }}>
-                  Hablemos de <br/><span style={{ color: '#FAA918' }}>Negocios</span>
+                  {t.info.title1}<br/><span style={{ color: '#FAA918' }}>{t.info.title2}</span>
               </h3>
               <p style={{ color: '#b0b8d1', fontSize: isMobile ? '0.95rem' : 'clamp(1rem, 1.2vw, 1.15rem)', marginBottom: '30px', lineHeight: 1.5 }}>
-                  Equipo técnico especializado listo para diseñar y escalar su infraestructura empresarial.
+                  {t.info.desc}
               </p>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '25px' }}>
@@ -147,7 +237,7 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
                       </svg>
                   </div>
                   <div>
-                      <h4 style={{ margin: '0', fontSize: '0.8rem', color: '#ffffff', textTransform: 'uppercase', opacity: 0.6 }}>Email Corporativo</h4>
+                      <h4 style={{ margin: '0', fontSize: '0.8rem', color: '#ffffff', textTransform: 'uppercase', opacity: 0.6 }}>{t.info.emailTitle}</h4>
                       <a href="mailto:contact@bocancorporation.com" style={{ color: '#00C2FF', fontWeight: 800, textDecoration: 'none' }}>contact@bocancorporation.com</a>
                   </div>
               </div>
@@ -160,8 +250,8 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
                       </svg>
                   </div>
                   <div>
-                      <h4 style={{ margin: '0', fontSize: '0.8rem', color: '#ffffff', textTransform: 'uppercase', opacity: 0.6 }}>Sede Operativa</h4>
-                      <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.95rem' }}>Atención global. Facturación local.</p>
+                      <h4 style={{ margin: '0', fontSize: '0.8rem', color: '#ffffff', textTransform: 'uppercase', opacity: 0.6 }}>{t.info.hqTitle}</h4>
+                      <p style={{ margin: 0, color: '#94a3b8', fontSize: '0.95rem' }}>{t.info.hqDesc}</p>
                   </div>
               </div>
           </motion.div>
@@ -180,42 +270,42 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
               <form style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '15px' : '20px' }}>
                   <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '15px' }}>
                       <div style={{ flex: 1 }}>
-                          <label style={labelStyle}>Nombre Completo</label>
-                          <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Nombre" style={getDynamicStyle('name')} />
+                          <label style={labelStyle}>{t.form.nameLabel}</label>
+                          <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder={t.form.namePh} style={getDynamicStyle('name')} />
                       </div>
                       <div style={{ flex: 1 }}>
-                          <label style={labelStyle}>Email Corporativo</label>
-                          <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="Email" style={getDynamicStyle('email')} />
+                          <label style={labelStyle}>{t.form.emailLabel}</label>
+                          <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder={t.form.emailPh} style={getDynamicStyle('email')} />
                       </div>
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '15px' }}>
                       <div style={{ flex: 1 }}>
-                          <label style={labelStyle}>Número Celular</label>
+                          <label style={labelStyle}>{t.form.phoneLabel}</label>
                           <div style={getDynamicStyle('phone')} className="cyber-phone-container">
-                            <PhoneInput international defaultCountry="US" labels={es} value={formData.phone} onChange={handlePhoneChange} className="cyber-phone-inner" />
+                            <PhoneInput international defaultCountry="US" labels={currentLang === 'ES' ? es : en} value={formData.phone} onChange={handlePhoneChange} className="cyber-phone-inner" />
                           </div>
                       </div>
                       <div style={{ flex: 1 }}>
-                          <label style={labelStyle}>País</label>
-                          <input type="text" name="country" value={formData.country} onChange={handleChange} placeholder="País" style={getDynamicStyle('country')} />
+                          <label style={labelStyle}>{t.form.countryLabel}</label>
+                          <input type="text" name="country" value={formData.country} onChange={handleChange} placeholder={t.form.countryPh} style={getDynamicStyle('country')} />
                       </div>
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '15px' }}>
                       <div style={{ flex: 1 }}>
-                          <label style={labelStyle}>Empresa</label>
-                          <input type="text" name="company" value={formData.company} onChange={handleChange} placeholder="Organización" style={getDynamicStyle('company')} />
+                          <label style={labelStyle}>{t.form.companyLabel}</label>
+                          <input type="text" name="company" value={formData.company} onChange={handleChange} placeholder={t.form.companyPh} style={getDynamicStyle('company')} />
                       </div>
                       <div style={{ flex: 1 }}>
-                          <label style={labelStyle}>Cargo</label>
-                          <input type="text" name="position" value={formData.position} onChange={handleChange} placeholder="Ej. CTO" style={getDynamicStyle('position')} />
+                          <label style={labelStyle}>{t.form.positionLabel}</label>
+                          <input type="text" name="position" value={formData.position} onChange={handleChange} placeholder={t.form.positionPh} style={getDynamicStyle('position')} />
                       </div>
                   </div>
 
                   <div>
-                      <label style={labelStyle}>¿En qué podemos ayudarte?</label>
-                      <textarea name="message" value={formData.message} onChange={handleChange} rows={3} placeholder="Describe tu desafío..." style={{ ...getDynamicStyle('message'), resize: 'none' }} />
+                      <label style={labelStyle}>{t.form.msgLabel}</label>
+                      <textarea name="message" value={formData.message} onChange={handleChange} rows={3} placeholder={t.form.msgPh} style={{ ...getDynamicStyle('message'), resize: 'none' }} />
                   </div>
 
                   <button 
@@ -231,7 +321,7 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
                           transition: 'all 0.3s ease', textTransform: 'uppercase', letterSpacing: '1px'
                       }}
                   >
-                      {isLoading ? 'Enviando...' : 'Solicitar Diagnóstico'}
+                      {isLoading ? t.form.btnLoading : t.form.btnSubmit}
                   </button>
               </form>
           </motion.div>

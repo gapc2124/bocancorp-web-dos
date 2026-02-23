@@ -1,9 +1,10 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo } from 'react'; // Quitamos useEffect
 import { motion, AnimatePresence } from 'framer-motion';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
 import * as THREE from 'three';
 import { shaderMaterial } from '@react-three/drei';
 import { Rocket, ShieldCheck, Globe, Building, Target, MapPin, X, Star } from 'lucide-react';
+import { useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
 
 // ==========================================
 // 1. INTERFACES Y TRADUCCIONES (HISTORIA BOCANCORP)
@@ -194,18 +195,10 @@ const BackgroundStars = () => {
 export const TimelineConstellation = ({ isMobile }: { isMobile: boolean }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  // --- LÓGICA DE IDIOMA ---
-  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
-
-  useEffect(() => {
-    const handleLangChange = () => {
-      setLang(localStorage.getItem('appLanguage') || 'ES');
-    };
-    window.addEventListener('languageChange', handleLangChange);
-    return () => window.removeEventListener('languageChange', handleLangChange);
-  }, []);
-
-  const t = TRANSLATIONS[lang];
+  // 👇 2. LEEMOS EL IDIOMA DIRECTO DE LA URL
+  const { lang: urlLang } = useParams(); 
+  const currentLang = urlLang === 'en' ? 'EN' : 'ES';
+  const t = TRANSLATIONS[currentLang];
 
   // Buscamos el nodo activo en el idioma actual para que se traduzca incluso si está abierto
   const activeNode = selectedNodeId ? t.timeline.find((n: TimelineNode) => n.id === selectedNodeId) : null;
@@ -226,7 +219,7 @@ export const TimelineConstellation = ({ isMobile }: { isMobile: boolean }) => {
         <motion.div 
             initial={{ opacity: 0, y: -30 }} 
             animate={{ opacity: 1, y: 0 }} 
-            key={lang} // Anima al cambiar de idioma
+            key={currentLang} // Anima al cambiar de idioma
             style={{ textAlign: 'center', marginBottom: '80px', padding: '0 20px' }}
         >
             <h2 style={{ color: 'white', fontSize: isMobile ? '2.8rem' : '4.5rem', fontWeight: 950, textTransform: 'uppercase', letterSpacing: '2px', margin: '0 0 10px 0', lineHeight: 1 }}>

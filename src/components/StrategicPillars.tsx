@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
+import { useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
 import { Cloud, Terminal, TrendingUp, Shield, Database, Cpu } from 'lucide-react';
 
 // ==========================================
@@ -33,19 +34,10 @@ const TRANSLATIONS: any = {
 };
 
 export const StrategicPillars = ({ isMobile }: { isMobile: boolean }) => {
-  // --- LÓGICA DE IDIOMA (EL MOTOR DE LA TRADUCCIÓN) ---
-  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
-
-  useEffect(() => {
-    const handleLangChange = () => {
-      setLang(localStorage.getItem('appLanguage') || 'ES');
-    };
-    // Escuchamos el evento global que dispara el Nav
-    window.addEventListener('languageChange', handleLangChange);
-    return () => window.removeEventListener('languageChange', handleLangChange);
-  }, []);
-
-  const t = TRANSLATIONS[lang];
+  // 👇 2. LEEMOS EL IDIOMA DIRECTO DE LA URL
+  const { lang: urlLang } = useParams(); 
+  const currentLang = urlLang === 'en' ? 'EN' : 'ES';
+  const t = TRANSLATIONS[currentLang];
 
   return (
     <section style={{ 

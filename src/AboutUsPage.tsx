@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Server, Terminal, Shield, TrendingUp, ChevronDown, 
   ArrowRight, Search, PenTool, Rocket, ShieldCheck 
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { Canvas } from '@react-three/fiber';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Canvas, useFrame } from '@react-three/fiber'; // 👈 Importamos useFrame
+import * as THREE from 'three'; // 👈 Importamos THREE para las estrellas
 import { Helmet } from 'react-helmet-async';
 
 // COMPONENTES EXTERNOS
@@ -111,18 +112,48 @@ const WaveDivider = ({ fillColor }: { fillColor: string }) => (
   </div>
 );
 
+// ==========================================
+// COMPONENTE ESTRELLAS DE FONDO (REUTILIZADO)
+// ==========================================
+const StarryBackground = () => {
+    const meshRef = useRef<THREE.Points>(null);
+    const count = 500;
+    const positions = useMemo(() => {
+        const pos = new Float32Array(count * 3);
+        for (let i = 0; i < count; i++) {
+            pos[i * 3] = (Math.random() - 0.5) * 50;
+            pos[i * 3 + 1] = (Math.random() - 0.5) * 50;
+            pos[i * 3 + 2] = (Math.random() - 0.5) * 50;
+        }
+        return pos;
+    }, []);
+
+    useFrame(() => {
+        if (meshRef.current) {
+            meshRef.current.rotation.y += 0.001;
+            meshRef.current.rotation.x += 0.0005;
+        }
+    });
+
+    return (
+        <points ref={meshRef}>
+            <bufferGeometry>
+                {/* @ts-ignore */}
+                <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+            </bufferGeometry>
+            <pointsMaterial size={0.15} color="#00C2FF" transparent opacity={0.6} sizeAttenuation={true} />
+        </points>
+    );
+};
+
 export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
   const navigate = useNavigate();
-  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
   const [activeStepBtn, setActiveStepBtn] = useState<number | null>(null);
 
-  useEffect(() => {
-    const handleLangChange = () => setLang(localStorage.getItem('appLanguage') || 'ES');
-    window.addEventListener('languageChange', handleLangChange);
-    return () => window.removeEventListener('languageChange', handleLangChange);
-  }, []);
-  
-  const t = TRANSLATIONS[lang];
+  // LEEMOS EL IDIOMA DESDE LA URL
+  const { lang: urlLang } = useParams(); 
+  const currentLang = urlLang === 'en' ? 'EN' : 'ES';
+  const t = TRANSLATIONS[currentLang];
 
   // Extraemos solo los iconos para el círculo interactivo
   const stepIconsForCircle = t.howWorkSteps.map((s: any) => s.icon);
@@ -150,7 +181,7 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
       <section style={{ position: 'relative', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}><Canvas camera={{ position: [0, 0, 10], fov: 75 }}><Auroras /></Canvas></div>
         <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at center, rgba(0, 2, 10, 0.75) 0%, rgba(0, 2, 10, 0.25) 100%)', backdropFilter: 'blur(8px)', zIndex: 1 }} />
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} key={lang} style={{ maxWidth: '1100px', textAlign: 'center', position: 'relative', zIndex: 3, padding: '0 20px' }}>
+        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} key={currentLang} style={{ maxWidth: '1100px', textAlign: 'center', position: 'relative', zIndex: 3, padding: '0 20px' }}>
             <h2 style={{ fontSize: isMobile ? '2.2rem' : '4.5rem', fontWeight: 950, lineHeight: 1.1, margin: 0 }}>
                 {t.heroTitle1} <br /><span style={{ color: ACCENT_CYAN, textShadow: `0 0 50px ${ACCENT_CYAN}50` }}>{t.heroTitle2}</span>
             </h2>
@@ -191,7 +222,7 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
       <section style={{ padding: isMobile ? '120px 20px' : '180px 60px', backgroundColor: BG_DARK, position: 'relative' }}>
         <WaveDivider fillColor={BG_WHITE} />
         <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '80px', alignItems: 'center', position: 'relative', zIndex: 2 }}>
-            <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} key={lang}>
+            <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} key={currentLang}>
                 <h2 style={{ fontSize: isMobile ? '2.5rem' : '3.5rem', fontWeight: 900, marginBottom: '30px', lineHeight: 1.1 }}>
                     {t.evoTitle1} <br /><span style={{ color: ACCENT_CYAN }}>{t.evoTitle2}</span>
                 </h2>
@@ -205,12 +236,12 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
         </div>
       </section>
 
-      {/* 🟦 5️⃣ CÓMO TRABAJAMOS (CÍRCULO INTERACTIVO + ALTO CONTRASTE) */}
+      {/* 🟦 5️⃣ CÓMO TRABAJAMOS */}
       <section style={{ padding: isMobile ? '80px 20px' : '150px 60px', backgroundColor: BG_WHITE, position: 'relative', overflow: 'hidden' }}>
         <WaveDivider fillColor={BG_DARK} />
         <div style={{ maxWidth: '1200px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
             
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: isMobile ? '40px' : '80px' }} key={lang}>
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} style={{ textAlign: 'center', marginBottom: isMobile ? '40px' : '80px' }} key={currentLang}>
                 <h2 style={{ fontSize: isMobile ? '2.2rem' : '3.5rem', fontWeight: 900, color: TEXT_ON_WHITE_MAIN }}>
                     {t.howWorkTitle1} <br /><span style={{ color: ACCENT_CYAN }}>{t.howWorkTitle2}</span>
                 </h2>
@@ -218,7 +249,6 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
 
             <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '30px' : '60px', alignItems: 'center' }}>
                 
-                {/* LISTA DE PASOS CON FONDO OSCURO PARA MÁXIMO CONTRASTE */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: isMobile ? '15px' : '20px', width: '100%' }}>
                     {t.howWorkSteps.map((item: any, i: number) => (
                         <motion.div 
@@ -226,7 +256,7 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
                             onClick={() => setActiveStepBtn(i)}
                             whileHover={{ x: isMobile ? 0 : 10 }}
                             animate={{ 
-                                backgroundColor: activeStepBtn === i ? '#001a4d' : '#000c2d', // Azul oscuro profundo
+                                backgroundColor: activeStepBtn === i ? '#001a4d' : '#000c2d', 
                                 borderColor: activeStepBtn === i ? ACCENT_CYAN : 'transparent',
                                 scale: isMobile && activeStepBtn === i ? 0.98 : 1
                             }}
@@ -260,12 +290,10 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
                                     <span style={{ color: ACCENT_CYAN, marginRight: '10px' }}>{item.step}</span>
                                     {item.title}
                                 </h3>
-                                {/* La descripción se oculta en móviles muy pequeños para ahorrar espacio vertical */}
                                 <p style={{ 
                                     margin: '5px 0 0', 
                                     fontSize: isMobile ? '0.9rem' : '1.05rem', 
                                     color: '#94a3b8',
-                                    // FIX: Se corrige la lógica de comparación para evitar el error ts(2367)
                                     display: isMobile && activeStepBtn !== i ? 'none' : 'block' 
                                 }}>
                                     {item.desc}
@@ -275,7 +303,6 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
                     ))}
                 </div>
 
-                {/* CÍRCULO 2D INTERACTIVO */}
                 <div style={{ flex: 1, width: '100%' }}>
                     <CircuitCircle activeStep={activeStepBtn} stepIcons={stepIconsForCircle} isMobile={isMobile} />
                 </div>
@@ -284,15 +311,23 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
         </div>
     </section>
 
-      {/* 🟦 6️⃣ FILOSOFÍA Y CTA */}
-      <section style={{ padding: isMobile ? '160px 20px' : '200px 20px', backgroundColor: BG_DEEP, textAlign: 'center', position: 'relative' }}>
+      {/* 🟦 6️⃣ FILOSOFÍA Y CTA (AHORA CON ESTRELLAS DE FONDO) */}
+      <section style={{ padding: isMobile ? '160px 20px' : '200px 20px', backgroundColor: BG_DEEP, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <WaveDivider fillColor={BG_WHITE} />
+        
+        {/* 👇 ESTRELLAS 3D EN EL FONDO */}
+        <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none' }}>
+          <Canvas camera={{ position: [0, 0, 10], fov: 75 }}>
+            <StarryBackground />
+          </Canvas>
+        </div>
+
         <div style={{ maxWidth: '900px', margin: '0 auto', position: 'relative', zIndex: 2 }}>
             <h4 style={{ color: ACCENT_GOLD, textTransform: 'uppercase', letterSpacing: '6px', fontWeight: 900, marginBottom: '20px' }}>{t.philosophyLabel}</h4>
             <h2 style={{ fontSize: isMobile ? '2.2rem' : '4rem', fontWeight: 900, marginBottom: '30px' }}>{t.philosophyTitle}</h2>
             <p style={{ fontSize: isMobile ? '1.1rem' : '1.5rem', color: '#94a3b8', marginBottom: '50px' }}>{t.philosophyDesc}</p>
             <motion.button 
-                whileHover={{ scale: 1.05 }} onClick={() => navigate('/contacto')}
+                whileHover={{ scale: 1.05 }} onClick={() => navigate(`/${currentLang.toLowerCase()}/contacto`)}
                 style={{ backgroundColor: ACCENT_CYAN, color: BG_DARK, fontWeight: 900, padding: '20px 45px', border: 'none', borderRadius: '50px', cursor: 'pointer', fontSize: '1.2rem', display: 'inline-flex', alignItems: 'center', gap: '10px' }}
             >
                 {t.ctaBtn} <ArrowRight size={22} />

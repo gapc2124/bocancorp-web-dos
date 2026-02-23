@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react'; 
 import { Canvas } from '@react-three/fiber';
+import { Link, useParams } from 'react-router-dom'; 
 import { Auroras } from './Auroras';
+import logoImg from '/assets/logo.png'; 
 
 // --- DICCIONARIO DE TEXTOS ---
 const FOOTER_TEXTS: any = {
@@ -49,21 +51,13 @@ const FOOTER_TEXTS: any = {
 };
 
 export const Footer = () => {
-  // Función simple para detectar móvil
   const isMobileLayout = () => typeof window !== 'undefined' && window.innerWidth < 768;
 
-  // --- LÓGICA DE IDIOMA ---
-  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
-
-  useEffect(() => {
-    const handleLangChange = () => {
-      setLang(localStorage.getItem('appLanguage') || 'ES');
-    };
-    window.addEventListener('languageChange', handleLangChange);
-    return () => window.removeEventListener('languageChange', handleLangChange);
-  }, []);
-
-  const t = FOOTER_TEXTS[lang];
+  // LÓGICA DE IDIOMA CON URL
+  const { lang: urlLang } = useParams();
+  const currentLang = urlLang === 'en' ? 'EN' : 'ES';
+  const prefix = currentLang.toLowerCase(); 
+  const t = FOOTER_TEXTS[currentLang];
 
   return (
     <footer style={{
@@ -99,7 +93,7 @@ export const Footer = () => {
         <div style={{ flex: '1 1 250px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '25px' }}>
             <img 
-              src="./assets/logo.png" 
+              src={logoImg} 
               alt="Bocancorp" 
               style={{ width: '40px', height: 'auto', objectFit: 'contain' }} 
             />
@@ -107,10 +101,10 @@ export const Footer = () => {
           </div>
           
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <a href="#home" className="footer-link-v2">{t.nav.home}</a>
-            <a href="#servicios" className="footer-link-v2">{t.nav.services}</a>
-            <a href="#proyectos" className="footer-link-v2">{t.nav.projects}</a>
-            <a href="#nosotros" className="footer-link-v2">{t.nav.about}</a>
+            <Link to={`/${prefix}`} className="footer-link-v2">{t.nav.home}</Link>
+            <Link to={`/${prefix}/servicios`} className="footer-link-v2">{t.nav.services}</Link>
+            <Link to={`/${prefix}/proyectos`} className="footer-link-v2">{t.nav.projects}</Link>
+            <Link to={`/${prefix}/nosotros`} className="footer-link-v2">{t.nav.about}</Link>
           </nav>
         </div>
 
@@ -160,10 +154,11 @@ export const Footer = () => {
         <div style={{ flex: '1 1 200px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', textAlign: isMobileLayout() ? 'left' : 'right' }}>
           <div>
             <h3 style={{ fontSize: '1.1rem', marginBottom: '25px', fontWeight: 600 }}>{t.followUs}</h3>
+            {/* 👇 ENLACES DE REDES SOCIALES ACTUALIZADOS */}
             <div style={{ display: 'flex', gap: '15px', justifyContent: isMobileLayout() ? 'flex-start' : 'flex-end', marginBottom: '30px' }}>
-              <SocialIcon icon="fa-facebook-f" />
-              <SocialIcon icon="fa-linkedin-in" />
-              <SocialIcon icon="fa-instagram" />
+              <SocialIcon icon="fa-facebook-f" href="https://www.facebook.com/profile.php?id=61551411010057" />
+              <SocialIcon icon="fa-linkedin-in" href="https://www.linkedin.com/company/bocancorp/" />
+              <SocialIcon icon="fa-instagram" href="https://www.instagram.com/bocancorp/" />
             </div>
           </div>
           
@@ -187,8 +182,9 @@ export const Footer = () => {
   );
 };
 
-const SocialIcon = ({ icon }: { icon: string }) => (
-  <a href="#" style={{
+// 👇 COMPONENTE ACTUALIZADO CON PROP href
+const SocialIcon = ({ icon, href }: { icon: string, href: string }) => (
+  <a href={href} target="_blank" rel="noopener noreferrer" style={{
     width: '45px', height: '45px', borderRadius: '12px', background: 'rgba(255,255,255,0.05)',
     display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white',
     textDecoration: 'none', transition: '0.3s', backdropFilter: 'blur(5px)',

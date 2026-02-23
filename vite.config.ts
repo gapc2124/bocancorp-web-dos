@@ -5,4 +5,8 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: '/', // <--- CAMBIADO: De '/bocancorp-web-dos/' a '/'
   plugins: [react()],
+  resolve: {
+    dedupe: ['three'],
+  },
+  
 })
