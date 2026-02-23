@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
-import { Link, useLocation } from 'react-router-dom'; // <-- USAMOS LINK Y USELOCATION
+import { Link, useLocation, useParams } from 'react-router-dom'; // <-- USAMOS PARAMS
 import { 
   Torus, 
   Sphere,
@@ -211,25 +211,21 @@ function UranusCartoon() {
 }
 
 // =====================================================================
-// BOTÓN ACTUALIZADO CON BÚSQUEDA DIRECTA AL ANCLA INVISIBLE
+// BOTÓN ACTUALIZADO
 // =====================================================================
-const ServiceButton = ({ item, id, themeColor }: { item: string, id: number, themeColor: string }) => {
+const ServiceButton = ({ item, id, themeColor, urlLang }: { item: string, id: number, themeColor: string, urlLang: string }) => {
     const [isHovered, setIsHovered] = useState(false);
     const location = useLocation();
 
     const handleClick = (e: React.MouseEvent) => {
-        // SI ESTAMOS EN LA PÁGINA DE SERVICIOS
         if (location.pathname.includes('/servicios')) {
             e.preventDefault(); 
             const element = document.getElementById(`service-${id}`);
             if (element) {
-                // Al ser un ancla matemática, alinearla arriba (start) es perfecto
                 element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                window.history.pushState(null, '', `/servicios#service-${id}`);
+                window.history.pushState(null, '', `/${urlLang}/servicios#service-${id}`);
             }
         } else {
-            // SI ESTAMOS EN HOME, el <Link> navegará. Le damos un delay a que cargue la página
-            // para que busque el ancla invisible y scrollee.
             setTimeout(() => {
                 const element = document.getElementById(`service-${id}`);
                 if (element) element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -239,7 +235,7 @@ const ServiceButton = ({ item, id, themeColor }: { item: string, id: number, the
 
     return (
         <Link 
-            to={`/servicios#service-${id}`} 
+            to={`/${urlLang}/servicios#service-${id}`} 
             onClick={handleClick} 
             style={{ textDecoration: 'none', width: '100%' }}
         >
@@ -289,17 +285,11 @@ const ServiceButton = ({ item, id, themeColor }: { item: string, id: number, the
 // =====================================================================
 export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('software');
-  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
-
-  useEffect(() => {
-    const handleLangChange = () => {
-      setLang(localStorage.getItem('appLanguage') || 'ES');
-    };
-    window.addEventListener('languageChange', handleLangChange);
-    return () => window.removeEventListener('languageChange', handleLangChange);
-  }, []);
-
-  const t = SECTION_TEXTS[lang];
+  
+  // LEEMOS EL IDIOMA DIRECTO DE LA URL
+  const { lang: urlLang } = useParams(); 
+  const currentLang = urlLang === 'en' ? 'EN' : 'ES';
+  const t = SECTION_TEXTS[currentLang];
   const activeData = t.categories[activeCategory];
 
   return (
@@ -322,7 +312,7 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
         position: 'relative', zIndex: 10,
         width: '100%', height: '100%',
         display: 'flex', flexDirection: isMobile ? 'column' : 'row',
-        pointerEvents: 'none'
+        pointerEvents: 'none' // Evitamos que la sección completa capture eventos táctiles
       }}>
 
         {/* --- MITAD IZQUIERDA: MENÚ --- */}
@@ -335,7 +325,7 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
           backdropFilter: 'blur(16px)',
           borderRight: isMobile ? 'none' : `1px solid ${CATEGORY_CONFIG[activeCategory].themeColor}30`,
           padding: isMobile ? '50px 20px' : '0 60px',
-          pointerEvents: 'auto',
+          pointerEvents: 'auto', // Reactivamos eventos aquí
           transition: 'all 0.5s ease'
         }}>
             <h2 style={{ fontSize: isMobile ? '2rem' : '3rem', fontWeight: 800, marginBottom: '30px', color: '#fff', lineHeight: 1.1 }}>
@@ -366,27 +356,39 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
                         item={item.label} 
                         id={item.id} 
                         themeColor={CATEGORY_CONFIG[activeCategory].themeColor} 
+                        urlLang={currentLang.toLowerCase()}
                     />
                 ))}
             </div>
         </div>
 
-        {/* --- MITAD DERECHA: PLANETA --- */}
+        {/* --- MITAD DERECHA: PLANETA (ÁREA RESTRINGIDA) --- */}
         <div style={{ 
             order: isMobile ? 1 : 2,
             width: isMobile ? '100%' : '50%', 
             height: isMobile ? '350px' : '100%',
-            position: 'relative'
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            pointerEvents: 'none' // Para que el espacio vacío permita el scroll libremente
         }}>
-            <Canvas camera={{ position: [0, 0, 7], fov: 45 }} dpr={[1, 2]}>
-                <ambientLight intensity={0.5} color={CATEGORY_CONFIG[activeCategory].themeColor} />
-                <directionalLight position={[5, 5, 5]} intensity={2.5} color="white" />
-                <spotLight position={[-5, 2, -5]} angle={0.5} intensity={3} color={CATEGORY_CONFIG[activeCategory].themeColor} />
-                <OrbitControls enablePan={false} enableZoom={false} autoRotate={true} autoRotateSpeed={0.8} />
-                <group scale={isMobile ? 0.7 : 0.85}>
-                    {activeCategory === 'software' ? <SaturnCartoon /> : <UranusCartoon />}
-                </group>
-            </Canvas>
+            {/* CAJA MÁGICA: El canvas se restringe a esta área cuadrada/circular */}
+            <div style={{
+                width: isMobile ? '300px' : '450px', 
+                height: isMobile ? '300px' : '450px',
+                pointerEvents: 'auto', // Solo se activa OrbitControls si tocas DENTRO de esta caja
+                borderRadius: '50%'
+            }}>
+                <Canvas camera={{ position: [0, 0, 7], fov: 45 }} dpr={[1, 2]}>
+                    <ambientLight intensity={0.5} color={CATEGORY_CONFIG[activeCategory].themeColor} />
+                    <directionalLight position={[5, 5, 5]} intensity={2.5} color="white" />
+                    <spotLight position={[-5, 2, -5]} angle={0.5} intensity={3} color={CATEGORY_CONFIG[activeCategory].themeColor} />
+                    <OrbitControls enablePan={false} enableZoom={false} autoRotate={true} autoRotateSpeed={0.8} />
+                    <group scale={isMobile ? 0.7 : 0.85}>
+                        {activeCategory === 'software' ? <SaturnCartoon /> : <UranusCartoon />}
+                    </group>
+                </Canvas>
+            </div>
         </div>
 
       </div>

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react'; // 👈 Quitamos useEffect
 import { Canvas } from '@react-three/fiber';
+import { useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
 import { InteractiveParticles } from './InteractiveParticles';
 
 // --- DICCIONARIO DE TEXTOS ---
@@ -15,21 +16,11 @@ const HERO_TEXTS: any = {
 export const HeroSection = () => {
   const [isHovering, setIsHovering] = useState(false);
   
-  // 1. Estado del idioma (inicia leyendo localStorage)
-  const [lang, setLang] = useState(localStorage.getItem('appLanguage') || 'ES');
+  // 👇 2. LEEMOS EL IDIOMA DIRECTO DE LA URL
+  const { lang: urlLang } = useParams(); 
+  const currentLang = urlLang === 'en' ? 'EN' : 'ES';
 
-  // 2. Efecto para escuchar el cambio de idioma desde el Nav
-  useEffect(() => {
-    const handleLangChange = () => {
-      setLang(localStorage.getItem('appLanguage') || 'ES');
-    };
-
-    // Escuchar el evento personalizado
-    window.addEventListener('languageChange', handleLangChange);
-    
-    // Limpieza al desmontar
-    return () => window.removeEventListener('languageChange', handleLangChange);
-  }, []);
+  // (Borramos el useState y el useEffect de lang que estaban aquí)
 
   return (
     <section 
@@ -54,7 +45,6 @@ export const HeroSection = () => {
         position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0
       }}>
         <Canvas camera={{ position: [0, 0, 10], fov: 50 }}>
-          {/* Asegúrate de que este componente acepte la prop isHovering */}
           <InteractiveParticles isHovering={isHovering} />
         </Canvas>
       </div>
@@ -83,7 +73,8 @@ export const HeroSection = () => {
             paddingBottom: '50px' 
         }}>
             <h1 className="hero-title" style={{ pointerEvents: 'auto' }}>
-              {HERO_TEXTS[lang].title}
+              {/* 👇 3. USAMOS EL IDIOMA DE LA URL */}
+              {HERO_TEXTS[currentLang].title}
             </h1>
         </div>
 
@@ -104,24 +95,16 @@ export const HeroSection = () => {
         .hero-title {
             font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             font-weight: 800;
-            
-            /* --- AJUSTE EXACTO A 5.5rem --- */
             font-size: clamp(2.5rem, 5vw, 5.5rem); 
-            
             line-height: 1.1;
             letter-spacing: -2px;
             margin-bottom: 0;
-            
             background: linear-gradient(to right, #ffffff 30%, #FAA918 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            
             cursor: text; 
             max-width: 1100px;
-            
             filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
-            
-            /* Animación suave al cambiar el texto */
             transition: opacity 0.3s ease;
         }
       `}</style>
