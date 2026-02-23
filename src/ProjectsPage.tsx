@@ -149,7 +149,7 @@ const GET_COMPANY_PROJECTS = (lang: string) => [
     arquitecturaTitle: lang === 'EN' ? 'Representative Interventions' : 'Intervenciones Representativas',
     arquitectura: lang === 'EN'
       ? ['Data Governance on AWS: Structure design for international tender processes.', 'Network Architecture & Security: AWS networking implementation integrating Panorama (Palo Alto).', 'Cloud Security in Banking: Installation and integration of Prisma Cloud.', 'Regional FinOps: Implementation of practices for a construction sector organization.', 'FinOps with Cloudability: Cloud financial management model in AWS and Azure.']
-      : ['Gobernanza de Datos en AWS: Diseño de estructura para procesos de licitación internacional.', 'Arquitectura de Red y Seguridad: Implementación de networking en AWS integrando Panorama (Palo Alto).', 'Seguridad Cloud en Sector Bancario: Instalación e integración de Prisma Cloud.', 'FinOps Regional: Implementación de prácticas para organización del sector construcción.', 'FinOps con Cloudability: Modelo de gestión financiera Cloud en AWS y Azure.'],
+      : ['Gobernanza de Datos en AWS: Diseño de estructura para procesos de licitación internacional.', 'Arquitectura de Red y Seguridad: Implementación de networking en AWS integrando Panorama (Palo Alto).', 'Seguridad Cloud en Sector Bancario: Instalación e integración de Prisma Cloud.', 'FinOps Regional: Implementation of practices for a construction sector organization.', 'FinOps with Cloudability: Modelo de gestión financiera Cloud en AWS y Azure.'],
     resultado: lang === 'EN' ? 'Successful execution of Cloud initiatives in regional corporate environments, combining governance, advanced security, network architecture, and financial optimization. *Some initiatives are presented within the context of regional partner ecosystems.' : 'Ejecución exitosa de iniciativas Cloud en entornos corporativos regionales, combinando gobernanza, seguridad avanzada, arquitectura de red y optimización financiera. *Algunas iniciativas se presentan bajo el contexto de ecosistemas de partners regionales.'
   }
 ];
@@ -272,12 +272,16 @@ export const ProjectsPage = ({ isMobile }: { isMobile: boolean }) => {
   const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(null);
   const [isSmall, setIsSmall] = useState(false);
 
+  // 👇 NUEVO: Candado para evitar el bug del historial infinito
+  const hasConsumedState = useRef(false);
+
   // LECTURA DEL IDIOMA DESDE URL
   const { lang: urlLang } = useParams(); 
   const currentLang = urlLang === 'en' ? 'EN' : 'ES';
   const t = TRANSLATIONS[currentLang];
-  const companyProjects = GET_COMPANY_PROJECTS(currentLang);
-  const popularProjects = GET_POPULAR_PROJECTS(currentLang);
+  
+  const companyProjects = useMemo(() => GET_COMPANY_PROJECTS(currentLang), [currentLang]);
+  const popularProjects = useMemo(() => GET_POPULAR_PROJECTS(currentLang), [currentLang]);
 
   useEffect(() => {
     const handleResize = () => setIsSmall(window.innerWidth < 475);
@@ -286,29 +290,31 @@ export const ProjectsPage = ({ isMobile }: { isMobile: boolean }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // 👇 CORRECCIÓN DEL BUG: Usamos useRef para garantizar que lea el state 1 sola vez
   useEffect(() => {
-    if (location.state && location.state.projectId) {
+    if (location.state && location.state.projectId && !hasConsumedState.current) {
       const pIndex = companyProjects.findIndex((p: any) => p.id === location.state.projectId);
-      if (pIndex !== -1) { handleSelectProject(pIndex); }
-      window.history.replaceState({}, document.title)
+      if (pIndex !== -1) { 
+          handleSelectProject(pIndex); 
+      }
+      hasConsumedState.current = true; // Cerramos el candado
+      navigate(location.pathname, { replace: true, state: null }); // Limpiamos la mochila
     }
-  }, [location, companyProjects]);
+  }, [location.state, location.pathname, navigate, companyProjects]);
 
-  // 👇 AJUSTE DE SCROLL 1: El botón de bajar del video ("Ver proyectos")
   const scrollToProjects = () => {
     if (projectsRef.current) {
-        const navOffset = isMobile ? 80 : 120; // Espacio del Nav
+        const navOffset = isMobile ? 80 : 120; 
         const y = projectsRef.current.getBoundingClientRect().top + window.pageYOffset - navOffset;
         window.scrollTo({ top: y, behavior: 'smooth' });
     }
   };
 
-  // 👇 AJUSTE DE SCROLL 2: Al abrir la tarjeta de proyecto ("Saber más")
   const handleSelectProject = (index: number) => {
     setActiveProjectIndex(index);
     setTimeout(() => {
         if (carouselRef.current) {
-            const navOffset = isMobile ? 80 : 120; // 👈 Este es el margen extra para no tapar con el Nav
+            const navOffset = isMobile ? 80 : 120; 
             const y = carouselRef.current.getBoundingClientRect().top + window.pageYOffset - navOffset;
             window.scrollTo({ top: y, behavior: 'smooth' });
         }
@@ -360,6 +366,7 @@ export const ProjectsPage = ({ isMobile }: { isMobile: boolean }) => {
 
       {/* CARRUSEL DETALLADO */}
       <div ref={carouselRef} style={{ width: '100%', overflow: 'hidden', paddingBottom: activeProjectIndex !== null ? '100px' : '0' }}>
+          {/* Cambiamos el AnimatePresence de popLayout a wait para que sea más estable */}
           <AnimatePresence mode="wait">
               {activeProjectIndex !== null && (
                   <motion.div key={companyProjects[activeProjectIndex].id} initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: -20 }} transition={{ duration: 0.4 }} 
@@ -487,13 +494,9 @@ export const ProjectsPage = ({ isMobile }: { isMobile: boolean }) => {
       </section>
 
       <style>{`
-        /* GRILLA RESPONSIVE EXACTA */
         .responsive-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
         @media (max-width: 1024px) { .responsive-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; } }
-        /* 1 SOLA COLUMNA EN MÓVILES (Menor a 768px) */
         @media (max-width: 768px) { .responsive-grid { grid-template-columns: 1fr; gap: 20px; } }
-
-        /* SCROLLBAR PERSONALIZADO PARA TEXTOS LARGOS EN TARJETAS PEQUEÑAS */
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 194, 255, 0.3); border-radius: 10px; }

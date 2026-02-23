@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
-import { Link, useLocation, useParams } from 'react-router-dom'; // <-- USAMOS PARAMS
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { 
   Torus, 
   Sphere,
@@ -23,11 +23,12 @@ const CATEGORY_CONFIG = {
 
 type CategoryKey = keyof typeof CATEGORY_CONFIG;
 
-// --- DICCIONARIO DE TEXTOS CON IDs CONECTADOS ---
+// --- DICCIONARIO DE TEXTOS ---
 const SECTION_TEXTS: any = {
   ES: {
     titleStart: "Explora",
     titleHighlight: "Servicios",
+    interactHint: "Toca para interactuar", // 👈 Nuevo texto
     categories: {
       software: {
         label: "Desarrollo de Software",
@@ -52,6 +53,7 @@ const SECTION_TEXTS: any = {
   EN: {
     titleStart: "Explore",
     titleHighlight: "Services",
+    interactHint: "Tap to interact", // 👈 Nuevo texto
     categories: {
       software: {
         label: "Software Development",
@@ -211,7 +213,7 @@ function UranusCartoon() {
 }
 
 // =====================================================================
-// BOTÓN ACTUALIZADO
+// BOTÓN
 // =====================================================================
 const ServiceButton = ({ item, id, themeColor, urlLang }: { item: string, id: number, themeColor: string, urlLang: string }) => {
     const [isHovered, setIsHovered] = useState(false);
@@ -286,7 +288,9 @@ const ServiceButton = ({ item, id, themeColor, urlLang }: { item: string, id: nu
 export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('software');
   
-  // LEEMOS EL IDIOMA DIRECTO DE LA URL
+  // 👇 NUEVO ESTADO: Controla si el usuario ya tocó el Canvas en móvil
+  const [isCanvasInteractive, setIsCanvasInteractive] = useState(!isMobile);
+  
   const { lang: urlLang } = useParams(); 
   const currentLang = urlLang === 'en' ? 'EN' : 'ES';
   const t = SECTION_TEXTS[currentLang];
@@ -312,7 +316,7 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
         position: 'relative', zIndex: 10,
         width: '100%', height: '100%',
         display: 'flex', flexDirection: isMobile ? 'column' : 'row',
-        pointerEvents: 'none' // Evitamos que la sección completa capture eventos táctiles
+        pointerEvents: 'none' 
       }}>
 
         {/* --- MITAD IZQUIERDA: MENÚ --- */}
@@ -325,7 +329,7 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
           backdropFilter: 'blur(16px)',
           borderRight: isMobile ? 'none' : `1px solid ${CATEGORY_CONFIG[activeCategory].themeColor}30`,
           padding: isMobile ? '50px 20px' : '0 60px',
-          pointerEvents: 'auto', // Reactivamos eventos aquí
+          pointerEvents: 'auto', 
           transition: 'all 0.5s ease'
         }}>
             <h2 style={{ fontSize: isMobile ? '2rem' : '3rem', fontWeight: 800, marginBottom: '30px', color: '#fff', lineHeight: 1.1 }}>
@@ -362,7 +366,7 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
             </div>
         </div>
 
-        {/* --- MITAD DERECHA: PLANETA (ÁREA RESTRINGIDA) --- */}
+        {/* --- MITAD DERECHA: PLANETA --- */}
         <div style={{ 
             order: isMobile ? 1 : 2,
             width: isMobile ? '100%' : '50%', 
@@ -370,21 +374,54 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            pointerEvents: 'none' // Para que el espacio vacío permita el scroll libremente
+            pointerEvents: 'none',
+            position: 'relative'
         }}>
-            {/* CAJA MÁGICA: El canvas se restringe a esta área cuadrada/circular */}
+            
+            {/* 👇 "CAJA DE CRISTAL" PROTECTORA PARA MÓVILES */}
+            {isMobile && !isCanvasInteractive && (
+              <div 
+                  onClick={() => setIsCanvasInteractive(true)}
+                  style={{
+                      position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                      width: '300px', height: '300px', borderRadius: '50%',
+                      display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+                      paddingBottom: '30px', zIndex: 20, pointerEvents: 'auto',
+                      background: 'radial-gradient(circle, transparent 40%, rgba(0,0,0,0.4) 100%)',
+                      cursor: 'pointer'
+                  }}
+              >
+                  <span style={{ 
+                      color: 'white', background: 'rgba(0,0,0,0.6)', padding: '8px 16px', 
+                      borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', 
+                      letterSpacing: '1px', textTransform: 'uppercase', backdropFilter: 'blur(5px)',
+                      border: `1px solid ${CATEGORY_CONFIG[activeCategory].themeColor}50`
+                  }}>
+                      👆 {t.interactHint}
+                  </span>
+              </div>
+            )}
+
+            {/* CAJA DEL CANVAS 3D */}
             <div style={{
-                width: isMobile ? '300px' : '450px', 
-                height: isMobile ? '300px' : '450px',
-                pointerEvents: 'auto', // Solo se activa OrbitControls si tocas DENTRO de esta caja
+                // En desktop es más grande para que el planeta destaque
+                width: isMobile ? '300px' : '550px', 
+                height: isMobile ? '300px' : '550px',
+                // 👇 Si no es interactivo, los eventos de mouse atraviesan el Canvas (permitiendo scroll nativo)
+                pointerEvents: isCanvasInteractive ? 'auto' : 'none', 
                 borderRadius: '50%'
             }}>
-                <Canvas camera={{ position: [0, 0, 7], fov: 45 }} dpr={[1, 2]}>
+                {/* 👇 Cámara más cercana en Desktop para que se vea más inmenso */}
+                <Canvas camera={{ position: [0, 0, isMobile ? 7 : 6], fov: 45 }} dpr={[1, 2]}>
                     <ambientLight intensity={0.5} color={CATEGORY_CONFIG[activeCategory].themeColor} />
                     <directionalLight position={[5, 5, 5]} intensity={2.5} color="white" />
                     <spotLight position={[-5, 2, -5]} angle={0.5} intensity={3} color={CATEGORY_CONFIG[activeCategory].themeColor} />
+                    
+                    {/* 👇 Desactivamos Zoom, activamos Pan y permitimos rotar */}
                     <OrbitControls enablePan={false} enableZoom={false} autoRotate={true} autoRotateSpeed={0.8} />
-                    <group scale={isMobile ? 0.7 : 0.85}>
+                    
+                    {/* 👇 Escala aumentada solo en Desktop */}
+                    <group scale={isMobile ? 0.7 : 1.1}>
                         {activeCategory === 'software' ? <SaturnCartoon /> : <UranusCartoon />}
                     </group>
                 </Canvas>
