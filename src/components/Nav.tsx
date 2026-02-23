@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 // --- UTILIDAD PARA RUTAS ---
 const resolvePath = (path: string) => {
@@ -25,7 +25,7 @@ const TRANSLATIONS = {
     nav: { 
       services: "Servicios", 
       about: "Sobre Nosotros", 
-      projects: "Arquitecturas", // 👈 Actualizado
+      projects: "Arquitecturas", 
       contact: "Contáctanos" 
     }
   },
@@ -33,7 +33,7 @@ const TRANSLATIONS = {
     nav: { 
       services: "Services", 
       about: "About Us", 
-      projects: "Architectures", // 👈 Actualizado para sonar corporativo
+      projects: "Architectures", 
       contact: "Contact Us" 
     }
   }
@@ -46,16 +46,34 @@ export const Nav = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   
-  const [language, setLanguage] = useState<LanguageType>(() => {
-    return (localStorage.getItem('appLanguage') as LanguageType) || 'ES';
-  });
+  // 👇 1. LEEMOS LA URL EN VEZ DEL LOCALSTORAGE
+  const { lang } = useParams(); 
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const t = TRANSLATIONS[language];
+  const currentLang: LanguageType = lang === 'en' ? 'EN' : 'ES';
+  const t = TRANSLATIONS[currentLang];
 
-  const changeLanguage = (lang: LanguageType) => {
-    setLanguage(lang);
+  // 👇 2. CAMBIAMOS DE IDIOMA REESCRIBIENDO LA URL
+  const changeLanguage = (newLang: LanguageType) => {
     setIsLangMenuOpen(false);
-    localStorage.setItem('appLanguage', lang);
+    setMobileMenuOpen(false);
+    
+    const newPrefix = newLang === 'EN' ? '/en' : '/es';
+    let currentPath = location.pathname;
+
+    // Reemplazamos /es o /en por el nuevo idioma manteniendo la página actual
+    if (currentPath.startsWith('/es')) {
+        currentPath = currentPath.replace('/es', newPrefix);
+    } else if (currentPath.startsWith('/en')) {
+        currentPath = currentPath.replace('/en', newPrefix);
+    } else {
+        currentPath = `${newPrefix}${currentPath}`;
+    }
+
+    // Navegamos a la nueva ruta
+    navigate(currentPath);
+    // Disparamos el evento por si otro componente lo necesita
     window.dispatchEvent(new Event('languageChange'));
   };
 
@@ -69,10 +87,11 @@ export const Nav = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // 👇 3. AÑADIMOS EL IDIOMA ACTUAL A LAS RUTAS DE LOS LINKS
   const navItems = [
-    { label: t.nav.services, path: "/servicios" },
-    { label: t.nav.about, path: "/nosotros" },
-    { label: t.nav.projects, path: "/proyectos" },
+    { label: t.nav.services, path: `/${lang}/servicios` },
+    { label: t.nav.about, path: `/${lang}/nosotros` },
+    { label: t.nav.projects, path: `/${lang}/proyectos` },
   ];
 
   return (
@@ -92,8 +111,8 @@ export const Nav = () => {
           boxSizing: 'border-box'
         }}
       >
-        {/* LOGO */}
-        <Link to="/" style={{ textDecoration: 'none', zIndex: 102 }}>
+        {/* LOGO - Ahora redirige a /es o /en */}
+        <Link to={`/${lang}`} style={{ textDecoration: 'none', zIndex: 102 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <img 
                 src={resolvePath("assets/bocancorp-logo.png")} 
@@ -122,7 +141,7 @@ export const Nav = () => {
 
             {/* BOTÓN CONTACTO (CTA) */}
             <Link 
-                to="/contacto" 
+                to={`/${lang}/contacto`} 
                 className="btn-contact-nav"
                 style={{ 
                     backgroundColor: '#FAA918', 
@@ -151,7 +170,7 @@ export const Nav = () => {
                         display: 'flex', alignItems: 'center', gap: '6px'
                     }}
                 >
-                    {language}
+                    {currentLang}
                     <i className={`fa-solid fa-chevron-${isLangMenuOpen ? 'up' : 'down'}`} style={{ fontSize: '0.6rem', color: '#FAA918' }}></i>
                 </button>
 
@@ -201,7 +220,7 @@ export const Nav = () => {
            ))}
            
            <Link 
-                to="/contacto" 
+                to={`/${lang}/contacto`} 
                 style={{ 
                     backgroundColor: '#FAA918', color: '#000c2d', padding: '15px 40px', 
                     borderRadius: '50px', textDecoration: 'none', fontWeight: 800, fontSize: '1.4rem' 
@@ -212,8 +231,8 @@ export const Nav = () => {
             </Link>
 
            <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.2)', width: '60%', paddingTop: '30px', display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center' }}>
-             <span onClick={() => changeLanguage('ES')} style={{ color: language === 'ES' ? '#FAA918' : 'white', fontWeight: 800, fontSize: '1.5rem', cursor: 'pointer' }}>ES</span>
-             <span onClick={() => changeLanguage('EN')} style={{ color: language === 'EN' ? '#FAA918' : 'white', fontWeight: 800, fontSize: '1.5rem', cursor: 'pointer' }}>EN</span>
+             <span onClick={() => changeLanguage('ES')} style={{ color: currentLang === 'ES' ? '#FAA918' : 'white', fontWeight: 800, fontSize: '1.5rem', cursor: 'pointer' }}>ES</span>
+             <span onClick={() => changeLanguage('EN')} style={{ color: currentLang === 'EN' ? '#FAA918' : 'white', fontWeight: 800, fontSize: '1.5rem', cursor: 'pointer' }}>EN</span>
            </div>
         </div>
       )}

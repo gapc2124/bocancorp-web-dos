@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import logoBocancorp from '/assets/logo.png';
 // Se usa import type para cumplir con verbatimModuleSyntax
 import type { Variants } from 'framer-motion';
 
@@ -68,7 +69,22 @@ export const CircuitCircle = ({ activeStep, stepIcons, isMobile }: CircuitCircle
               // FIX: Se añade "as any" para que TypeScript permita pasar la prop 'size' al icono dinámico
               React.cloneElement(stepIcons[activeStep] as React.ReactElement, { size: isMobile ? 80 : 120 } as any)
             ) : (
-              <div style={{ fontSize: isMobile ? '2rem' : '4rem', fontStyle: 'normal', fontWeight: 900 }}>B</div>
+              // AQUÍ ESTÁ LA MAGIA DEL LOGO CON MÁSCARA CELESTE ✨
+              <div 
+                style={{ 
+                  width: isMobile ? '70px' : '110px', 
+                  height: isMobile ? '70px' : '110px', 
+                  backgroundColor: ACCENT_CYAN,
+                  WebkitMaskImage: `url(${logoBocancorp})`,
+                  WebkitMaskSize: 'contain',
+                  WebkitMaskRepeat: 'no-repeat',
+                  WebkitMaskPosition: 'center',
+                  maskImage: `url(${logoBocancorp})`,
+                  maskSize: 'contain',
+                  maskRepeat: 'no-repeat',
+                  maskPosition: 'center',
+                }} 
+              />
             )}
           </motion.div>
         </AnimatePresence>
