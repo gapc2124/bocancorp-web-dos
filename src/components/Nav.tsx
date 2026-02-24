@@ -102,7 +102,8 @@ export const Nav = () => {
         className="nav-container"
         style={{ 
           position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 100, 
-          padding: isMobile ? '20px 20px' : '30px 60px', 
+          // 👇 REDUCIMOS EL PADDING VERTICAL EN MÓVILES (De '20px 20px' a '10px 20px')
+          padding: isMobile ? '10px 20px' : '30px 60px', 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
@@ -117,9 +118,16 @@ export const Nav = () => {
               <img 
                 src={resolvePath("assets/bocancorp-logo.png")} 
                 alt="Logo" 
-                style={{ height: isMobile ? '28px' : '36px', objectFit: 'contain' }} 
+                // 👇 ACHICAMOS LIGERAMENTE EL LOGO EN MÓVIL PARA QUE NO ESTIRE EL NAV
+                style={{ height: isMobile ? '24px' : '36px', objectFit: 'contain' }} 
               />
-              <span style={{ fontWeight: 800, fontSize: isMobile ? '1.2rem' : '1.5rem', color: 'white', letterSpacing: '-0.5px' }}>
+              <span style={{ 
+                fontWeight: 800, 
+                // 👇 ACHICAMOS LIGERAMENTE LA LETRA DEL LOGO EN MÓVIL
+                fontSize: isMobile ? '1.1rem' : '1.5rem', 
+                color: 'white', 
+                letterSpacing: '-0.5px' 
+              }}>
                 BOCANCORP
               </span>
             </div>
@@ -193,7 +201,8 @@ export const Nav = () => {
 
         {/* BOTÓN HAMBURGUESA (Móvil) */}
         {isMobile && (
-          <div className="mobile-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ color: 'white', fontSize: '1.5rem', cursor: 'pointer', zIndex: 102, padding: '10px' }}>
+          // 👇 REDUCIMOS EL PADDING DEL BOTÓN PARA QUE NO HAGA MÁS ALTO EL NAV
+          <div className="mobile-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ color: 'white', fontSize: '1.4rem', cursor: 'pointer', zIndex: 102, padding: '5px' }}>
             <i className={`fa-solid ${mobileMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
           </div>
         )}
