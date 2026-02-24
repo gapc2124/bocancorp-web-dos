@@ -130,15 +130,14 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center', 
-        // 👇 AQUÍ BAJAMOS LAS TARJETAS EN MÓVIL (de 60px a 85px)
         paddingTop: isMobile ? '85px' : '100px', 
         boxSizing: 'border-box'
       }}
     >
       <div style={{
         width: isUltraNarrow ? '92%' : (isMobile ? '90%' : '75%'), 
-        // Ajustamos sutilmente la altura a 86vh para que no choque abajo al haberla bajado
-        height: isMobile ? '86vh' : '65vh', 
+        // 👇 AQUÍ ESTÁ EL CAMBIO: Reducimos la altura en móviles de 86vh a 78vh
+        height: isMobile ? '78vh' : '65vh', 
         backgroundColor: 'rgba(10, 16, 36, 0.92)', 
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
