@@ -136,12 +136,12 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
     >
       <div style={{
         width: isUltraNarrow ? '92%' : (isMobile ? '90%' : '75%'), 
-        // 👇 Altura consistente en móvil (75vh) vs escritorio (65vh)
-        height: isMobile ? '75vh' : '65vh', 
-        backgroundColor: 'rgba(10, 16, 36, 0.95)', 
+        // 👇 Aumentamos la altura de la tarjeta a 80vh en móvil para que quepa todo perfecto
+        height: isMobile ? '80vh' : '65vh', 
+        backgroundColor: 'rgba(10, 16, 36, 0.92)', 
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
-        border: `1px solid ${item.color}30`,
+        border: `1px solid ${item.color}40`,
         borderRadius: '24px',
         overflow: 'hidden',
         display: 'flex',
@@ -150,9 +150,10 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
         position: 'relative'
       }}>
         
-        {/* IMAGEN: Reducida solo en móvil para dar espacio al texto */}
+        {/* MEDIA SECTION */}
         <div style={{
-          flex: isMobile ? '0 0 90px' : 0.8,
+          // 👇 Aumentamos el espacio de la imagen en móviles (de 90px a 140px/120px)
+          flex: isUltraNarrow ? '0 0 120px' : (isMobile ? '0 0 140px' : 0.8),
           position: 'relative',
           width: '100%',
           backgroundImage: `url(${resolvePath(item.image)})`,
@@ -169,13 +170,13 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
             }} />
         </div>
 
-        {/* CONTENIDO TEXTUAL */}
+        {/* CONTENT SECTION */}
         <div style={{
           flex: isMobile ? '1' : 1.2, 
-          // 👇 Paddin reducido en móvil, original en escritorio
-          padding: isMobile ? '15px 20px' : '30px 40px', 
+          padding: isUltraNarrow ? '15px 18px' : (isMobile ? '20px 25px' : '30px 40px'), 
           display: 'flex',
           flexDirection: 'column',
+          background: 'transparent',
           zIndex: 2,
           position: 'relative',
           overflow: 'hidden', 
@@ -183,71 +184,77 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
         }}>
 
            {/* Cabecera compacta */}
-           <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? '10px' : '15px', marginBottom: isMobile ? '10px' : '20px' }}> 
+           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: isMobile ? '12px' : '20px' }}> 
              <div style={{
-               width: isMobile ? '30px' : '40px', 
-               height: isMobile ? '30px' : '40px', 
+               width: isUltraNarrow ? '30px' : (isMobile ? '35px' : '40px'), 
+               height: isUltraNarrow ? '30px' : (isMobile ? '35px' : '40px'), 
                borderRadius: '50%', 
                background: item.color, color: '#000', fontWeight: '900',
                display: 'flex', alignItems: 'center', justifyContent: 'center',
-               fontSize: isMobile ? '0.8rem' : '1.1rem', 
+               fontSize: isUltraNarrow ? '0.85rem' : (isMobile ? '1rem' : '1.1rem'), 
                flexShrink: 0
              }}>
                {item.id}
              </div>
              <div>
-                <span style={{ color: item.color, fontWeight: 700, fontSize: isMobile ? '0.55rem' : '0.65rem', textTransform: 'uppercase', display: 'block' }}>
+                <span style={{ color: item.color, fontWeight: 700, fontSize: isMobile ? '0.65rem' : '0.65rem', textTransform: 'uppercase', display: 'block' }}>
                     // {item.subtitle}
                 </span>
-                <h3 style={{ color: 'white', fontSize: isMobile ? '1.1rem' : '1.8rem', fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
+                <h3 style={{ color: 'white', fontSize: isUltraNarrow ? '1.15rem' : (isMobile ? '1.3rem' : '1.8rem'), fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
                   {item.title}
                 </h3>
              </div>
            </div>
            
-           {/* Texto: Fuente reducida SOLO en móvil */}
+           {/* Texto: Letra un poco más grande en móviles (de 0.72rem a 0.82rem / 0.88rem) */}
            <div style={{ 
              color: '#dbe4ff', 
-             fontSize: isMobile ? '0.75rem' : '0.95rem', 
-             lineHeight: isMobile ? 1.3 : 1.5 
+             fontSize: isUltraNarrow ? '0.82rem' : (isMobile ? '0.88rem' : '0.95rem'), 
+             lineHeight: isMobile ? 1.4 : 1.5 
            }}> 
              {item.content.map((block, i) => {
                if (block.type === 'highlight') {
                  return (
                    <div key={i} style={{ 
-                     margin: isMobile ? '8px 0' : '15px 0', 
-                     padding: '8px 12px', 
+                     margin: isMobile ? '10px 0' : '15px 0', 
+                     padding: '10px 12px', 
                      borderLeft: `2px solid ${item.color}`, 
                      backgroundColor: 'rgba(255,255,255,0.03)', 
                      borderRadius: '0 8px 8px 0' 
                    }}> 
                      <h4 style={{ 
-                       color: 'white', fontSize: isMobile ? '0.75rem' : '0.95rem', 
-                       fontWeight: 800, marginBottom: '2px', textTransform: 'uppercase'
+                       color: 'white', 
+                       fontSize: isUltraNarrow ? '0.82rem' : (isMobile ? '0.88rem' : '0.95rem'), 
+                       fontWeight: 800, 
+                       marginBottom: '4px', 
+                       textTransform: 'uppercase'
                      }}>
                        {block.title}
                      </h4>
-                     <p style={{ margin: 0, color: '#cbd5e1' }}>{block.text}</p>
+                     {/* 👇 Aquí aplicamos la solución al Warning de márgenes */}
+                     <p style={{ marginTop: 0, marginBottom: 0, color: '#cbd5e1' }}>{block.text}</p>
                    </div>
                  );
                } else {
-                 return <p key={i} style={{ marginBottom: isMobile ? '6px' : '10px', margin: 0 }}>{block.text}</p>; 
+                 // 👇 Solución al Warning en los párrafos normales
+                 return <p key={i} style={{ marginTop: 0, marginBottom: isMobile ? '8px' : '10px' }}>{block.text}</p>; 
                }
              })}
            </div>
 
-           {/* Botón de Contratación */}
-           <div style={{ marginTop: 'auto', paddingTop: isMobile ? '10px' : '20px' }}> 
+           {/* Botón de acción */}
+           <div style={{ marginTop: 'auto', paddingTop: '15px' }}> 
              <motion.button
                onClick={() => navigate(`/${currentLang.toLowerCase()}/contacto`)}
+               whileTap={{ scale: 0.98 }}
                style={{
                  width: '100%', 
-                 padding: isMobile ? '10px 15px' : '12px 25px', 
+                 padding: isMobile ? '12px' : '14px', 
                  backgroundColor: isMobile ? `${item.color}15` : 'transparent', 
                  color: 'white',
                  border: `1px solid ${item.color}`,
-                 borderRadius: '50px',
-                 fontSize: isMobile ? '0.75rem' : '0.9rem', 
+                 borderRadius: '12px',
+                 fontSize: isMobile ? '0.8rem' : '0.85rem', 
                  fontWeight: '800',
                  textTransform: 'uppercase',
                  letterSpacing: '1px',
