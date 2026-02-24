@@ -1,270 +1,261 @@
-import { useRef, useState, useEffect } from 'react';
-import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 
-// --- UTILIDAD PARA RUTAS DE IMÁGENES ---
+// --- UTILIDAD PARA RUTAS ---
 const resolvePath = (path: string) => {
   const base = import.meta.env.BASE_URL || '/';
-  const cleanPath = path.replace(/^(\.?\/)/, '');
+  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
   return `${base}${cleanPath}`;
 };
 
-// --- INTERFACES ---
-type ContentBlock = 
-  | { type: 'paragraph'; text: string }
-  | { type: 'highlight'; title: string; text: string };
-
-export interface ServiceItem {
-  id: number;
-  subtitle: string;
-  title: string;
-  color: string;
-  image: string;
-  content: ContentBlock[];
-}
-
-interface StackingCardsProps {
-  data: ServiceItem[];
-  isMobile: boolean;
-}
-
-interface CardProps {
-  item: ServiceItem;
-  index: number;
-  range: [number, number];
-  progress: MotionValue<number>;
-  isMobile: boolean;
-}
-
-// --- COMPONENTE PRINCIPAL ---
-export const StackingCards = ({ data, isMobile }: StackingCardsProps) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start start', 'end end'],
-  });
-
-  return (
-    <div 
-      ref={containerRef} 
-      style={{ 
-        height: `${data.length * 100}vh`, 
-        position: 'relative', 
-        width: '100%' 
-      }}
-    >
-      {data.map((item, index) => (
-        <div 
-          key={`anchor-${item.id}`}
-          id={`service-${item.id}`} 
-          style={{
-            position: 'absolute',
-            top: `calc(${index / data.length} * (100% - 100vh))`, 
-            left: 0,
-            width: '100%',
-            height: '1px',
-            pointerEvents: 'none',
-            visibility: 'hidden'
-          }}
-        />
-      ))}
-
-      <div style={{ 
-        position: 'sticky', 
-        top: 0, 
-        height: '100vh', 
-        width: '100%', 
-        overflow: 'hidden' 
-      }}>
-        {data.map((item, index) => {
-          const rangeStart = index * (1 / data.length);
-          const rangeEnd = rangeStart + (1 / data.length);
-          return (
-            <Card 
-              key={item.id} 
-              item={item} 
-              index={index} 
-              range={[rangeStart, rangeEnd]} 
-              progress={scrollYProgress} 
-              isMobile={isMobile} 
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
+// --- COMPONENTE SCROLL TO TOP ---
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
 };
 
-// --- SUB-COMPONENTE TARJETA ---
-const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
-  const navigate = useNavigate(); 
-  const { lang: urlLang } = useParams(); 
-  const currentLang = urlLang === 'en' ? 'EN' : 'ES';
+// ==========================================
+// 1. TRADUCCIONES ACTUALIZADAS
+// ==========================================
+const TRANSLATIONS = {
+  ES: {
+    nav: { 
+      services: "Servicios", 
+      about: "Sobre Nosotros", 
+      projects: "Arquitecturas", 
+      contact: "Contáctanos" 
+    }
+  },
+  EN: {
+    nav: { 
+      services: "Services", 
+      about: "About Us", 
+      projects: "Architectures", 
+      contact: "Contact Us" 
+    }
+  }
+};
+
+type LanguageType = 'ES' | 'EN';
+
+export const Nav = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   
-  const [isUltraNarrow, setIsUltraNarrow] = useState(window.innerWidth < 660);
+  // 👇 1. LEEMOS LA URL EN VEZ DEL LOCALSTORAGE
+  const { lang } = useParams(); 
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const currentLang: LanguageType = lang === 'en' ? 'EN' : 'ES';
+  const t = TRANSLATIONS[currentLang];
+
+  // 👇 2. CAMBIAMOS DE IDIOMA REESCRIBIENDO LA URL
+  const changeLanguage = (newLang: LanguageType) => {
+    setIsLangMenuOpen(false);
+    setMobileMenuOpen(false);
+    
+    const newPrefix = newLang === 'EN' ? '/en' : '/es';
+    let currentPath = location.pathname;
+
+    // Reemplazamos /es o /en por el nuevo idioma manteniendo la página actual
+    if (currentPath.startsWith('/es')) {
+        currentPath = currentPath.replace('/es', newPrefix);
+    } else if (currentPath.startsWith('/en')) {
+        currentPath = currentPath.replace('/en', newPrefix);
+    } else {
+        currentPath = `${newPrefix}${currentPath}`;
+    }
+
+    // Navegamos a la nueva ruta
+    navigate(currentPath);
+    // Disparamos el evento por si otro componente lo necesita
+    window.dispatchEvent(new Event('languageChange'));
+  };
 
   useEffect(() => {
-    const handleResize = () => setIsUltraNarrow(window.innerWidth < 660);
+    const handleResize = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      if (!mobile) setMobileMenuOpen(false);
+    };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const y = useTransform(progress, [range[0] - 0.10, range[0]], ['100vh', '0vh']);
-  const cardY = index === 0 ? '0vh' : y;
-  const scale = useTransform(progress, [range[0], range[1]], [1, 0.95]);
-
-  const btnText = currentLang === 'EN' ? 'Request Consultation' : 'Solicitar asesoría';
+  // 👇 3. AÑADIMOS EL IDIOMA ACTUAL A LAS RUTAS DE LOS LINKS
+  const navItems = [
+    { label: t.nav.services, path: `/${lang}/servicios` },
+    { label: t.nav.about, path: `/${lang}/nosotros` },
+    { label: t.nav.projects, path: `/${lang}/proyectos` },
+  ];
 
   return (
-    <motion.div
-      style={{
-        y: cardY,
-        scale: scale,
-        zIndex: index,
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        // 👇 AQUÍ BAJAMOS LAS TARJETAS EN MÓVIL (de 60px a 85px)
-        paddingTop: isMobile ? '85px' : '100px', 
-        boxSizing: 'border-box'
-      }}
-    >
-      <div style={{
-        width: isUltraNarrow ? '92%' : (isMobile ? '90%' : '75%'), 
-        // Ajustamos sutilmente la altura a 86vh para que no choque abajo al haberla bajado
-        height: isMobile ? '86vh' : '65vh', 
-        backgroundColor: 'rgba(10, 16, 36, 0.92)', 
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        border: `1px solid ${item.color}40`,
-        borderRadius: '24px',
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: isMobile ? 'column' : 'row',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.9)',
-        position: 'relative'
-      }}>
-        
-        {/* MEDIA SECTION */}
-        <div style={{
-          flex: isUltraNarrow ? '0 0 160px' : (isMobile ? '0 0 190px' : 0.8),
-          position: 'relative',
-          width: '100%',
-          backgroundImage: `url(${resolvePath(item.image)})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          order: isMobile ? 1 : 2 
+    <>
+      <ScrollToTop /> 
+
+      <nav 
+        className="nav-container"
+        style={{ 
+          position: 'absolute', top: 0, left: 0, width: '100%', zIndex: 100, 
+          // 👇 REDUCIMOS EL PADDING VERTICAL EN MÓVILES (De '20px 20px' a '10px 20px')
+          padding: isMobile ? '10px 20px' : '30px 60px', 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          backgroundColor: '#000c2d', 
+          borderBottom: '1px solid rgba(255, 255, 255, 0.05)', 
+          boxSizing: 'border-box'
+        }}
+      >
+        {/* LOGO - Ahora redirige a /es o /en */}
+        <Link to={`/${lang}`} style={{ textDecoration: 'none', zIndex: 102 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
+              <img 
+                src={resolvePath("assets/bocancorp-logo.png")} 
+                alt="Logo" 
+                // 👇 ACHICAMOS LIGERAMENTE EL LOGO EN MÓVIL PARA QUE NO ESTIRE EL NAV
+                style={{ height: isMobile ? '24px' : '36px', objectFit: 'contain' }} 
+              />
+              <span style={{ 
+                fontWeight: 800, 
+                // 👇 ACHICAMOS LIGERAMENTE LA LETRA DEL LOGO EN MÓVIL
+                fontSize: isMobile ? '1.1rem' : '1.5rem', 
+                color: 'white', 
+                letterSpacing: '-0.5px' 
+              }}>
+                BOCANCORP
+              </span>
+            </div>
+        </Link>
+
+        {/* MENÚ DE ESCRITORIO */}
+        {!isMobile && (
+          <div className="desktop-menu" style={{ display: 'flex', alignItems: 'center', gap: '35px' }}>
+            {navItems.map((item) => (
+                <Link 
+                  key={item.label} 
+                  to={item.path} 
+                  className="nav-link" 
+                  style={{ color: 'white', textDecoration: 'none', fontWeight: 700, fontSize: '1rem' }}
+                >
+                  {item.label}
+                </Link>
+            ))}
+
+            {/* BOTÓN CONTACTO (CTA) */}
+            <Link 
+                to={`/${lang}/contacto`} 
+                className="btn-contact-nav"
+                style={{ 
+                    backgroundColor: '#FAA918', 
+                    color: '#000c2d', 
+                    padding: '10px 22px', 
+                    borderRadius: '50px', 
+                    textDecoration: 'none', 
+                    fontWeight: 800, 
+                    fontSize: '1rem',
+                    transition: 'all 0.3s ease',
+                    boxShadow: '0 4px 15px rgba(250, 169, 24, 0.3)'
+                }}
+            >
+              {t.nav.contact}
+            </Link>
+            
+            <div style={{ width: '1px', height: '24px', background: 'rgba(255,255,255,0.3)' }}></div>
+            
+            {/* SELECTOR DE IDIOMA */}
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <button 
+                    onClick={() => setIsLangMenuOpen(!isLangMenuOpen)}
+                    style={{ 
+                        background: 'transparent', border: 'none', cursor: 'pointer',
+                        color: 'white', fontWeight: 800, fontSize: '1.1rem',
+                        display: 'flex', alignItems: 'center', gap: '6px'
+                    }}
+                >
+                    {currentLang}
+                    <i className={`fa-solid fa-chevron-${isLangMenuOpen ? 'up' : 'down'}`} style={{ fontSize: '0.6rem', color: '#FAA918' }}></i>
+                </button>
+
+                {isLangMenuOpen && (
+                    <div style={{
+                        position: 'absolute', top: '40px', right: '-10px',
+                        backgroundColor: 'white', borderRadius: '6px',
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.15)',
+                        border: '1px solid #eee', overflow: 'hidden',
+                        display: 'flex', flexDirection: 'column', minWidth: '80px',
+                        zIndex: 1001
+                    }}>
+                        <div onClick={() => changeLanguage('ES')} className="lang-option">ES</div>
+                        <div onClick={() => changeLanguage('EN')} className="lang-option">EN</div>
+                    </div>
+                )}
+            </div>
+          </div>
+        )}
+
+        {/* BOTÓN HAMBURGUESA (Móvil) */}
+        {isMobile && (
+          // 👇 REDUCIMOS EL PADDING DEL BOTÓN PARA QUE NO HAGA MÁS ALTO EL NAV
+          <div className="mobile-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ color: 'white', fontSize: '1.4rem', cursor: 'pointer', zIndex: 102, padding: '5px' }}>
+            <i className={`fa-solid ${mobileMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
+          </div>
+        )}
+      </nav>
+
+      {/* MENÚ MÓVIL */}
+      {mobileMenuOpen && (
+        <div style={{ 
+          position: 'fixed', top: 0, left: 0, width: '100%', height: '100vh', 
+          background: 'rgba(0, 12, 45, 0.98)', backdropFilter: 'blur(10px)', 
+          paddingTop: '120px', paddingLeft: '40px', paddingRight: '40px',
+          zIndex: 99, display: 'flex', flexDirection: 'column', gap: '30px', alignItems: 'center'
         }}>
-            <div style={{
-                position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-                background: isMobile 
-                  ? `linear-gradient(to bottom, transparent 0%, rgba(10,16,36,1) 100%)`
-                  : `linear-gradient(to right, rgba(10,16,36,0.95) 0%, transparent 40%, ${item.color}10 100%)`,
-                pointerEvents: 'none'
-            }} />
-        </div>
-
-        {/* CONTENT SECTION */}
-        <div style={{
-          flex: isMobile ? '1' : 1.2, 
-          padding: isUltraNarrow ? '15px 18px' : (isMobile ? '20px 25px' : '30px 40px'), 
-          display: 'flex',
-          flexDirection: 'column',
-          background: 'transparent',
-          zIndex: 2,
-          position: 'relative',
-          overflow: 'hidden', 
-          order: isMobile ? 2 : 1 
-        }}>
-
-           {/* Cabecera compacta pero con letra más grande */}
-           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: isMobile ? '12px' : '20px' }}> 
-             <div style={{
-               width: isUltraNarrow ? '32px' : (isMobile ? '38px' : '40px'), 
-               height: isUltraNarrow ? '32px' : (isMobile ? '38px' : '40px'), 
-               borderRadius: '50%', 
-               background: item.color, color: '#000', fontWeight: '900',
-               display: 'flex', alignItems: 'center', justifyContent: 'center',
-               fontSize: isUltraNarrow ? '1rem' : (isMobile ? '1.2rem' : '1.1rem'), 
-               flexShrink: 0
-             }}>
-               {item.id}
-             </div>
-             <div>
-                <span style={{ color: item.color, fontWeight: 700, fontSize: isMobile ? '0.8rem' : '0.65rem', textTransform: 'uppercase', display: 'block' }}>
-                    // {item.subtitle}
-                </span>
-                <h3 style={{ color: 'white', fontSize: isUltraNarrow ? '1.5rem' : (isMobile ? '1.8rem' : '1.8rem'), fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
-                  {item.title}
-                </h3>
-             </div>
-           </div>
-           
-           {/* Texto principal */}
-           <div style={{ 
-             color: '#dbe4ff', 
-             fontSize: isUltraNarrow ? '1rem' : (isMobile ? '1.1rem' : '0.95rem'), 
-             lineHeight: isMobile ? 1.4 : 1.5 
-           }}> 
-             {item.content.map((block, i) => {
-               if (block.type === 'highlight') {
-                 return (
-                   <div key={i} style={{ 
-                     margin: isMobile ? '10px 0' : '15px 0', 
-                     padding: '10px 12px', 
-                     borderLeft: `2px solid ${item.color}`, 
-                     backgroundColor: 'rgba(255,255,255,0.03)', 
-                     borderRadius: '0 8px 8px 0' 
-                   }}> 
-                     <h4 style={{ 
-                       color: 'white', 
-                       fontSize: isUltraNarrow ? '1rem' : (isMobile ? '1.1rem' : '0.95rem'), 
-                       fontWeight: 800, 
-                       marginBottom: '4px', 
-                       textTransform: 'uppercase'
-                     }}>
-                       {block.title}
-                     </h4>
-                     <p style={{ marginTop: 0, marginBottom: 0, color: '#cbd5e1' }}>{block.text}</p>
-                   </div>
-                 );
-               } else {
-                 return <p key={i} style={{ marginTop: 0, marginBottom: isMobile ? '8px' : '10px' }}>{block.text}</p>; 
-               }
-             })}
-           </div>
-
-           {/* Botón de acción */}
-           <div style={{ marginTop: 'auto', paddingTop: '15px' }}> 
-             <motion.button
-               onClick={() => navigate(`/${currentLang.toLowerCase()}/contacto`)}
-               whileTap={{ scale: 0.98 }}
-               style={{
-                 width: '100%', 
-                 padding: isMobile ? '12px' : '14px', 
-                 backgroundColor: isMobile ? `${item.color}15` : 'transparent', 
-                 color: 'white',
-                 border: `1px solid ${item.color}`,
-                 borderRadius: '12px',
-                 fontSize: isMobile ? '1rem' : '0.9rem', 
-                 fontWeight: '800',
-                 textTransform: 'uppercase',
-                 letterSpacing: '1px',
-                 cursor: 'pointer'
-               }}
+           {navItems.map(item => (
+             <Link 
+                key={item.label} 
+                to={item.path} 
+                className="nav-link" 
+                style={{ fontSize: '1.6rem', color: 'white', textDecoration: 'none', fontWeight: 'bold' }} 
+                onClick={() => setMobileMenuOpen(false)}
              >
-               {btnText}
-             </motion.button>
+               {item.label}
+             </Link>
+           ))}
+           
+           <Link 
+                to={`/${lang}/contacto`} 
+                style={{ 
+                    backgroundColor: '#FAA918', color: '#000c2d', padding: '15px 40px', 
+                    borderRadius: '50px', textDecoration: 'none', fontWeight: 800, fontSize: '1.4rem' 
+                }}
+                onClick={() => setMobileMenuOpen(false)}
+            >
+              {t.nav.contact}
+            </Link>
+
+           <div style={{ marginTop: '20px', borderTop: '1px solid rgba(255,255,255,0.2)', width: '60%', paddingTop: '30px', display: 'flex', justifyContent: 'center', gap: '20px', alignItems: 'center' }}>
+             <span onClick={() => changeLanguage('ES')} style={{ color: currentLang === 'ES' ? '#FAA918' : 'white', fontWeight: 800, fontSize: '1.5rem', cursor: 'pointer' }}>ES</span>
+             <span onClick={() => changeLanguage('EN')} style={{ color: currentLang === 'EN' ? '#FAA918' : 'white', fontWeight: 800, fontSize: '1.5rem', cursor: 'pointer' }}>EN</span>
            </div>
         </div>
+      )}
 
-      </div>
-    </motion.div>
+      <style>{`
+        .lang-option { padding: 10px 20px; cursor: pointer; text-align: center; color: #333; font-weight: 600; transition: background 0.2s; }
+        .lang-option:hover { background-color: #f5f5f5; color: #FAA918; }
+        .nav-link:hover { color: #FAA918 !important; transition: color 0.3s ease; }
+        .btn-contact-nav:hover { 
+            transform: scale(1.05); 
+            background-color: #ffb733 !important; 
+            box-shadow: 0 6px 20px rgba(250, 169, 24, 0.4);
+        }
+      `}</style>
+    </>
   );
 };
