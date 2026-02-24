@@ -1,6 +1,7 @@
 import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
 import { Link, useLocation, useParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Torus, 
   Sphere,
@@ -28,7 +29,7 @@ const SECTION_TEXTS: any = {
   ES: {
     titleStart: "Explora",
     titleHighlight: "Servicios",
-    interactHint: "Toca para interactuar",
+    interactHint: "Toca para mover",
     categories: {
       software: {
         label: "Desarrollo de Software",
@@ -53,7 +54,7 @@ const SECTION_TEXTS: any = {
   EN: {
     titleStart: "Explore",
     titleHighlight: "Services",
-    interactHint: "Tap to interact",
+    interactHint: "Tap to move",
     categories: {
       software: {
         label: "Software Development",
@@ -140,9 +141,7 @@ const ServiceSectionParticles = () => {
   return (
     <points ref={meshRef}>
       <bufferGeometry>
-        {/* @ts-ignore */}
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
-        {/* @ts-ignore */}
         <bufferAttribute attach="attributes-aPosition" args={[positions, 3]} />
       </bufferGeometry>
       {/* @ts-ignore */}
@@ -152,14 +151,14 @@ const ServiceSectionParticles = () => {
 };
 
 // =====================================================================
-// PLANETAS
+// MODELOS DE PLANETAS
 // =====================================================================
 function SaturnCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Group>(null);
   useFrame((_, delta) => {
-    if (planetRef.current) planetRef.current.rotation.y += delta * 0.05; 
-    if (ringRef.current) ringRef.current.rotation.z -= delta * 0.02;     
+    if (planetRef.current) planetRef.current.rotation.y += delta * 0.15; 
+    if (ringRef.current) ringRef.current.rotation.z -= delta * 0.05;     
   });
   return (
     <group rotation={[0.3, 0, 0]}>
@@ -184,7 +183,7 @@ function UranusCartoon() {
   const planetRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Group>(null);
   useFrame((_, delta) => {
-    if (planetRef.current) planetRef.current.rotation.y -= delta * 0.04; 
+    if (planetRef.current) planetRef.current.rotation.y -= delta * 0.1; 
     if (ringRef.current) { ringRef.current.rotation.x += delta * 0.02; ringRef.current.rotation.z += delta * 0.01; }
   });
   return (
@@ -245,32 +244,23 @@ const ServiceButton = ({ item, id, themeColor, urlLang }: { item: string, id: nu
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 style={{
-                    width: '100%', 
-                    padding: '16px 25px', 
-                    borderRadius: '8px',
+                    width: '100%', padding: '16px 25px', borderRadius: '8px',
                     backgroundColor: isHovered ? `${themeColor}D9` : 'rgba(255, 255, 255, 0.08)',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     color: isHovered ? '#000000' : 'rgba(255, 255, 255, 0.9)',
-                    fontSize: '1.05rem', 
-                    fontWeight: 600, 
-                    textAlign: 'left', 
-                    cursor: 'pointer', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'space-between',
-                    transition: 'all 0.3s ease',
+                    fontSize: '1.05rem', fontWeight: 600, textAlign: 'left', 
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', 
+                    justifyContent: 'space-between', transition: 'all 0.3s ease',
                     transform: isHovered ? 'translateX(5px)' : 'translateX(0)',
                     boxShadow: isHovered ? `0 4px 15px ${themeColor}40` : 'none',
-                    marginBottom: '10px',
-                    boxSizing: 'border-box'
+                    marginBottom: '10px', boxSizing: 'border-box'
                 }}
             >
                <span>{item}</span>
                <svg 
                  width="20" height="20" viewBox="0 0 24 24" fill="none" 
                  style={{ 
-                     stroke: isHovered ? '#000000' : themeColor, 
-                     strokeWidth: 2, 
+                     stroke: isHovered ? '#000000' : themeColor, strokeWidth: 2, 
                      transition: 'stroke 0.2s, transform 0.2s',
                      transform: isHovered ? 'translateX(3px)' : 'translateX(0)'
                  }}
@@ -287,8 +277,6 @@ const ServiceButton = ({ item, id, themeColor, urlLang }: { item: string, id: nu
 // =====================================================================
 export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('software');
-  
-  // Estado para controlar la máscara de scroll
   const [isCanvasInteractive, setIsCanvasInteractive] = useState(!isMobile);
   
   const { lang: urlLang } = useParams(); 
@@ -313,30 +301,100 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
 
       {/* CAPA 2: CONTENIDO FLEX */}
       <div style={{
-        position: 'relative', zIndex: 10,
-        width: '100%', height: '100%',
+        position: 'relative', zIndex: 10, width: '100%', height: '100%',
         display: 'flex', flexDirection: isMobile ? 'column' : 'row'
       }}>
 
-        {/* --- MITAD IZQUIERDA: MENÚ --- */}
+        {/* --- MITAD: PLANETA (ARRIBA EN MÓVIL) --- */}
+        <div style={{ 
+            order: isMobile ? 1 : 2, 
+            width: isMobile ? '100%' : '50%', 
+            height: isMobile ? '400px' : '100%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            position: 'relative',
+            // Raya divisora abajo del planeta solo en móvil
+            borderBottom: isMobile ? `1px solid ${CATEGORY_CONFIG[activeCategory].themeColor}40` : 'none'
+        }}>
+            
+            {/* BOTÓN "TOCA PARA MOVER" - CAPA SUPERIOR DEFINITIVA */}
+            <AnimatePresence>
+                {isMobile && !isCanvasInteractive && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={(e) => { 
+                            e.stopPropagation(); 
+                            setIsCanvasInteractive(true); 
+                        }}
+                        style={{
+                            position: 'absolute', 
+                            top: 0, left: 0, right: 0, bottom: 0,
+                            zIndex: 100, 
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            cursor: 'pointer', backgroundColor: 'rgba(0,0,0,0.1)'
+                        }}
+                    >
+                        <motion.span 
+                            initial={{ scale: 0.8 }} 
+                            animate={{ scale: 1 }}
+                            style={{ 
+                                color: 'white', background: 'rgba(0,0,0,0.85)', padding: '14px 28px', 
+                                borderRadius: '50px', fontSize: '1rem', fontWeight: '800', 
+                                letterSpacing: '1px', textTransform: 'uppercase', backdropFilter: 'blur(10px)',
+                                border: `2px solid ${CATEGORY_CONFIG[activeCategory].themeColor}`,
+                                boxShadow: `0 0 40px ${CATEGORY_CONFIG[activeCategory].themeColor}80`
+                            }}
+                        >
+                            👆 {t.interactHint}
+                        </motion.span>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            <div style={{
+                width: isMobile ? '320px' : '100%', 
+                height: isMobile ? '320px' : '100%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                pointerEvents: (isMobile && !isCanvasInteractive) ? 'none' : 'auto'
+            }}>
+                <Canvas camera={{ position: [0, 0, isMobile ? 7 : 8], fov: 45 }} dpr={[1, 2]}>
+                    <ambientLight intensity={0.5} color={CATEGORY_CONFIG[activeCategory].themeColor} />
+                    <directionalLight position={[5, 5, 5]} intensity={2.5} color="white" />
+                    <spotLight position={[-5, 2, -5]} angle={0.5} intensity={3} color={CATEGORY_CONFIG[activeCategory].themeColor} />
+                    
+                    <OrbitControls 
+                        enablePan={false} 
+                        enableZoom={false} 
+                        autoRotate={!isCanvasInteractive} 
+                        autoRotateSpeed={1.5} 
+                    />
+                    
+                    <group scale={isMobile ? 0.75 : 0.6}>
+                        {activeCategory === 'software' ? <SaturnCartoon /> : <UranusCartoon />}
+                    </group>
+                </Canvas>
+            </div>
+        </div>
+
+        {/* --- MITAD: MENÚ (ABAJO EN MÓVIL) --- */}
         <div style={{
-          order: 1, 
+          order: isMobile ? 2 : 1, 
           width: isMobile ? '100%' : '50%',
           flex: isMobile ? 'auto' : '0 0 50%',
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
           backgroundColor: 'rgba(0, 12, 45, 0.5)', 
           backdropFilter: 'blur(16px)',
+          // Raya lateral en escritorio
           borderRight: isMobile ? 'none' : `1px solid ${CATEGORY_CONFIG[activeCategory].themeColor}30`,
-          borderBottom: isMobile ? `1px solid ${CATEGORY_CONFIG[activeCategory].themeColor}30` : 'none',
           padding: isMobile ? '50px 20px' : '0 60px',
           transition: 'all 0.5s ease'
         }}>
             <h2 style={{ fontSize: isMobile ? '2rem' : '3rem', fontWeight: 800, marginBottom: '30px', color: '#fff', lineHeight: 1.1 }}>
               {t.titleStart}{isMobile ? ' ' : <br/>}
-              <span style={{ color: CATEGORY_CONFIG[activeCategory].themeColor, transition: 'color 0.5s ease' }}>{t.titleHighlight}</span>
+              <span style={{ color: CATEGORY_CONFIG[activeCategory].themeColor }}>{t.titleHighlight}</span>
             </h2>
 
-            {/* Selector de Categorías */}
             <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '12px', padding: '6px', marginBottom: '30px', border: `1px solid ${CATEGORY_CONFIG[activeCategory].themeColor}30` }}>
                 {(Object.keys(CATEGORY_CONFIG) as CategoryKey[]).map((key) => (
                     <button key={key} onClick={() => setActiveCategory(key)} style={{
@@ -351,75 +409,14 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
                 ))}
             </div>
 
-            {/* Lista de Servicios */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 {activeData.items.map((item: any) => (
                     <ServiceButton 
-                        key={item.id} 
-                        item={item.label} 
-                        id={item.id} 
+                        key={item.id} item={item.label} id={item.id} 
                         themeColor={CATEGORY_CONFIG[activeCategory].themeColor} 
                         urlLang={currentLang.toLowerCase()}
                     />
                 ))}
-            </div>
-        </div>
-
-        {/* --- MITAD DERECHA: PLANETA --- */}
-        <div style={{ 
-            order: 2, 
-            width: isMobile ? '100%' : '50%', 
-            height: isMobile ? '400px' : '100%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative'
-        }}>
-            
-            {/* MÁSCARA PROTECTORA DE SCROLL PARA MÓVILES */}
-            {isMobile && !isCanvasInteractive && (
-              <div 
-                  onClick={() => setIsCanvasInteractive(true)}
-                  style={{
-                      position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-                      zIndex: 20, cursor: 'pointer',
-                      display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-                      paddingBottom: '30px'
-                  }}
-              >
-                  <span style={{ 
-                      color: 'white', background: 'rgba(0,0,0,0.6)', padding: '10px 20px', 
-                      borderRadius: '50px', fontSize: '0.9rem', fontWeight: 'bold', 
-                      letterSpacing: '1px', textTransform: 'uppercase', backdropFilter: 'blur(5px)',
-                      border: `1px solid ${CATEGORY_CONFIG[activeCategory].themeColor}`,
-                      boxShadow: `0 0 15px ${CATEGORY_CONFIG[activeCategory].themeColor}40`
-                  }}>
-                      👆 {t.interactHint}
-                  </span>
-              </div>
-            )}
-
-            {/* CAJA DEL CANVAS 3D: AHORA OCUPA EL 100% EN ESCRITORIO */}
-            <div style={{
-                width: isMobile ? '320px' : '100%', // 👈 100% en escritorio
-                height: isMobile ? '320px' : '100%', // 👈 100% en escritorio
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                pointerEvents: (isMobile && !isCanvasInteractive) ? 'none' : 'auto'
-            }}>
-                <Canvas camera={{ position: [0, 0, 7], fov: 45 }} dpr={[1, 2]}>
-                    <ambientLight intensity={0.5} color={CATEGORY_CONFIG[activeCategory].themeColor} />
-                    <directionalLight position={[5, 5, 5]} intensity={2.5} color="white" />
-                    <spotLight position={[-5, 2, -5]} angle={0.5} intensity={3} color={CATEGORY_CONFIG[activeCategory].themeColor} />
-                    
-                    <OrbitControls enablePan={false} enableZoom={false} autoRotate={true} autoRotateSpeed={0.8} />
-                    
-                    {/* 👇 Escala aún más reducida en Desktop (0.65) */}
-                    <group scale={isMobile ? 0.75 : 0.65}>
-                        {activeCategory === 'software' ? <SaturnCartoon /> : <UranusCartoon />}
-                    </group>
-                </Canvas>
             </div>
         </div>
 
