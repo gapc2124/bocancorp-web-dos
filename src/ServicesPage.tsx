@@ -186,7 +186,8 @@ const HeroSection = ({ isMobile, title }: { isMobile: boolean, title: string }) 
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 2, background: 'radial-gradient(circle at center, transparent 10%, #00020a 90%)', pointerEvents: 'none' }} />
     
     <div style={{ position: 'relative', zIndex: 3, pointerEvents: 'none' }}>
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.2, ease: "easeOut" }} style={{ textAlign: 'center' }}>
+        {/* 👇 CORRECCIÓN WARNING FRAMER MOTION: position: 'relative' agregado aquí */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.2, ease: "easeOut" }} style={{ position: 'relative', textAlign: 'center' }}>
             <h1 style={{ color: 'white', fontSize: isMobile ? '3rem' : '5rem', fontWeight: 800, letterSpacing: '-1px', margin: 0, lineHeight: 1, textShadow: '0 0 20px rgba(0, 194, 255, 0.5)' }}>
               {title}
             </h1>
@@ -256,9 +257,9 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
               <SpecializedSolutions isMobile={isMobile} />
           </section>
 
-          {/* 👇 AQUÍ ESTÁ LA CORRECCIÓN DE "position: relative" PARA EL WARNING DE FRAMER MOTION */}
           <section style={{ position: 'relative', padding: isMobile ? '40px 20px 100px' : '40px 0 120px', textAlign: 'center' }}>
-              <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
+              {/* 👇 CORRECCIÓN WARNING FRAMER MOTION: position: 'relative' agregado aquí */}
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }} style={{ position: 'relative' }}>
                 <motion.button
                     onClick={() => navigate(`/${currentLang.toLowerCase()}/contacto`)}
                     whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(255, 204, 0, 0.6)', backgroundColor: '#ffe033' }}
@@ -280,13 +281,14 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
       </div>
 
       <style>{`
-        /* 👇 EL MEDIA QUERY ASEGURA QUE EN PC SE VEA IGUAL, PERO EN MÓVIL USE EL CSS DE STACKINGCARDS.TSX */
+        /* 👇 SOLO PARA ESCRITORIOS: No altera la vista móvil */
         @media (min-width: 1024px) {
             #stacking-section-id .stacking-card-content { padding: clamp(40px, 5vw, 80px) !important; display: flex !important; flex-direction: column !important; justify-content: center !important; }
             #stacking-section-id p { font-size: clamp(1.05rem, 1.2vw, 1.25rem) !important; line-height: 1.7 !important; margin-bottom: clamp(15px, 2vw, 25px) !important; color: #e2e8f0 !important; max-width: 95% !important; }
             #stacking-section-id h3, #stacking-section-id h4, #stacking-section-id .highlight-title { font-size: clamp(1.3rem, 1.6vw, 1.9rem) !important; line-height: 1.3 !important; margin-bottom: 15px !important; font-weight: 900 !important; text-transform: uppercase !important; }
             #stacking-section-id .highlight-box { padding: 25px !important; border-radius: 16px !important; background: rgba(255, 255, 255, 0.03) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
         }
+        body { overflow-x: hidden; }
       `}</style>
     </div>
   );

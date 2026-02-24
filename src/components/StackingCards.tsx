@@ -136,8 +136,8 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
     >
       <div style={{
         width: isUltraNarrow ? '92%' : (isMobile ? '90%' : '75%'), 
-        // 👇 Aumentamos la altura de la tarjeta a 80vh en móvil para que quepa todo perfecto
-        height: isMobile ? '80vh' : '65vh', 
+        // 👇 Aumentamos a 88vh en móvil para que entre el texto más grande sin problemas
+        height: isMobile ? '88vh' : '65vh', 
         backgroundColor: 'rgba(10, 16, 36, 0.92)', 
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
@@ -152,8 +152,7 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
         
         {/* MEDIA SECTION */}
         <div style={{
-          // 👇 Aumentamos el espacio de la imagen en móviles (de 90px a 140px/120px)
-          flex: isUltraNarrow ? '0 0 120px' : (isMobile ? '0 0 140px' : 0.8),
+          flex: isUltraNarrow ? '0 0 140px' : (isMobile ? '0 0 170px' : 0.8),
           position: 'relative',
           width: '100%',
           backgroundImage: `url(${resolvePath(item.image)})`,
@@ -197,19 +196,21 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
                {item.id}
              </div>
              <div>
-                <span style={{ color: item.color, fontWeight: 700, fontSize: isMobile ? '0.65rem' : '0.65rem', textTransform: 'uppercase', display: 'block' }}>
+                {/* 👇 Subtítulo más grande en móviles (de 0.7rem a 0.78rem) */}
+                <span style={{ color: item.color, fontWeight: 700, fontSize: isMobile ? '0.78rem' : '0.65rem', textTransform: 'uppercase', display: 'block' }}>
                     // {item.subtitle}
                 </span>
-                <h3 style={{ color: 'white', fontSize: isUltraNarrow ? '1.15rem' : (isMobile ? '1.3rem' : '1.8rem'), fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
+                {/* 👇 Título más grande en móviles (de 1.45rem a 1.6rem) */}
+                <h3 style={{ color: 'white', fontSize: isUltraNarrow ? '1.35rem' : (isMobile ? '1.6rem' : '1.8rem'), fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
                   {item.title}
                 </h3>
              </div>
            </div>
            
-           {/* Texto: Letra un poco más grande en móviles (de 0.72rem a 0.82rem / 0.88rem) */}
+           {/* 👇 Texto principal: Letra aumentada a casi 1rem en móviles normales */}
            <div style={{ 
              color: '#dbe4ff', 
-             fontSize: isUltraNarrow ? '0.82rem' : (isMobile ? '0.88rem' : '0.95rem'), 
+             fontSize: isUltraNarrow ? '0.92rem' : (isMobile ? '1rem' : '0.95rem'), 
              lineHeight: isMobile ? 1.4 : 1.5 
            }}> 
              {item.content.map((block, i) => {
@@ -222,21 +223,20 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
                      backgroundColor: 'rgba(255,255,255,0.03)', 
                      borderRadius: '0 8px 8px 0' 
                    }}> 
+                     {/* 👇 Título del highlight aumentado */}
                      <h4 style={{ 
                        color: 'white', 
-                       fontSize: isUltraNarrow ? '0.82rem' : (isMobile ? '0.88rem' : '0.95rem'), 
+                       fontSize: isUltraNarrow ? '0.92rem' : (isMobile ? '1rem' : '0.95rem'), 
                        fontWeight: 800, 
                        marginBottom: '4px', 
                        textTransform: 'uppercase'
                      }}>
                        {block.title}
                      </h4>
-                     {/* 👇 Aquí aplicamos la solución al Warning de márgenes */}
                      <p style={{ marginTop: 0, marginBottom: 0, color: '#cbd5e1' }}>{block.text}</p>
                    </div>
                  );
                } else {
-                 // 👇 Solución al Warning en los párrafos normales
                  return <p key={i} style={{ marginTop: 0, marginBottom: isMobile ? '8px' : '10px' }}>{block.text}</p>; 
                }
              })}
@@ -254,7 +254,8 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
                  color: 'white',
                  border: `1px solid ${item.color}`,
                  borderRadius: '12px',
-                 fontSize: isMobile ? '0.8rem' : '0.85rem', 
+                 /* 👇 Botón un poco más legible en móviles */
+                 fontSize: isMobile ? '0.9rem' : '0.9rem', 
                  fontWeight: '800',
                  textTransform: 'uppercase',
                  letterSpacing: '1px',
