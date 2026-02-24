@@ -176,14 +176,14 @@ const TRANSLATIONS: any = {
 const HeroSection = ({ isMobile, title }: { isMobile: boolean, title: string }) => (
   <section style={{ position: 'relative', height: '100vh', width: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', zIndex: 1, background: '#00020a' }}>
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 1 }}>
-              <Canvas 
-          style={{ 
-            touchAction: 'pan-y', 
-            WebkitTapHighlightColor: 'transparent', /* 👈 Quita el fondo azul en móviles */
-            outline: 'none' /* 👈 Quita el borde de selección en PC */
-          }} 
-          camera={{ position: [0, 0, 8], fov: 45 }}
-        >
+      <Canvas 
+        style={{ 
+          touchAction: 'pan-y', 
+          WebkitTapHighlightColor: 'rgba(0,0,0,0)', 
+          outline: 'none' 
+        }} 
+        camera={{ position: [0, 0, 8], fov: 45 }}
+      >
         <Environment preset="night" /> 
         <ambientLight intensity={0.1} />
         <pointLight position={[10, 10, 10]} intensity={2} color="#00C2FF" />
@@ -193,7 +193,6 @@ const HeroSection = ({ isMobile, title }: { isMobile: boolean, title: string }) 
     <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 2, background: 'radial-gradient(circle at center, transparent 10%, #00020a 90%)', pointerEvents: 'none' }} />
     
     <div style={{ position: 'relative', zIndex: 3, pointerEvents: 'none' }}>
-        {/* 👇 CORRECCIÓN WARNING FRAMER MOTION: position: 'relative' agregado aquí */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.2, ease: "easeOut" }} style={{ position: 'relative', textAlign: 'center' }}>
             <h1 style={{ color: 'white', fontSize: isMobile ? '3rem' : '5rem', fontWeight: 800, letterSpacing: '-1px', margin: 0, lineHeight: 1, textShadow: '0 0 20px rgba(0, 194, 255, 0.5)' }}>
               {title}
@@ -265,7 +264,6 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
           </section>
 
           <section style={{ position: 'relative', padding: isMobile ? '40px 20px 100px' : '40px 0 120px', textAlign: 'center' }}>
-              {/* 👇 CORRECCIÓN WARNING FRAMER MOTION: position: 'relative' agregado aquí */}
               <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }} style={{ position: 'relative' }}>
                 <motion.button
                     onClick={() => navigate(`/${currentLang.toLowerCase()}/contacto`)}
@@ -278,7 +276,8 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
                         fontSize: isMobile ? '1.2rem' : '1.8rem', fontWeight: '900', border: 'none',
                         borderRadius: '100px', cursor: 'pointer', textTransform: 'uppercase',
                         letterSpacing: '1px', boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
-                        display: 'inline-block', maxWidth: '90%'
+                        display: 'inline-block', maxWidth: '90%',
+                        WebkitTapHighlightColor: 'rgba(0,0,0,0)'
                     }}
                 >
                     {t.ctaButton}
@@ -288,17 +287,23 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
       </div>
 
       <style>{`
-        /* 👇 ESTA ES LA REGLA QUE MATA EL CUADRO AZUL GLOBALMENTE */
+        /* 👇 Reglas limpias para eliminar el cuadro azul sin usar important */
         * {
-          -webkit-tap-highlight-color: transparent !important;
+          -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+          -webkit-tap-highlight-color: transparent;
+          -webkit-touch-callout: none;
+        }
+
+        button, a, canvas, div {
+          outline: none;
         }
 
         /* 👇 SOLO PARA ESCRITORIOS: No altera la vista móvil */
         @media (min-width: 1024px) {
-            #stacking-section-id .stacking-card-content { padding: clamp(40px, 5vw, 80px) !important; display: flex !important; flex-direction: column !important; justify-content: center !important; }
-            #stacking-section-id p { font-size: clamp(1.05rem, 1.2vw, 1.25rem) !important; line-height: 1.7 !important; margin-bottom: clamp(15px, 2vw, 25px) !important; color: #e2e8f0 !important; max-width: 95% !important; }
-            #stacking-section-id h3, #stacking-section-id h4, #stacking-section-id .highlight-title { font-size: clamp(1.3rem, 1.6vw, 1.9rem) !important; line-height: 1.3 !important; margin-bottom: 15px !important; font-weight: 900 !important; text-transform: uppercase !important; }
-            #stacking-section-id .highlight-box { padding: 25px !important; border-radius: 16px !important; background: rgba(255, 255, 255, 0.03) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+            #stacking-section-id .stacking-card-content { padding: clamp(40px, 5vw, 80px); display: flex; flex-direction: column; justify-content: center; }
+            #stacking-section-id p { font-size: clamp(1.05rem, 1.2vw, 1.25rem); line-height: 1.7; margin-bottom: clamp(15px, 2vw, 25px); color: #e2e8f0; max-width: 95%; }
+            #stacking-section-id h3, #stacking-section-id h4, #stacking-section-id .highlight-title { font-size: clamp(1.3rem, 1.6vw, 1.9rem); line-height: 1.3; margin-bottom: 15px; font-weight: 900; text-transform: uppercase; }
+            #stacking-section-id .highlight-box { padding: 25px; border-radius: 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); }
         }
         body { overflow-x: hidden; }
       `}</style>
