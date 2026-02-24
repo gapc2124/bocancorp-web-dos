@@ -288,6 +288,11 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
       </div>
 
       <style>{`
+        /* 👇 ESTA ES LA REGLA QUE MATA EL CUADRO AZUL GLOBALMENTE */
+        * {
+          -webkit-tap-highlight-color: transparent !important;
+        }
+
         /* 👇 SOLO PARA ESCRITORIOS: No altera la vista móvil */
         @media (min-width: 1024px) {
             #stacking-section-id .stacking-card-content { padding: clamp(40px, 5vw, 80px) !important; display: flex !important; flex-direction: column !important; justify-content: center !important; }
