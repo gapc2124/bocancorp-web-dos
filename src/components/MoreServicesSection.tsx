@@ -141,7 +141,9 @@ const ServiceSectionParticles = () => {
   return (
     <points ref={meshRef}>
       <bufferGeometry>
+        {/* @ts-ignore */}
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+        {/* @ts-ignore */}
         <bufferAttribute attach="attributes-aPosition" args={[positions, 3]} />
       </bufferGeometry>
       {/* @ts-ignore */}
@@ -284,6 +286,13 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
   const t = SECTION_TEXTS[currentLang];
   const activeData = t.categories[activeCategory];
 
+  // RESET DEL BOTÓN: Cada que cambias de categoría o haces reload, el botón vuelve a aparecer en móvil.
+  useEffect(() => {
+    if (isMobile) {
+      setIsCanvasInteractive(false);
+    }
+  }, [activeCategory, isMobile]);
+
   return (
     <section style={{
       position: 'relative', width: '100%', 
@@ -292,31 +301,30 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
       background: BG_COLOR, overflow: 'hidden'
     }}>
       
-      {/* CAPA 1: FONDO DE ESTRELLAS */}
+      {/* CAPA FONDO */}
       <div style={{ position: 'absolute', inset: 0, zIndex: 0 }}>
         <Canvas camera={{ position: [0, 0, 15], fov: 60 }} dpr={[1, 1.5]}>
             <ServiceSectionParticles />
         </Canvas>
       </div>
 
-      {/* CAPA 2: CONTENIDO FLEX */}
       <div style={{
         position: 'relative', zIndex: 10, width: '100%', height: '100%',
         display: 'flex', flexDirection: isMobile ? 'column' : 'row'
       }}>
 
-        {/* --- MITAD: PLANETA (ARRIBA EN MÓVIL) --- */}
+        {/* --- MITAD PLANETA (ARRIBA EN MÓVIL) --- */}
         <div style={{ 
             order: isMobile ? 1 : 2, 
             width: isMobile ? '100%' : '50%', 
             height: isMobile ? '400px' : '100%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             position: 'relative',
-            // Raya divisora abajo del planeta solo en móvil
+            // Raya divisora abajo del planeta (Entre planeta y texto en móvil)
             borderBottom: isMobile ? `1px solid ${CATEGORY_CONFIG[activeCategory].themeColor}40` : 'none'
         }}>
             
-            {/* BOTÓN "TOCA PARA MOVER" - CAPA SUPERIOR DEFINITIVA */}
+            {/* BOTÓN "TOCA PARA MOVER" - Minimalista y transparente */}
             <AnimatePresence>
                 {isMobile && !isCanvasInteractive && (
                     <motion.div 
@@ -330,23 +338,30 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
                         style={{
                             position: 'absolute', 
                             top: 0, left: 0, right: 0, bottom: 0,
-                            zIndex: 100, 
+                            zIndex: 999, 
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            cursor: 'pointer', backgroundColor: 'rgba(0,0,0,0.1)'
+                            cursor: 'pointer',
+                            background: 'transparent'
                         }}
                     >
                         <motion.span 
-                            initial={{ scale: 0.8 }} 
-                            animate={{ scale: 1 }}
+                            initial={{ opacity: 0 }} 
+                            animate={{ opacity: 1 }}
                             style={{ 
-                                color: 'white', background: 'rgba(0,0,0,0.85)', padding: '14px 28px', 
-                                borderRadius: '50px', fontSize: '1rem', fontWeight: '800', 
-                                letterSpacing: '1px', textTransform: 'uppercase', backdropFilter: 'blur(10px)',
-                                border: `2px solid ${CATEGORY_CONFIG[activeCategory].themeColor}`,
-                                boxShadow: `0 0 40px ${CATEGORY_CONFIG[activeCategory].themeColor}80`
+                                color: 'rgba(255, 255, 255, 0.8)', 
+                                background: 'rgba(255, 255, 255, 0.05)', 
+                                padding: '10px 24px', 
+                                borderRadius: '50px', 
+                                fontSize: '0.85rem', 
+                                fontWeight: '600', 
+                                letterSpacing: '2px', 
+                                textTransform: 'uppercase', 
+                                backdropFilter: 'blur(6px)',
+                                border: '1px solid rgba(255, 255, 255, 0.15)',
+                                boxShadow: 'none' 
                             }}
                         >
-                            👆 {t.interactHint}
+                            {t.interactHint}
                         </motion.span>
                     </motion.div>
                 )}
@@ -377,7 +392,7 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
             </div>
         </div>
 
-        {/* --- MITAD: MENÚ (ABAJO EN MÓVIL) --- */}
+        {/* --- MITAD MENÚ (ABAJO EN MÓVIL) --- */}
         <div style={{
           order: isMobile ? 2 : 1, 
           width: isMobile ? '100%' : '50%',
@@ -385,7 +400,6 @@ export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
           display: 'flex', flexDirection: 'column', justifyContent: 'center',
           backgroundColor: 'rgba(0, 12, 45, 0.5)', 
           backdropFilter: 'blur(16px)',
-          // Raya lateral en escritorio
           borderRight: isMobile ? 'none' : `1px solid ${CATEGORY_CONFIG[activeCategory].themeColor}30`,
           padding: isMobile ? '50px 20px' : '0 60px',
           transition: 'all 0.5s ease'

@@ -2,7 +2,7 @@ import React, { Suspense, useEffect, useState, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import { motion } from 'framer-motion';
-import { useLocation, useNavigate, useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
+import { useLocation, useNavigate, useParams } from 'react-router-dom'; 
 import { Helmet } from 'react-helmet-async';
 
 import { CosmicSphere } from './components/CosmicSphere';
@@ -30,7 +30,7 @@ const TRANSLATIONS: any = {
     heroTitle: "Nuestros Servicios",
     ctaButton: "impulsa tu negocio a las estrellas",
     servicesData: [
-            { 
+      { 
         id: 1, 
         subtitle: "INGENIERÍA DE SOFTWARE", 
         title: "Desarrollo Multiplataforma", 
@@ -212,7 +212,6 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
   const { hash } = useLocation();
   const navigate = useNavigate();
 
-  // 👇 2. LEEMOS EL IDIOMA DIRECTO DE LA URL (Sustituye al useEffect/localStorage)
   const { lang: urlLang } = useParams(); 
   const currentLang = urlLang === 'en' ? 'EN' : 'ES';
   const t = TRANSLATIONS[currentLang];
@@ -244,7 +243,6 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
 
       <HeroSection isMobile={isMobile} title={t.heroTitle} />
       
-      {/* OJO: Estos subcomponentes también necesitan leer el idioma por URL dentro de su propio archivo */}
       <StrategicPillars isMobile={isMobile} />
 
       <section id="stacking-section-id" style={{ position: 'relative', zIndex: 1, paddingTop: '60px', backgroundColor: '#00020a' }}>
@@ -261,7 +259,6 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
           <section style={{ padding: isMobile ? '40px 20px 100px' : '40px 0 120px', textAlign: 'center' }}>
               <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.8 }}>
                 <motion.button
-                    // 👇 3. NAVEGACIÓN ACTUALIZADA CON EL IDIOMA
                     onClick={() => navigate(`/${currentLang.toLowerCase()}/contacto`)}
                     whileHover={{ scale: 1.05, boxShadow: '0 0 40px rgba(255, 204, 0, 0.6)', backgroundColor: '#ffe033' }}
                     whileTap={{ scale: 0.95 }}
@@ -282,10 +279,36 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
       </div>
 
       <style>{`
-        #stacking-section-id .stacking-card-content { padding: clamp(40px, 5vw, 80px) !important; display: flex !important; flex-direction: column !important; justify-content: center !important; }
-        #stacking-section-id p { font-size: clamp(1.05rem, 1.2vw, 1.25rem) !important; line-height: 1.7 !important; margin-bottom: clamp(15px, 2vw, 25px) !important; color: #e2e8f0 !important; max-width: 95% !important; }
-        #stacking-section-id h3, #stacking-section-id h4, #stacking-section-id .highlight-title { font-size: clamp(1.3rem, 1.6vw, 1.9rem) !important; line-height: 1.3 !important; margin-bottom: 15px !important; font-weight: 900 !important; text-transform: uppercase !important; }
-        #stacking-section-id .highlight-box { padding: 25px !important; border-radius: 16px !important; background: rgba(255, 255, 255, 0.03) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; }
+        /* 👇 SOLO PARA ESCRITORIOS: No altera la vista móvil */
+        @media (min-width: 1024px) {
+            #stacking-section-id .stacking-card-content { 
+                padding: clamp(40px, 5vw, 80px) !important; 
+                display: flex !important; 
+                flex-direction: column !important; 
+                justify-content: center !important; 
+            }
+            #stacking-section-id p { 
+                font-size: clamp(1.05rem, 1.2vw, 1.25rem) !important; 
+                line-height: 1.7 !important; 
+                margin-bottom: clamp(15px, 2vw, 25px) !important; 
+                color: #e2e8f0 !important; 
+                max-width: 95% !important; 
+            }
+            #stacking-section-id h3, #stacking-section-id h4, #stacking-section-id .highlight-title { 
+                font-size: clamp(1.3rem, 1.6vw, 1.9rem) !important; 
+                line-height: 1.3 !important; 
+                margin-bottom: 15px !important; 
+                font-weight: 900 !important; 
+                text-transform: uppercase !important; 
+            }
+            #stacking-section-id .highlight-box { 
+                padding: 25px !important; 
+                border-radius: 16px !important; 
+                background: rgba(255, 255, 255, 0.03) !important; 
+                border: 1px solid rgba(255, 255, 255, 0.1) !important; 
+            }
+        }
+        body { overflow-x: hidden; }
       `}</style>
     </div>
   );
