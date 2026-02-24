@@ -136,7 +136,7 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
     >
       <div style={{
         width: isUltraNarrow ? '92%' : (isMobile ? '90%' : '75%'), 
-        // 👇 Aumentamos a 88vh en móvil para que entre el texto más grande sin problemas
+        // Tarjeta con altura suficiente en móviles para acomodar la nueva letra más grande
         height: isMobile ? '88vh' : '65vh', 
         backgroundColor: 'rgba(10, 16, 36, 0.92)', 
         backdropFilter: 'blur(20px)',
@@ -152,7 +152,8 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
         
         {/* MEDIA SECTION */}
         <div style={{
-          flex: isUltraNarrow ? '0 0 140px' : (isMobile ? '0 0 170px' : 0.8),
+          // 👇 AUMENTO EJE Y EN IMÁGENES MÓVILES: de 170px a 190px
+          flex: isUltraNarrow ? '0 0 160px' : (isMobile ? '0 0 190px' : 0.8),
           position: 'relative',
           width: '100%',
           backgroundImage: `url(${resolvePath(item.image)})`,
@@ -182,35 +183,35 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
           order: isMobile ? 2 : 1 
         }}>
 
-           {/* Cabecera compacta */}
+           {/* Cabecera compacta pero con letra más grande */}
            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: isMobile ? '12px' : '20px' }}> 
              <div style={{
-               width: isUltraNarrow ? '30px' : (isMobile ? '35px' : '40px'), 
-               height: isUltraNarrow ? '30px' : (isMobile ? '35px' : '40px'), 
+               width: isUltraNarrow ? '32px' : (isMobile ? '38px' : '40px'), 
+               height: isUltraNarrow ? '32px' : (isMobile ? '38px' : '40px'), 
                borderRadius: '50%', 
                background: item.color, color: '#000', fontWeight: '900',
                display: 'flex', alignItems: 'center', justifyContent: 'center',
-               fontSize: isUltraNarrow ? '0.85rem' : (isMobile ? '1rem' : '1.1rem'), 
+               fontSize: isUltraNarrow ? '1rem' : (isMobile ? '1.2rem' : '1.1rem'), 
                flexShrink: 0
              }}>
                {item.id}
              </div>
              <div>
-                {/* 👇 Subtítulo más grande en móviles (de 0.7rem a 0.78rem) */}
-                <span style={{ color: item.color, fontWeight: 700, fontSize: isMobile ? '0.78rem' : '0.65rem', textTransform: 'uppercase', display: 'block' }}>
+                {/* 👇 SUBTÍTULO: De 0.7rem a 0.8rem en móviles */}
+                <span style={{ color: item.color, fontWeight: 700, fontSize: isMobile ? '0.8rem' : '0.65rem', textTransform: 'uppercase', display: 'block' }}>
                     // {item.subtitle}
                 </span>
-                {/* 👇 Título más grande en móviles (de 1.45rem a 1.6rem) */}
-                <h3 style={{ color: 'white', fontSize: isUltraNarrow ? '1.35rem' : (isMobile ? '1.6rem' : '1.8rem'), fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
+                {/* 👇 TÍTULO PRINCIPAL: De 1.45rem a 1.8rem en móviles */}
+                <h3 style={{ color: 'white', fontSize: isUltraNarrow ? '1.5rem' : (isMobile ? '1.8rem' : '1.8rem'), fontWeight: 900, lineHeight: 1.1, margin: 0 }}> 
                   {item.title}
                 </h3>
              </div>
            </div>
            
-           {/* 👇 Texto principal: Letra aumentada a casi 1rem en móviles normales */}
+           {/* 👇 TEXTO DE PÁRRAFOS: Incremento notorio a 1.1rem en móviles normales (1rem en pequeños) */}
            <div style={{ 
              color: '#dbe4ff', 
-             fontSize: isUltraNarrow ? '0.92rem' : (isMobile ? '1rem' : '0.95rem'), 
+             fontSize: isUltraNarrow ? '1rem' : (isMobile ? '1.1rem' : '0.95rem'), 
              lineHeight: isMobile ? 1.4 : 1.5 
            }}> 
              {item.content.map((block, i) => {
@@ -223,10 +224,10 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
                      backgroundColor: 'rgba(255,255,255,0.03)', 
                      borderRadius: '0 8px 8px 0' 
                    }}> 
-                     {/* 👇 Título del highlight aumentado */}
+                     {/* 👇 TÍTULO DEL HIGHLIGHT MÁS GRANDE */}
                      <h4 style={{ 
                        color: 'white', 
-                       fontSize: isUltraNarrow ? '0.92rem' : (isMobile ? '1rem' : '0.95rem'), 
+                       fontSize: isUltraNarrow ? '1rem' : (isMobile ? '1.1rem' : '0.95rem'), 
                        fontWeight: 800, 
                        marginBottom: '4px', 
                        textTransform: 'uppercase'
@@ -254,8 +255,8 @@ const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
                  color: 'white',
                  border: `1px solid ${item.color}`,
                  borderRadius: '12px',
-                 /* 👇 Botón un poco más legible en móviles */
-                 fontSize: isMobile ? '0.9rem' : '0.9rem', 
+                 /* 👇 BOTÓN: Texto más grande (1rem) en móviles */
+                 fontSize: isMobile ? '1rem' : '0.9rem', 
                  fontWeight: '800',
                  textTransform: 'uppercase',
                  letterSpacing: '1px',
