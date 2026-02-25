@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom'; // 1. IMPORTAMOS useParams y useNavigate
+import { useNavigate, useParams } from 'react-router-dom';
 
 // --- FUNCIÓN DE AYUDA PARA RUTAS ---
 const resolvePath = (path: string) => {
@@ -17,18 +17,18 @@ type OSType = 'mac' | 'windows' | 'linux' | 'default';
 // --- DICCIONARIO DE TEXTOS ---
 const ABOUT_TEXTS: any = {
   ES: {
-    titleStart: "Más que proveedores, somos su ",
-    titleHighlight: "Aliado de Innovación Tecnológica.",
-    paragraph: "Bocancorp es una corporación norteamericana con centros de operaciones estratégicos en Perú, Colombia y Estados Unidos. Nos especializamos en orquestar soluciones tecnológicas complejas para empresas que buscan escalabilidad y seguridad.",
-    highlightPhrase: "Perú, Colombia y Estados Unidos",
-    button: "CONÓCENOS MÁS"
+    titleStart: "Más que un proveedor, somos tu ",
+    titleHighlight: "Socio de Ingeniería de Élite.",
+    paragraph: "Bocancorp fusiona software de alto nivel con nubes globales. Operamos desde EE. UU., Perú y Colombia para diseñar sistemas escalables, seguros y siempre un paso adelante de la competencia.",
+    highlightPhrase: "EE. UU., Perú y Colombia",
+    button: "EXPLORA LA DIFERENCIA"
   },
   EN: {
-    titleStart: "More than vendors, we are your ",
-    titleHighlight: "Technological Innovation Ally.",
-    paragraph: "Bocancorp is a North American corporation with strategic operation centers in Peru, Colombia, and the United States. We specialize in orchestrating complex technological solutions for companies seeking scalability and security.",
-    highlightPhrase: "Peru, Colombia, and the United States",
-    button: "KNOW MORE"
+    titleStart: "More than a vendor, we are your ",
+    titleHighlight: "Elite Engineering Partner.",
+    paragraph: "Bocancorp merges high-level software with global clouds. We operate from the US, Peru, and Colombia to design scalable, secure systems that are always one step ahead of the competition.",
+    highlightPhrase: "the US, Peru, and Colombia",
+    button: "EXPLORE THE DIFFERENCE"
   }
 };
 
@@ -87,7 +87,7 @@ export const AboutUs = ({ isMobile }: AboutUsProps) => {
   const [os, setOs] = useState<OSType>('default');
   const navigate = useNavigate(); 
   
-  // 👇 2. NUEVA LÓGICA DE IDIOMA BASADA EN LA URL
+  // LÓGICA DE IDIOMA BASADA EN LA URL
   const { lang: urlLang } = useParams(); 
   const currentLang = urlLang === 'en' ? 'EN' : 'ES';
   const t = ABOUT_TEXTS[currentLang];
@@ -201,7 +201,6 @@ const renderWindowHeader = () => {
               ))}
             </p>
           </div>
-          {/* 👇 3. ACTUALIZAMOS LA NAVEGACIÓN CON EL IDIOMA ACTUAL */}
           <button onClick={() => navigate(`/${urlLang || 'es'}/nosotros`)} className="btn-primary">
             {t.button}
           </button>

@@ -1,26 +1,26 @@
-import { useState } from 'react'; // 👈 Quitamos useEffect
+import { useState } from 'react'; 
 import { Canvas } from '@react-three/fiber';
-import { useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
+import { useParams } from 'react-router-dom'; 
 import { InteractiveParticles } from './InteractiveParticles';
 
 // --- DICCIONARIO DE TEXTOS ---
 const HERO_TEXTS: any = {
   ES: {
-    title: "Ingeniería Multi-Cloud y Desarrollo de Software con visión estratégica."
+    title: "Tu negocio en la Nube, potenciado por Ingeniería de Elite.",
+    subtitle: "Construimos aplicaciones que no envejecen y estructuras cloud que se activan solas. El futuro de tu empresa se programa hoy."
   },
   EN: {
-    title: "Multi-Cloud Engineering and Strategic Software Development."
+    title: "Your business in the Cloud, powered by Elite Engineering.",
+    subtitle: "We build applications that don't age and cloud structures that self-activate. The future of your company is programmed today."
   }
 };
 
 export const HeroSection = () => {
   const [isHovering, setIsHovering] = useState(false);
   
-  // 👇 2. LEEMOS EL IDIOMA DIRECTO DE LA URL
+  // 👇 LEEMOS EL IDIOMA DIRECTO DE LA URL
   const { lang: urlLang } = useParams(); 
   const currentLang = urlLang === 'en' ? 'EN' : 'ES';
-
-  // (Borramos el useState y el useEffect de lang que estaban aquí)
 
   return (
     <section 
@@ -64,18 +64,22 @@ export const HeroSection = () => {
         pointerEvents: 'none'
       }}>
         
-        {/* 1. TÍTULO DINÁMICO */}
+        {/* 1. TÍTULO Y SUBTÍTULO DINÁMICO */}
         <div style={{ 
             flex: 1, 
             display: 'flex', 
+            flexDirection: 'column', // 👈 Apilamos título y subtítulo
             alignItems: 'center', 
             justifyContent: 'center',
-            paddingBottom: '50px' 
+            paddingBottom: '50px',
+            gap: '24px' // 👈 Espacio entre título y subtítulo
         }}>
             <h1 className="hero-title" style={{ pointerEvents: 'auto' }}>
-              {/* 👇 3. USAMOS EL IDIOMA DE LA URL */}
               {HERO_TEXTS[currentLang].title}
             </h1>
+            <p className="hero-subtitle" style={{ pointerEvents: 'auto' }}>
+              {HERO_TEXTS[currentLang].subtitle}
+            </p>
         </div>
 
         {/* 2. CARRUSEL (Pegado abajo) */}
@@ -106,6 +110,19 @@ export const HeroSection = () => {
             max-width: 1100px;
             filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3));
             transition: opacity 0.3s ease;
+        }
+        
+        /* 👇 Nuevos estilos para el subtítulo */
+        .hero-subtitle {
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-weight: 400;
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
+            line-height: 1.5;
+            color: #cbd5e1; /* Color gris claro/azulado que combina bien con fondos oscuros */
+            max-width: 850px;
+            margin: 0;
+            cursor: text;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
       `}</style>
     </section>

@@ -34,19 +34,19 @@ const SECTION_TEXTS: any = {
       software: {
         label: "Desarrollo de Software",
         items: [
-          { label: "Desarrollo de Soluciones Multiplataforma", id: 1 },
-          { label: "Ecosistemas Cloud & Modernización", id: 2 },
-          { label: "Diseño de Experiencia (UX/UI)", id: 3 },
-          { label: "Consultoría de Arquitectura TI", id: 4 }
+          { label: "Ingeniería de Software de Élite", id: 1 },
+          { label: "Infraestructura Cloud Inteligente", id: 2 },
+          { label: "Diseño de Experiencia Digital", id: 3 },
+          { label: "Arquitectura y Estrategia TI", id: 4 }
         ]
       },
       cloud: {
         label: "Soluciones en la Nube",
         items: [
-          { label: "Arquitectura Multi-Cloud & Serverless", id: 5 },
-          { label: "Ciberseguridad & Conectividad", id: 6 },
-          { label: "Cultura DevOps & Terraform", id: 7 },
-          { label: "FinOps & Optimización de Recursos", id: 8 }
+          { label: "Arquitectura Cloud & Serverless", id: 5 },
+          { label: "Ciberseguridad & Resiliencia", id: 6 },
+          { label: "Automatización & Terraform", id: 7 },
+          { label: "Gobierno & FinOps Proactivo", id: 8 }
         ]
       }
     }
@@ -59,19 +59,19 @@ const SECTION_TEXTS: any = {
       software: {
         label: "Software Development",
         items: [
-          { label: "Multi-platform Solutions Development", id: 1 },
-          { label: "Cloud Ecosystems & Modernization", id: 2 },
-          { label: "User Experience Design (UX/UI)", id: 3 },
-          { label: "IT Architecture Consulting", id: 4 }
+          { label: "Elite Software Engineering", id: 1 },
+          { label: "Smart Cloud Infrastructure", id: 2 },
+          { label: "Digital Experience Design", id: 3 },
+          { label: "IT Architecture & Strategy", id: 4 }
         ]
       },
       cloud: {
         label: "Cloud Solutions",
         items: [
-          { label: "Multi-Cloud & Serverless Architecture", id: 5 },
-          { label: "Cybersecurity & Networking", id: 6 },
-          { label: "DevOps Culture & Terraform", id: 7 },
-          { label: "FinOps & Resource Optimization", id: 8 }
+          { label: "Cloud & Serverless Architecture", id: 5 },
+          { label: "Cybersecurity & Resilience", id: 6 },
+          { label: "Automation & Terraform", id: 7 },
+          { label: "Governance & Proactive FinOps", id: 8 }
         ]
       }
     }
