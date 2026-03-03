@@ -10,8 +10,8 @@ const HERO_TEXTS: any = {
     subtitle: "Construimos aplicaciones que no envejecen y estructuras cloud que se activan solas. El futuro de tu empresa se programa hoy."
   },
   EN: {
-    title: "Your business in the Cloud, powered by Elite Engineering.",
-    subtitle: "We build applications that don't age and cloud structures that self-activate. The future of your company is programmed today."
+    title: "Elite Engineering Empowering Your Cloud Business.",
+    subtitle: "We build future-proof applications and self-provisioning cloud infrastructures. Your company's future is coded today."
   }
 };
 

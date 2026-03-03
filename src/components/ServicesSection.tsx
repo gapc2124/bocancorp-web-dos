@@ -56,20 +56,20 @@ const SECTION_TEXTS: any = {
     }
   },
   EN: {
-    heroTitlePrefix: "We lead the Cloud: ",
+    heroTitlePrefix: "Leading the Cloud: ",
     heroTitleHighlight: "AWS Select Partners",
-    heroTitleSuffix: " and Experts in Multi-Cloud Ecosystems.",
+    heroTitleSuffix: " and Multi-Cloud Ecosystem Experts.",
     heroSub: "",
-    ctaButton: "START THE TRANSFORMATION",
-    advantageTitle: "Competitive Advantage",
-    advantageDesc: "We create technology that doesn't expire. We don't just configure the cloud; we program robust software and automate infrastructures to make your company unstoppable.",
+    ctaButton: "START YOUR TRANSFORMATION",
+    advantageTitle: "The Competitive Edge",
+    advantageDesc: "We create timeless technology. We don't just configure the cloud; we engineer robust software and automate infrastructures to make your business unstoppable.",
     specialtiesTitle: "Our Specialties",
     cards: {
-      multicloud: { label: 'Cloud-Native', title: 'Cloud-Native Engineering', desc: 'We merge high-level code with global clouds. We develop applications that scale automatically, are secure, and always available.' },
-      software: { label: 'Elite Software', title: 'Elite Software', desc: 'High-precision software engineering. We build modular, fast systems ready to grow at the pace of your company.' },
-      ai: { label: 'Artificial Intelligence', title: 'Advanced AI Solutions', desc: 'Integration of LLMs to automate critical decisions.' }, // 👈 IA restaurada
-      aws: { label: 'AWS Partners', title: 'AWS Select Partners', desc: 'Strategies validated by Amazon. We deploy secure, stable environments certified under the highest global AWS standards.' },
-      finops: { label: 'FinOps', title: 'FinOps Strategy', desc: 'Real-time financial optimization. We reduce unnecessary spending by transforming your cloud into a smart and profitable investment.' }
+      multicloud: { label: 'Cloud-Native', title: 'Cloud-Native Engineering', desc: 'We fuse top-tier code with global cloud networks. We develop secure, highly available applications that scale seamlessly.' },
+      software: { label: 'Elite Software', title: 'Elite Software', desc: 'High-precision software engineering. We build fast, modular systems designed to grow right alongside your business.' },
+      ai: { label: 'Artificial Intelligence', title: 'Advanced AI Solutions', desc: 'LLM integration to automate critical decision-making.' }, 
+      aws: { label: 'AWS Partners', title: 'AWS Select Partners', desc: 'Strategies validated by Amazon. We deploy secure, stable, and certified environments built to the highest global AWS standards.' },
+      finops: { label: 'FinOps', title: 'FinOps Strategy', desc: 'Real-time financial optimization. We cut unnecessary spend, transforming your cloud into a smart, profitable investment.' }
     }
   }
 };

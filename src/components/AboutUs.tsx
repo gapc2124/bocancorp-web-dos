@@ -24,11 +24,11 @@ const ABOUT_TEXTS: any = {
     button: "EXPLORA LA DIFERENCIA"
   },
   EN: {
-    titleStart: "More than a vendor, we are your ",
+    titleStart: "More than just a vendor, we are your ",
     titleHighlight: "Elite Engineering Partner.",
-    paragraph: "Bocancorp merges high-level software with global clouds. We operate from the US, Peru, and Colombia to design scalable, secure systems that are always one step ahead of the competition.",
+    paragraph: "Bocancorp fuses top-tier software with global cloud networks. Operating out of the US, Peru, and Colombia, we design scalable, secure systems that keep you one step ahead of the competition.",
     highlightPhrase: "the US, Peru, and Colombia",
-    button: "EXPLORE THE DIFFERENCE"
+    button: "DISCOVER THE DIFFERENCE"
   }
 };
 
