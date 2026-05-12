@@ -40,7 +40,7 @@ export const HomePage = ({ isMobile }: HomePageProps) => {
   const currentLang: LanguageType = lang === 'en' ? 'EN' : 'ES';
   const t = TRANSLATIONS[currentLang];
 
-  return (
+return (
     <>
       {/* 1️⃣ SECCIÓN SEO (Invisible para el usuario, vital para Google) */}
       <Helmet>
@@ -52,6 +52,14 @@ export const HomePage = ({ isMobile }: HomePageProps) => {
         <meta property="og:title" content={t.seo.ogTitle} />
         <meta property="og:description" content={t.seo.ogDescription} />
         <meta property="og:image" content="assets/multi_cloud.png" />
+
+        {/* 👇 NUEVO: URL Canónica (Le dice a Google que esta URL es la oficial) */}
+        <link rel="canonical" href={`https://www.bocancorporation.com/${currentLang.toLowerCase()}`} />
+
+        {/* 👇 NUEVO: Hreflang (Le dice a Google qué URL mostrar según el idioma del usuario) */}
+        <link rel="alternate" hrefLang="es" href="https://www.bocancorporation.com/es" />
+        <link rel="alternate" hrefLang="en" href="https://www.bocancorporation.com/en" />
+        <link rel="alternate" hrefLang="x-default" href="https://www.bocancorporation.com/es" />
       </Helmet>
 
       {/* 2️⃣ CONTENIDO VISUAL */}
