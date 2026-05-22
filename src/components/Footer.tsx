@@ -1,8 +1,10 @@
+'use client';
 import React from 'react'; 
 import { Canvas } from '@react-three/fiber';
-import { Link, useParams } from 'react-router-dom'; 
+import Link from 'next/link';
+import { useParams } from 'next/navigation'; 
 import { Auroras } from './Auroras';
-import logoImg from '/assets/logo.png'; 
+ 
 
 // --- DICCIONARIO DE TEXTOS ---
 const FOOTER_TEXTS: any = {
@@ -93,7 +95,7 @@ export const Footer = () => {
         <div style={{ flex: '1 1 250px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '25px' }}>
             <img 
-              src={logoImg} 
+              src="/assets/logo.png" 
               alt="Bocancorp" 
               style={{ width: '40px', height: 'auto', objectFit: 'contain' }} 
             />
@@ -101,10 +103,10 @@ export const Footer = () => {
           </div>
           
           <nav style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <Link to={`/${prefix}`} className="footer-link-v2">{t.nav.home}</Link>
-            <Link to={`/${prefix}/servicios`} className="footer-link-v2">{t.nav.services}</Link>
-            <Link to={`/${prefix}/proyectos`} className="footer-link-v2">{t.nav.projects}</Link>
-            <Link to={`/${prefix}/nosotros`} className="footer-link-v2">{t.nav.about}</Link>
+            <Link href={`/${prefix}`} className="footer-link-v2">{t.nav.home}</Link>
+            <Link href={`/${prefix}/servicios`} className="footer-link-v2">{t.nav.services}</Link>
+            <Link href={`/${prefix}/proyectos`} className="footer-link-v2">{t.nav.projects}</Link>
+            <Link href={`/${prefix}/nosotros`} className="footer-link-v2">{t.nav.about}</Link>
           </nav>
         </div>
 

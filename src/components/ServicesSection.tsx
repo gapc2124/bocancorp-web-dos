@@ -1,9 +1,10 @@
+'use client';
 import React, { useState } from 'react'; 
-import { useNavigate, useParams } from 'react-router-dom'; 
+import { useRouter, useParams } from 'next/navigation'; 
 
 // --- 1. FUNCIÓN DE AYUDA PARA RUTAS (CRÍTICO: NO BORRAR) ---
 const resolvePath = (path: string) => {
-  const base = import.meta.env.BASE_URL || '/';
+  const base = (process.env.NEXT_PUBLIC_BASE_URL || '') || '/';
   const cleanPath = path.replace(/^(\.?\/)/, '');
   return `${base}${cleanPath}`;
 };
@@ -76,7 +77,8 @@ const SECTION_TEXTS: any = {
 
 export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
   const [activeId, setActiveId] = useState(CARDS_CONFIG[0].id);
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
 
   const { lang: urlLang } = useParams(); 
   const currentLang = urlLang === 'en' ? 'EN' : 'ES';

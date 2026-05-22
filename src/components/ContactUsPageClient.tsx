@@ -1,7 +1,8 @@
+'use client';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
-import { useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
+
+import { useParams } from 'next/navigation'; // 👈 1. Importamos useParams
 import 'react-phone-number-input/style.css';
 import PhoneInput from 'react-phone-number-input';
 import es from 'react-phone-number-input/locale/es'; 
@@ -193,16 +194,7 @@ export const ContactUsPage = ({ isMobile }: { isMobile: boolean }) => {
         display: 'flex', alignItems: 'center', justifyContent: 'center'
     }}>
       
-      <Helmet>
-        <title>{t.seo.title}</title>
-        <meta name="description" content={t.seo.desc} />
-        <meta name="keywords" content={t.seo.keywords} />
-        <meta property="og:title" content={t.seo.ogTitle} />
-        <meta property="og:description" content={t.seo.ogDesc} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://www.bocancorporation.com/contact" />
-        <meta property="og:image" content="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80" />
-      </Helmet>
+      
 
       <div style={{ 
           maxWidth: '1100px',

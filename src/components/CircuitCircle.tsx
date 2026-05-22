@@ -1,6 +1,6 @@
+'use client';
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import logoBocancorp from '/assets/logo.png';
 // Se usa import type para cumplir con verbatimModuleSyntax
 import type { Variants } from 'framer-motion';
 
@@ -75,11 +75,11 @@ export const CircuitCircle = ({ activeStep, stepIcons, isMobile }: CircuitCircle
                   width: isMobile ? '70px' : '110px', 
                   height: isMobile ? '70px' : '110px', 
                   backgroundColor: ACCENT_CYAN,
-                  WebkitMaskImage: `url(${logoBocancorp})`,
+                  WebkitMaskImage: `url('/assets/logo.png')`,
                   WebkitMaskSize: 'contain',
                   WebkitMaskRepeat: 'no-repeat',
                   WebkitMaskPosition: 'center',
-                  maskImage: `url(${logoBocancorp})`,
+                  maskImage: `url('/assets/logo.png')`,
                   maskSize: 'contain',
                   maskRepeat: 'no-repeat',
                   maskPosition: 'center',

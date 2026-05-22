@@ -1,16 +1,18 @@
+'use client';
 import { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname as useLocation, useRouter, useParams } from 'next/navigation';
 
 // --- UTILIDAD PARA RUTAS ---
 const resolvePath = (path: string) => {
-  const base = import.meta.env.BASE_URL || '/';
+  const base = (process.env.NEXT_PUBLIC_BASE_URL || '') || '/';
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
   return `${base}${cleanPath}`;
 };
 
 // --- COMPONENTE SCROLL TO TOP ---
 const ScrollToTop = () => {
-  const { pathname } = useLocation();
+  const pathname = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
@@ -43,12 +45,13 @@ type LanguageType = 'ES' | 'EN';
 
 export const Nav = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   
   // 👇 1. LEEMOS LA URL EN VEZ DEL LOCALSTORAGE
   const { lang } = useParams(); 
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
   const location = useLocation();
 
   const currentLang: LanguageType = lang === 'en' ? 'EN' : 'ES';
@@ -60,7 +63,7 @@ export const Nav = () => {
     setMobileMenuOpen(false);
     
     const newPrefix = newLang === 'EN' ? '/en' : '/es';
-    let currentPath = location.pathname;
+    let currentPath = location;
 
     // Reemplazamos /es o /en por el nuevo idioma manteniendo la página actual
     if (currentPath.startsWith('/es')) {
@@ -81,8 +84,8 @@ export const Nav = () => {
     const handleResize = () => {
       const mobile = window.innerWidth < 1024;
       setIsMobile(mobile);
-      if (!mobile) setMobileMenuOpen(false);
     };
+    handleResize(); // Call on mount
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -113,7 +116,7 @@ export const Nav = () => {
         }}
       >
         {/* LOGO - Ahora redirige a /es o /en */}
-        <Link to={`/${lang}`} style={{ textDecoration: 'none', zIndex: 102 }}>
+        <Link href={`/${lang}`} style={{ textDecoration: 'none', zIndex: 102 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <img 
                 src={resolvePath("assets/bocancorp-logo.png")} 
@@ -139,7 +142,7 @@ export const Nav = () => {
             {navItems.map((item) => (
                 <Link 
                   key={item.label} 
-                  to={item.path} 
+                  href={item.path} 
                   className="nav-link" 
                   style={{ color: 'white', textDecoration: 'none', fontWeight: 700, fontSize: '1rem' }}
                 >
@@ -149,7 +152,7 @@ export const Nav = () => {
 
             {/* BOTÓN CONTACTO (CTA) */}
             <Link 
-                to={`/${lang}/contacto`} 
+                href={`/${lang}/contacto`} 
                 className="btn-contact-nav"
                 style={{ 
                     backgroundColor: '#FAA918', 
@@ -219,7 +222,7 @@ export const Nav = () => {
            {navItems.map(item => (
              <Link 
                 key={item.label} 
-                to={item.path} 
+                href={item.path} 
                 className="nav-link" 
                 style={{ fontSize: '1.6rem', color: 'white', textDecoration: 'none', fontWeight: 'bold' }} 
                 onClick={() => setMobileMenuOpen(false)}
@@ -229,7 +232,7 @@ export const Nav = () => {
            ))}
            
            <Link 
-                to={`/${lang}/contacto`} 
+                href={`/${lang}/contacto`} 
                 style={{ 
                     backgroundColor: '#FAA918', color: '#000c2d', padding: '15px 40px', 
                     borderRadius: '50px', textDecoration: 'none', fontWeight: 800, fontSize: '1.4rem' 

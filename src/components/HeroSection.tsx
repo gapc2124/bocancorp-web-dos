@@ -1,6 +1,7 @@
+'use client';
 import { useState } from 'react'; 
 import { Canvas } from '@react-three/fiber';
-import { useParams } from 'react-router-dom'; 
+import { useParams } from 'next/navigation'; 
 import { InteractiveParticles } from './InteractiveParticles';
 
 // --- DICCIONARIO DE TEXTOS ---

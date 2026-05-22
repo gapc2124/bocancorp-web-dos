@@ -1,13 +1,14 @@
+'use client';
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useNavigate, useLocation, useParams } from 'react-router-dom'; 
+import { usePathname, useRouter, useParams, useSearchParams } from 'next/navigation'; 
 import { ShoppingCart, Bot, CloudUpload, LayoutDashboard, Cpu, BarChart3, ArrowRight, ChevronDown, Server, Shield, Globe, CheckCircle2 } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
+
 import { Canvas, useFrame } from '@react-three/fiber'; 
 import * as THREE from 'three';
 
 const resolvePath = (path: string) => {
-  const base = import.meta.env.BASE_URL || '/';
+  const base = (process.env.NEXT_PUBLIC_BASE_URL || '') || '/';
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
   return `${base}${cleanPath}`;
 };
@@ -265,8 +266,10 @@ const FlipCard = ({ project, isMobile, isSmall, onSelect, t }: { project: any, i
 // 5. COMPONENTE PRINCIPAL
 // ==========================================
 export const ProjectsPage = ({ isMobile }: { isMobile: boolean }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const projectsRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(null);
@@ -292,15 +295,16 @@ export const ProjectsPage = ({ isMobile }: { isMobile: boolean }) => {
 
   // 👇 CORRECCIÓN DEL BUG: Usamos useRef para garantizar que lea el state 1 sola vez
   useEffect(() => {
-    if (location.state && location.state.projectId && !hasConsumedState.current) {
-      const pIndex = companyProjects.findIndex((p: any) => p.id === location.state.projectId);
+    const projectId = searchParams.get('projectId');
+    if (projectId && !hasConsumedState.current) {
+      const pIndex = companyProjects.findIndex((p: any) => p.id === projectId);
       if (pIndex !== -1) { 
           handleSelectProject(pIndex); 
       }
       hasConsumedState.current = true; // Cerramos el candado
-      navigate(location.pathname, { replace: true, state: null }); // Limpiamos la mochila
+      router.replace(pathname); // Limpiamos la URL
     }
-  }, [location.state, location.pathname, navigate, companyProjects]);
+  }, [searchParams, pathname, router, companyProjects]);
 
   const scrollToProjects = () => {
     if (projectsRef.current) {
@@ -324,10 +328,7 @@ export const ProjectsPage = ({ isMobile }: { isMobile: boolean }) => {
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: '#00020a', color: '#ffffff', fontFamily: 'system-ui, -apple-system, sans-serif' }}>
       
-      <Helmet>
-        <title>{t.seoTitle}</title>
-        <meta name="description" content={t.seoDesc} />
-      </Helmet>
+      
 
       {/* HERO DE VIDEO */}
       <section style={{ position: 'relative', width: '100%', backgroundColor: '#000', overflow: 'hidden', paddingTop: isMobile ? '60px' : '85px' }}>

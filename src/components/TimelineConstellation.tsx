@@ -1,10 +1,11 @@
+'use client';
 import React, { useState, useRef, useMemo } from 'react'; // Quitamos useEffect
 import { motion, AnimatePresence } from 'framer-motion';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
 import * as THREE from 'three';
 import { shaderMaterial } from '@react-three/drei';
 import { Rocket, ShieldCheck, Globe, Building, Target, MapPin, X, Star } from 'lucide-react';
-import { useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
+import { useParams } from 'next/navigation'; // 👈 1. Importamos useParams
 
 // ==========================================
 // 1. INTERFACES Y TRADUCCIONES (HISTORIA BOCANCORP)

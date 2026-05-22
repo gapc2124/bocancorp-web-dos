@@ -1,6 +1,7 @@
+'use client';
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
+import { useParams } from 'next/navigation'; // 👈 1. Importamos useParams
 import { Cloud, Terminal, TrendingUp, Shield, Database, Cpu } from 'lucide-react';
 
 // ==========================================

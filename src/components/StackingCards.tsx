@@ -1,10 +1,11 @@
+'use client';
 import { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, MotionValue } from 'framer-motion';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useRouter, useParams } from 'next/navigation';
 
 // --- UTILIDAD PARA RUTAS DE IMÁGENES ---
 const resolvePath = (path: string) => {
-  const base = import.meta.env.BASE_URL || '/';
+  const base = (process.env.NEXT_PUBLIC_BASE_URL || '') || '/';
   const cleanPath = path.replace(/^(\.?\/)/, '');
   return `${base}${cleanPath}`;
 };
@@ -98,14 +99,16 @@ export const StackingCards = ({ data, isMobile }: StackingCardsProps) => {
 
 // --- SUB-COMPONENTE TARJETA ---
 const Card = ({ item, index, range, progress, isMobile }: CardProps) => {
-  const navigate = useNavigate(); 
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path); 
   const { lang: urlLang } = useParams(); 
   const currentLang = urlLang === 'en' ? 'EN' : 'ES';
   
-  const [isUltraNarrow, setIsUltraNarrow] = useState(window.innerWidth < 660);
+  const [isUltraNarrow, setIsUltraNarrow] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsUltraNarrow(window.innerWidth < 660);
+    handleResize(); // call on mount
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);

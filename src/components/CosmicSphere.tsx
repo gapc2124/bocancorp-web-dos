@@ -1,3 +1,4 @@
+'use client';
 import { useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';

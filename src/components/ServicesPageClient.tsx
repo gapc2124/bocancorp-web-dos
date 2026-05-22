@@ -1,19 +1,20 @@
+'use client';
 import React, { Suspense, useEffect, useState, useMemo } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment } from '@react-three/drei';
 import { motion } from 'framer-motion';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Helmet } from 'react-helmet-async';
+import { usePathname, useRouter, useParams } from 'next/navigation';
 
-import { CosmicSphere } from './components/CosmicSphere';
-import { StackingCards } from './components/StackingCards';
-import type { ServiceItem } from './components/StackingCards';
-import { SpecializedSolutions } from './components/SpecializedSolutions';
-import { StrategicPillars } from './components/StrategicPillars';
-import { VanguardMethodology } from './components/VanguardMethodology';
+
+import { CosmicSphere } from './CosmicSphere';
+import { StackingCards } from './StackingCards';
+import type { ServiceItem } from './StackingCards';
+import { SpecializedSolutions } from './SpecializedSolutions';
+import { StrategicPillars } from './StrategicPillars';
+import { VanguardMethodology } from './VanguardMethodology';
 
 const resolvePath = (path: string) => {
-  const base = import.meta.env.BASE_URL || '/';
+  const base = (process.env.NEXT_PUBLIC_BASE_URL || '') || '/';
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
   return `${base}${cleanPath}`;
 };
@@ -216,8 +217,9 @@ const HeroSection = ({ isMobile, title }: { isMobile: boolean, title: string }) 
 );
 
 export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
-  const { hash } = useLocation();
-  const navigate = useNavigate();
+  const hash = typeof window !== 'undefined' ? window.location.hash : '';
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
 
   const { lang: urlLang } = useParams(); 
   const currentLang = urlLang === 'en' ? 'EN' : 'ES';
@@ -243,10 +245,7 @@ export const ServicesPage = ({ isMobile }: { isMobile: boolean }) => {
 
   return (
     <div style={{ width: '100%', minHeight: '100vh', background: '#00020a', position: 'relative' }}>
-      <Helmet>
-        <title>{t.seoTitle}</title>
-        <meta name="description" content={t.seoDesc} />
-      </Helmet>
+      
 
       <HeroSection isMobile={isMobile} title={t.heroTitle} />
       

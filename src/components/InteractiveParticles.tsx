@@ -1,3 +1,4 @@
+'use client';
 import { useRef, useMemo } from 'react';
 // @ts-ignore
 import { useFrame, extend } from '@react-three/fiber';

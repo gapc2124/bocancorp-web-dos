@@ -1,6 +1,7 @@
+'use client';
 import React from 'react'; // 👈 Quitamos useState y useEffect
 import { motion } from 'framer-motion';
-import { useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
+import { useParams } from 'next/navigation'; // 👈 1. Importamos useParams
 
 // ==========================================
 // 1. DICCIONARIO DE TRADUCCIONES

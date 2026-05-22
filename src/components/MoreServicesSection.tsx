@@ -1,6 +1,8 @@
+'use client';
 import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
-import { Link, useLocation, useParams } from 'react-router-dom';
+import Link from 'next/link';
+import { usePathname as useLocation, useParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Torus, 
@@ -221,7 +223,7 @@ const ServiceButton = ({ item, id, themeColor, urlLang }: { item: string, id: nu
     const location = useLocation();
 
     const handleClick = (e: React.MouseEvent) => {
-        if (location.pathname.includes('/servicios')) {
+        if (location.includes('/servicios')) {
             e.preventDefault(); 
             const element = document.getElementById(`service-${id}`);
             if (element) {
@@ -238,7 +240,7 @@ const ServiceButton = ({ item, id, themeColor, urlLang }: { item: string, id: nu
 
     return (
         <Link 
-            to={`/${urlLang}/servicios#service-${id}`} 
+            href={`/${urlLang}/servicios#service-${id}`} 
             onClick={handleClick} 
             style={{ textDecoration: 'none', width: '100%' }}
         >

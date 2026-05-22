@@ -1,7 +1,8 @@
+'use client';
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, CheckCircle2, Building } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom'; // 👈 1. Importamos useParams
+import { useRouter, useParams } from 'next/navigation'; // 👈 1. Importamos useParams
 
 interface VanguardMethodologyProps {
   isMobile: boolean;
@@ -42,7 +43,8 @@ const TRANSLATIONS: any = {
 };
 
 export const VanguardMethodology = ({ isMobile }: VanguardMethodologyProps) => {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
 
   // 👇 2. LEEMOS EL IDIOMA DIRECTO DE LA URL
   const { lang: urlLang } = useParams(); 

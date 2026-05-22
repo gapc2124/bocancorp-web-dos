@@ -1,21 +1,22 @@
+'use client';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Server, Terminal, Shield, TrendingUp, ChevronDown, 
   ArrowRight, Search, PenTool, Rocket, ShieldCheck 
 } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useRouter, useParams } from 'next/navigation';
 import { Canvas, useFrame } from '@react-three/fiber'; // 👈 Importamos useFrame
 import * as THREE from 'three'; // 👈 Importamos THREE para las estrellas
-import { Helmet } from 'react-helmet-async';
+
 
 // COMPONENTES EXTERNOS
-import { TimelineConstellation } from './components/TimelineConstellation'; 
-import { Auroras } from './components/Auroras'; 
-import { CircuitCircle } from './components/CircuitCircle';
+import { TimelineConstellation } from './TimelineConstellation'; 
+import { Auroras } from './Auroras'; 
+import { CircuitCircle } from './CircuitCircle';
 
 const resolvePath = (path: string) => {
-  const base = import.meta.env.BASE_URL || '/';
+  const base = (process.env.NEXT_PUBLIC_BASE_URL || '') || '/';
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
   return `${base}${cleanPath}`;
 };
@@ -147,7 +148,8 @@ const StarryBackground = () => {
 };
 
 export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path);
   const [activeStepBtn, setActiveStepBtn] = useState<number | null>(null);
 
   // LEEMOS EL IDIOMA DESDE LA URL
@@ -169,13 +171,7 @@ export const AboutUsPage = ({ isMobile }: { isMobile: boolean }) => {
   return (
     <div style={{ width: '100%', minHeight: '100vh', backgroundColor: BG_DEEP, color: 'white' }}>
       
-      <Helmet>
-        <title>{t.seoTitle}</title>
-        <meta name="description" content={t.seoDesc} />
-        <meta name="keywords" content={t.seoKeywords} />
-        <meta property="og:title" content={t.seoOgTitle} />
-        <meta property="og:description" content={t.seoOgDesc} />
-      </Helmet>
+      
 
       {/* 🟦 1️⃣ HERO (AURORAS) */}
       <section style={{ position: 'relative', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>

@@ -1,13 +1,14 @@
+'use client';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
 import * as THREE from 'three';
 import { shaderMaterial } from '@react-three/drei';
-import { useNavigate, useParams } from 'react-router-dom'; 
-import { Helmet } from 'react-helmet-async';
+import { useRouter, useParams } from 'next/navigation'; 
+
 import { Server, Shield, CloudUpload, Bot, Cpu, Globe } from 'lucide-react';
 
 const resolvePath = (path: string) => {
-  const base = import.meta.env.BASE_URL || '/';
+  const base = (process.env.NEXT_PUBLIC_BASE_URL || '') || '/';
   const cleanPath = path.replace(/^(\.?\/)/, '');
   return `${base}${cleanPath}`;
 };
@@ -125,9 +126,10 @@ const AmbientParticles = () => {
 // 4. COMPONENTE TARJETA ESTÁTICA 100% 2D
 // ==========================================
 const ProjectCardStatic = ({ project, isMobile, buttonText, urlLang }: { project: Project, isMobile: boolean, buttonText: string, urlLang: string }) => {
-  const navigate = useNavigate(); 
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path); 
   const handleNavigate = () => { 
-      navigate(`/${urlLang}/proyectos`, { state: { projectId: project.id } }); 
+      navigate(`/${urlLang}/proyectos?projectId=${project.id}`); 
   };
 
   return (
@@ -270,10 +272,7 @@ export const ProjectsGalaxy = ({ isMobile }: { isMobile: boolean }) => {
   return (
     <section style={{ width: '100%', minHeight: '100vh', position: 'relative', backgroundColor: '#000c2d', padding: isMobile ? '30px 10px' : '60px 40px', display: 'flex', flexDirection: 'column', alignItems: 'center', overflowX: 'hidden' }}>
       
-      <Helmet>
-        <title>{t.seoTitle}</title>
-        <meta name="description" content={t.seoDesc} />
-      </Helmet>
+      
 
       <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0, pointerEvents: 'none' }}>
         <Canvas camera={{ position: [0, 0, 10], fov: 75 }}><AmbientParticles /></Canvas>

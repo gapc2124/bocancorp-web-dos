@@ -1,9 +1,10 @@
+'use client';
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useRouter, useParams } from 'next/navigation';
 
 // --- FUNCIÓN DE AYUDA PARA RUTAS ---
 const resolvePath = (path: string) => {
-  const base = import.meta.env.BASE_URL || '/';
+  const base = (process.env.NEXT_PUBLIC_BASE_URL || '') || '/';
   const cleanPath = path.replace(/^(\.?\/)/, '');
   return `${base}${cleanPath}`;
 };
@@ -85,7 +86,8 @@ const CosmosBackground = () => {
 
 export const AboutUs = ({ isMobile }: AboutUsProps) => {
   const [os, setOs] = useState<OSType>('default');
-  const navigate = useNavigate(); 
+  const router = useRouter();
+  const navigate = (path: string) => router.push(path); 
   
   // LÓGICA DE IDIOMA BASADA EN LA URL
   const { lang: urlLang } = useParams(); 
