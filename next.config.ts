@@ -14,6 +14,46 @@ const nextConfig: NextConfig = {
         destination: '/es',
         permanent: true,
       },
+      {
+        source: '/contacto',
+        destination: '/es/contacto',
+        permanent: true,
+      },
+      {
+        source: '/nosotros',
+        destination: '/es/nosotros',
+        permanent: true,
+      },
+      {
+        source: '/proyectos',
+        destination: '/es/proyectos',
+        permanent: true,
+      },
+      {
+        source: '/servicios',
+        destination: '/es/servicios',
+        permanent: true,
+      },
+      {
+        source: '/about-us',
+        destination: '/es/nosotros',
+        permanent: true,
+      },
+      {
+        source: '/contact-us',
+        destination: '/es/contacto',
+        permanent: true,
+      },
+      {
+        source: '/terms&conditions',
+        destination: '/es',
+        permanent: true,
+      },
+      {
+        source: '/services/:path*',
+        destination: '/es/servicios',
+        permanent: true,
+      },
     ];
   },
 };

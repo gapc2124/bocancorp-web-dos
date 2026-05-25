@@ -8,13 +8,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const sitemapEntries: MetadataRoute.Sitemap = [];
 
-  langs.forEach((lang) => {
-    routes.forEach((route) => {
+  routes.forEach((route) => {
+    langs.forEach((lang) => {
       sitemapEntries.push({
         url: `${baseUrl}/${lang}${route}`,
         lastModified: new Date(),
         changeFrequency: 'weekly',
         priority: route === '' ? 1 : 0.8,
+        alternates: {
+          languages: {
+            es: `${baseUrl}/es${route}`,
+            en: `${baseUrl}/en${route}`,
+            'x-default': `${baseUrl}/es${route}`,
+          },
+        },
       });
     });
   });
