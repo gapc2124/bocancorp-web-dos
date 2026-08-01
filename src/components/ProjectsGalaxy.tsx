@@ -125,11 +125,11 @@ const AmbientParticles = () => {
 // ==========================================
 // 4. COMPONENTE TARJETA ESTÁTICA 100% 2D
 // ==========================================
-const ProjectCardStatic = ({ project, isMobile, buttonText, urlLang }: { project: Project, isMobile: boolean, buttonText: string, urlLang: string }) => {
+const ProjectCardStatic = ({ activeProject, allProjects, isMobile, buttonText, urlLang }: { activeProject: Project, allProjects: Project[], isMobile: boolean, buttonText: string, urlLang: string }) => {
   const router = useRouter();
   const navigate = (path: string) => router.push(path); 
   const handleNavigate = () => { 
-      navigate(`/${urlLang}/proyectos?projectId=${project.id}`); 
+      navigate(`/${urlLang}/proyectos?projectId=${activeProject.id}`); 
   };
 
   return (
@@ -138,20 +138,35 @@ const ProjectCardStatic = ({ project, isMobile, buttonText, urlLang }: { project
             width: '100%', maxWidth: isMobile ? '90vw' : '400px', height: isMobile ? '400px' : '480px', 
             margin: '0 auto', borderRadius: '30px', display: 'flex', flexDirection: 'column',
             alignItems: 'center', justifyContent: 'center', padding: isMobile ? '20px' : '30px',
-            border: `2px solid ${project.color}`,
+            border: `2px solid ${activeProject.color}`,
             backgroundColor: '#00020a', 
-            boxShadow: `0 0 30px ${project.color}30`,
+            boxShadow: `0 0 30px ${activeProject.color}30`,
             transition: 'all 0.4s ease',
             cursor: 'pointer'
         }} 
         onClick={handleNavigate}
-        onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-10px)'; e.currentTarget.style.boxShadow = `0 15px 40px ${project.color}60`; }}
-        onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 0 30px ${project.color}30`; }}
+        onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-10px)'; e.currentTarget.style.boxShadow = `0 15px 40px ${activeProject.color}60`; }}
+        onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 0 30px ${activeProject.color}30`; }}
     >
-        <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px' }}>
-            <img src={resolvePath(project.img)} alt={project.name} style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }} />
+        <div style={{ flex: 1, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px', position: 'relative' }}>
+            {allProjects.map((p) => (
+                <img 
+                    key={p.id}
+                    src={resolvePath(p.img)} 
+                    alt={p.name} 
+                    style={{ 
+                        position: 'absolute',
+                        maxWidth: '90%', 
+                        maxHeight: '90%', 
+                        objectFit: 'contain',
+                        opacity: p.id === activeProject.id ? 1 : 0,
+                        transition: 'opacity 0.4s ease',
+                        pointerEvents: p.id === activeProject.id ? 'auto' : 'none'
+                    }} 
+                />
+            ))}
         </div>
-        <button style={{ marginTop: '15px', padding: '15px 40px', background: project.color, border: 'none', borderRadius: '50px', color: '#000c2d', fontWeight: '900', fontSize: '1.1rem', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '1px', pointerEvents: 'none' }}>
+        <button style={{ marginTop: '15px', padding: '15px 40px', background: activeProject.color, border: 'none', borderRadius: '50px', color: '#000c2d', fontWeight: '900', fontSize: '1.1rem', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '1px', pointerEvents: 'none', transition: 'background 0.4s ease' }}>
             {buttonText}
         </button>
     </div>
@@ -288,7 +303,7 @@ export const ProjectsGalaxy = ({ isMobile }: { isMobile: boolean }) => {
             <SolarSystem projects={projects as Project[]} activeId={activeId} onSelect={setActiveId} isMobile={isMobile} hintText={t.hintText} />
           </div>
           <div style={{ flex: '0 1 450px', minWidth: '280px', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 30, order: isMobile ? 1 : 2, marginTop: isMobile ? '60px' : '0' }}>
-            <ProjectCardStatic project={activeProject as Project} isMobile={isMobile} buttonText={t.cardButton} urlLang={currentLang.toLowerCase()} />
+            <ProjectCardStatic activeProject={activeProject as Project} allProjects={projects as Project[]} isMobile={isMobile} buttonText={t.cardButton} urlLang={currentLang.toLowerCase()} />
             <div style={{ display: 'flex', gap: '30px', marginTop: '30px' }}>
               <button onClick={handlePrev} style={arrowBtnStyle}>←</button>
               <button onClick={handleNext} style={arrowBtnStyle}>→</button>
