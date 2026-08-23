@@ -43,19 +43,19 @@ export default async function Home() {
       </div>
       
       <div id="servicios">
-        <ServicesSection isMobile={isMobile} />
+        <ServicesSection />
       </div>
       
       <div id="mas-servicios">
-        <MoreServicesSection isMobile={isMobile} />
+        <MoreServicesSection />
       </div>
       
       <div id="nosotros">
-        <AboutUs isMobile={isMobile} />
+        <AboutUs />
       </div>
 
       <div id="proyectos">
-        <ProjectsGalaxy isMobile={isMobile} />
+        <ProjectsGalaxy />
       </div>
     </>
   );

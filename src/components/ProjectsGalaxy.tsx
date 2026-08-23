@@ -6,6 +6,7 @@ import { shaderMaterial } from '@react-three/drei';
 import { useRouter, useParams } from 'next/navigation'; 
 
 import { Server, Shield, CloudUpload, Bot, Cpu, Globe } from 'lucide-react';
+import { useIsMobile } from '../hooks/useIsMobile';
 
 const resolvePath = (path: string) => {
   const base = (process.env.NEXT_PUBLIC_BASE_URL || '') || '/';
@@ -179,9 +180,10 @@ const ProjectCardStatic = ({ activeProject, allProjects, isMobile, buttonText, u
 const SolarSystem = ({ projects, activeId, onSelect, isMobile, hintText }: { projects: Project[], activeId: string, onSelect: (id: string) => void, isMobile: boolean, hintText: string }) => {
   const requestRef = useRef<number>(0);
   const angles = useRef(projects.map((p) => p.initialAngle * (Math.PI / 180)));
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  const [windowWidth, setWindowWidth] = useState(1200);
 
   useEffect(() => {
+    setWindowWidth(window.innerWidth);
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -217,9 +219,7 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile, hintText }: { pro
           const isActive = activeId === p.id;
           const currentRadius = isSmallScreen ? p.orbitRadius * 0.9 : p.orbitRadius;
           
-          // 👇 Círculos contenedores ligeramente más grandes en móvil
           const size = isActive ? (isMobile ? 140 : 130) : (isMobile ? 100 : 90);
-          // 👇 Tamaño dinámico para el SVG de Lucide
           const iconSize = isMobile ? 55 : 42; 
           
           return (
@@ -235,7 +235,6 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile, hintText }: { pro
                     transition: 'all 0.3s', 
                     position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' 
                 }}>
-                  {/* 👇 Inyectamos el tamaño calculado al componente de Lucide */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       {p.icon(iconSize)}
                   </div>
@@ -254,7 +253,8 @@ const SolarSystem = ({ projects, activeId, onSelect, isMobile, hintText }: { pro
 // ==========================================
 // 5. COMPONENTE PRINCIPAL
 // ==========================================
-export const ProjectsGalaxy = ({ isMobile }: { isMobile: boolean }) => {
+export const ProjectsGalaxy = () => {
+  const isMobile = useIsMobile(1024);
   const [activeId, setActiveId] = useState<string>(PROJECTS_CONFIG[0].id);
   
   const { lang: urlLang } = useParams(); 

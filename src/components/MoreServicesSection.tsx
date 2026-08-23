@@ -279,7 +279,10 @@ const ServiceButton = ({ item, id, themeColor, urlLang }: { item: string, id: nu
 // =====================================================================
 // COMPONENTE PRINCIPAL
 // =====================================================================
-export const MoreServicesSection = ({ isMobile }: { isMobile: boolean }) => {
+import { useIsMobile } from '../hooks/useIsMobile';
+
+export const MoreServicesSection = () => {
+  const isMobile = useIsMobile(1024);
   const [activeCategory, setActiveCategory] = useState<CategoryKey>('software');
   const [isCanvasInteractive, setIsCanvasInteractive] = useState(!isMobile);
   

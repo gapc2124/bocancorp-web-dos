@@ -9,10 +9,6 @@ const resolvePath = (path: string) => {
   return `${base}${cleanPath}`;
 };
 
-interface AboutUsProps {
-  isMobile: boolean;
-}
-
 type OSType = 'mac' | 'windows' | 'linux' | 'default';
 
 // --- DICCIONARIO DE TEXTOS ---
@@ -84,7 +80,10 @@ const CosmosBackground = () => {
   );
 };
 
-export const AboutUs = ({ isMobile }: AboutUsProps) => {
+import { useIsMobile } from '../hooks/useIsMobile';
+
+export const AboutUs = () => {
+  const isMobile = useIsMobile(1024);
   const [os, setOs] = useState<OSType>('default');
   const router = useRouter();
   const navigate = (path: string) => router.push(path); 

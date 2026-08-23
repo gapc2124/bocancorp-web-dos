@@ -29,7 +29,7 @@ export const HeroSection = () => {
         position: 'relative',
         width: '100%',
         minHeight: '90vh', 
-        paddingTop: '140px', 
+        paddingTop: 'clamp(100px, 15vh, 140px)', 
         paddingBottom: '0', 
         display: 'flex',
         flexDirection: 'column',
@@ -100,9 +100,9 @@ export const HeroSection = () => {
         .hero-title {
             font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             font-weight: 800;
-            font-size: clamp(2.5rem, 5vw, 5.5rem); 
+            font-size: clamp(2.2rem, 8vw, 5.5rem); 
             line-height: 1.1;
-            letter-spacing: -2px;
+            letter-spacing: clamp(-2px, -0.2vw, -1px);
             margin-bottom: 0;
             background: linear-gradient(to right, #ffffff 30%, #FAA918 100%);
             -webkit-background-clip: text;
@@ -117,7 +117,7 @@ export const HeroSection = () => {
         .hero-subtitle {
             font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             font-weight: 400;
-            font-size: clamp(1.1rem, 2vw, 1.4rem);
+            font-size: clamp(1rem, 3vw, 1.4rem);
             line-height: 1.5;
             color: #cbd5e1; /* Color gris claro/azulado que combina bien con fondos oscuros */
             max-width: 850px;

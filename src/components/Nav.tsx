@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname as useLocation, useRouter, useParams } from 'next/navigation';
+import { Menu, X } from 'lucide-react';
 
 // --- UTILIDAD PARA RUTAS ---
 const resolvePath = (path: string) => {
@@ -205,8 +206,8 @@ export const Nav = () => {
         {/* BOTÓN HAMBURGUESA (Móvil) */}
         {isMobile && (
           // 👇 REDUCIMOS EL PADDING DEL BOTÓN PARA QUE NO HAGA MÁS ALTO EL NAV
-          <div className="mobile-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ color: 'white', fontSize: '1.4rem', cursor: 'pointer', zIndex: 102, padding: '5px' }}>
-            <i className={`fa-solid ${mobileMenuOpen ? 'fa-xmark' : 'fa-bars'}`}></i>
+          <div className="mobile-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} style={{ color: 'white', cursor: 'pointer', zIndex: 102, padding: '5px', display: 'flex', alignItems: 'center' }}>
+            {mobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </div>
         )}
       </nav>

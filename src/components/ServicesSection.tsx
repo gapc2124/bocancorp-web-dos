@@ -9,10 +9,6 @@ const resolvePath = (path: string) => {
   return `${base}${cleanPath}`;
 };
 
-interface ServicesSectionProps {
-  isMobile: boolean;
-}
-
 // --- 2. CONFIGURACIÓN ESTÁTICA (5 Tarjetas) ---
 const CARDS_CONFIG = [
   {
@@ -75,7 +71,10 @@ const SECTION_TEXTS: any = {
   }
 };
 
-export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
+import { useIsMobile } from '../hooks/useIsMobile';
+
+export const ServicesSection = () => {
+  const isMobile = useIsMobile(1024);
   const [activeId, setActiveId] = useState(CARDS_CONFIG[0].id);
   const router = useRouter();
   const navigate = (path: string) => router.push(path);
@@ -176,7 +175,7 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
         .services-section {
           position: relative;
           width: 100%;
-          padding: clamp(240px, 20vh, 320px) clamp(20px, 5vw, 100px);
+          padding: clamp(150px, 15vh, 240px) clamp(20px, 5vw, 100px);
           z-index: 10;
           background-color: #ffffff;
           overflow: hidden;
@@ -186,7 +185,7 @@ export const ServicesSection = ({ isMobile }: ServicesSectionProps) => {
           position: relative;
           z-index: 20;
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(min(100%, 350px), 1fr));
           gap: clamp(40px, 4vw, 80px);
           align-items: start;
           max-width: 1400px;
